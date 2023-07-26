@@ -1,0 +1,67 @@
+{% trans_default_domain("admin.wildberries.manufacture") %}
+
+{% set ROLE = 'ROLE_USERPROFILE' %}
+
+{# ---- ШАБЛОН ------------------------------------------------------------ #}
+{% extends Template('/admin/base.html.twig') %}
+
+{# ---- CSS ------------------------------------------------------------ #}
+{% block title %}
+    {{ 'admin.page.index'|trans }}
+{% endblock %}
+
+{# ---- CSS ------------------------------------------------------------ #}
+{% block stylesheets %}
+    <link href="/assets/plugins/nice-select2/nice-select2.min.css" rel="stylesheet">
+
+    <style>
+        .blink {
+            color: rgb(255, 0, 0);
+            -webkit-animation: blink 2s linear infinite;
+            animation: blink 2s linear infinite;
+        }
+        @-webkit-keyframes blink {
+            50% { color: rgb(255, 0, 0); }
+            51% { color: rgba(255, 0, 0, 0); }
+            100% { color: rgba(255, 0, 0, 0); }
+        }
+        @keyframes blink {
+            50% { color: rgb(255, 0, 0); }
+            51% { color: rgba(255, 0, 0, 0); }
+            100% { color: rgba(255, 0, 0, 0); }
+        }
+    </style>
+
+{% endblock %}
+
+
+{# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
+{% block content %}
+    {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/content.html.twig" })) }}
+
+{% endblock %}
+
+
+{# ---- FOOTER-БЛОК ------------------------------------------------------------ #}
+{#
+{% block footer %}
+    {{ include(_self|replace({ "template.html.twig": "footer.html.twig" })) }}
+{% endblock %}
+#}
+
+{% block javascript %}
+
+<script async data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}' class='lazy'></script>
+
+<script nonce="{{ csp_nonce() }}">
+document.addEventListener("DOMContentLoaded", (event) => {
+
+	const form = document.forms.wb_orders_filter_form;
+	form.addEventListener('change', () => { form.submit(); });
+
+	const profile_form = document.forms.profile_filter_form_admin ? document.forms.profile_filter_form_admin : document.forms.profile_filter_form;
+	profile_form.addEventListener('change', () => { profile_form.submit(); });
+
+});
+</script>
+{% endblock %}

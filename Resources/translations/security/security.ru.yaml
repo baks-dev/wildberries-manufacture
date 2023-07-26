@@ -1,0 +1,16 @@
+# Роль
+
+ROLE_WB_MANUFACTURE:
+  name: 'Настройки соотношений'
+  desc: 'Настройки соотношений данных Wildberries'
+
+# Правила
+
+ROLE_WB_MANUFACTURE_NEW:
+  name: 'Добавить'
+
+ROLE_WB_MANUFACTURE_EDIT:
+  name: 'Редактировать'
+
+ROLE_WB_MANUFACTURE_DELETE:
+  name: 'Удалить'

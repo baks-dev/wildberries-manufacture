@@ -1,0 +1,19 @@
+# Role
+
+ROLE_WB_MANUFACTURE:
+  name: 'Ratio settings'
+  desc: 'Wildberries data ratio settings'
+
+# Rules
+
+ROLE_WB_MANUFACTURE_NEW:
+  name: 'Add'
+
+ROLE_WB_MANUFACTURE_EDIT:
+  name: 'Edit'
+
+ROLE_WB_PRODUCTS_SETTING_DELETE:
+  name: 'Delete'
+
+
+
