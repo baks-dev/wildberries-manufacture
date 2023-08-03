@@ -1,26 +1,40 @@
 admin:
   page:
-    index: 'Настройка соотношений свойств'
-    new: 'Добавить настройку соотношение свойств'
-    edit: 'Редактировать настройку соотношение свойств'
-    delete: 'Удалить настройку соотношение свойств'
+    index: 'Production of Wildberries'
+    new: 'Add production batch of Wildberries'
+    edit: 'Edit Wildberries Production Batch'
+    delete: 'Delete production batch of Wildberries'
+    restore: 'Restore production batch of Wildberries'
+    add: 'Add product to batch of Wildberries'
+    package: 'Send to production line'
+
 
   breadcrumb:
-    index: 'Настройка соотношений свойств карточки товаров Wildberries'
-    new: 'Добавить настройку соотношений свойств карточки товаров Wildberries'
-    edit: 'Редактировать настройку соотношений свойств карточки товаров Wildberries'
-    delete: 'Удалить настройку соотношений свойств карточки товаров Wildberries'
+    index: 'Lots for the production of Wildberries'
+    new: 'Add production batch for Wildberries'
+    edit: 'Edit production batch for Wildberries'
+    delete: 'Delete batch for Wildberries production'
+    restore: 'Restore batch to produce Wildberries'
+    add: 'Add product to Wildberries production batch'
+
 
   success:
-    new: 'Настройка соотношений успешно добавлена'
-    edit: 'Настройка соотношений успешно обновлена'
-    delete: 'Настройка соотношений Wildberries успешно удалена'
-    restore: 'Настройка соотношений Wildberries успешно восстановлена'
+    new: 'Batch for the production of Wildberries products has been successfully opened'
+    edit: 'Wildberries production batch updated successfully'
+    delete: 'Wildberries production batch successfully deleted'
+    restore: 'Wildberries production batch successfully restored'
+    add: 'Product added successfully'
 
   danger:
-    new: '%s: Ошибка при добавлении настройки соотношений Wildberries'
-    edit: '%s: Ошибка при обновлении настройки соотношений Wildberries'
-    delete: '%s: Ошибка при обновлении настройки соотношений Wildberries'
-    restore:  '%s: Ошибка при восстановлении настройки соотношений Wildberries'
+    new: '%s: Error opening a production batch for Wildberries'
+    edit: '%s: Error updating batch to produce Wildberries'
+    delete: '%s: Error while deleting batch for production of Wildberries'
+    restore: '%s: An error occurred while restoring a production batch for Wildberries'
+    add: '%s: Error adding product to production batch of Wildberries'
+    exist: 'You already have an open Wildberries production process for this category'
 
 
+  form:
+    label:
+      delete: 'Are you sure you want to delete the Wildberries production request'
+      package: 'Are you sure you want to send a batch of Wildberries to the production line?'

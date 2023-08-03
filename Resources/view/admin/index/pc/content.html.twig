@@ -1,4 +1,4 @@
-{% trans_default_domain('admin.wildberries.manufacture') %}
+{% trans_default_domain('admin.wb.manufacture') %}
 
 
 <main class="main ">
@@ -9,7 +9,7 @@
             {{ include(_self|replace({ "content.html.twig": "_breadcrumb.html.twig" })) }}
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
 
             <div class="w-100">
                 <h1 class="h4 text-uppercase fw-bolder mb-0">
@@ -17,6 +17,72 @@
                 </h1>
             </div>
 
+
+            <button {# href="{{ path('ProductStocks:admin.purchase.index') }}" #}
+                    class="btn btn-light opacity-25"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Производство продукции Wildberries"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-boxes"
+                     viewBox="0 0 16 16">
+                    <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434L7.752.066ZM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567L4.25 7.504ZM7.5 9.933l-2.75 1.571v3.134l2.75-1.571V9.933Zm1 3.134 2.75 1.571v-3.134L8.5 9.933v3.134Zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567-2.742 1.567Zm2.242-2.433V3.504L8.5 5.076V8.21l2.75-1.572ZM7.5 8.21V5.076L4.75 3.504v3.134L7.5 8.21ZM5.258 2.643 8 4.21l2.742-1.567L8 1.076 5.258 2.643ZM15 9.933l-2.75 1.571v3.134L15 13.067V9.933ZM3.75 14.638v-3.134L1 9.933v3.134l2.75 1.571Z"/>
+                </svg>
+            </button>
+
+
+            <a href="{{ path('ManufacturePart:admin.manufacture') }}"
+               class="btn btn-light"
+               data-bs-toggle="tooltip"
+               data-bs-placement="bottom"
+               title="Список производственных партий"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
+                     class="bi bi-card-checklist" viewBox="0 0 16 16">
+                    <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
+                    <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </a>
+
+            {% if opens %}
+                <a href="{{ path('WildberriesManufacture:admin.newedit.new') }}"
+                   class="btn modal-btn modal-link btn-primary text-nowrap" data-bs-toggle="modal"
+                   data-bs-target="#modal"
+                   title="Открыть производственную партию">
+                    Добавить партию
+                </a>
+            {% endif %}
+
+        </div>
+
+        {% for item in opens %}
+            {# Партия производства #}
+            {{ include(_self|replace({ "content.html.twig": "part.html.twig" })) }}
+        {% else %}
+            <div class="alert alert-secondary d-flex justify-content-between align-items-center" role="alert">
+                <span>
+                    У Вас нет  открытых производственных партий
+                </span>
+
+                <a href="{{ path('WildberriesManufacture:admin.newedit.new') }}"
+                   class="btn modal-btn modal-link btn-primary text-nowrap" data-bs-toggle="modal"
+                   data-bs-target="#modal"
+                   title="Открыть производственную партию">
+                    Открыть  новую партию
+                </a>
+            </div>
+
+        {% endfor %}
+
+
+
+        <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
+
+            <div class="w-100">
+                <h2 class="h5 text-uppercase fw-bolder mb-0">
+                    Заказы  Wildberries
+                </h2>
+            </div>
 
             <div class="w-100 d-flex align-items-center gap-3 justify-content-end">
                 {{ form_start(profile) }}
@@ -30,15 +96,8 @@
                 {{ form_end(profile) }}
             </div>
 
-            {# Добавить #}
-            {# {% if is_granted(ROLE~'_NEW') or is_granted('ROLE_ADMIN') %}
-				<a href="{{ path('ProfileType:admin.newedit.new') }}" class="btn btn-danger fw-bolder">
-					{{ 'btn.new'|trans({}, 'core.btn') }}
-				</a>
-			{% endif %} #}
-
-
         </div>
+
 
         <div class="border  border-light rounded-4 p-3 mb-3">
             <div class="d-flex justify-content-between align-items-start gap-3">
@@ -50,7 +109,7 @@
                     {{ form_start(filter) }}
                     <div class="d-flex justify-content-end align-items-center my-1 gap-3">
 
-                        <div class="w-25">
+                        <div class="w-50">
                             {{ form_widget(filter.category, { placeholder: 'Все категории ...', attr: { 'data-select' : 'select2', class: 'mb-0' } }) }}
                         </div>
 
@@ -77,42 +136,9 @@
                             {% endif %}
 
                         {% endif %}
-
-                        <button class="btn btn-primary"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#multiCollapseExample2"
-                                aria-expanded="false"
-                                aria-controls="multiCollapseExample2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                 class="bi bi-filter" viewBox="0 0 16 16">
-                                <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
-                            </svg>
-
-                        </button>
-
                     </div>
 
-                    <div class="collapse multi-collapse" id="multiCollapseExample2" style="max-height: 50px;">
-                        <div class="d-flex justify-content-end align-items-center my-1 gap-3 mt-3">
-                            <div class="w-25">{{ form_widget(filter.status, { placeholder: 'Любой статус заказа', attr: { 'data-select' : 'select2', class: 'mb-0' } }) }}</div>
 
-                            <div class="w-25">{{ form_widget(filter.wildberries, { placeholder: 'Любой статус Wildberries', attr: { 'data-select' : 'select2', class: 'mb-0' } }) }}</div>
-
-                            <button class="btn btn-primary invisible"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#multiCollapseExample2"
-                                    aria-expanded="false"
-                                    aria-controls="multiCollapseExample2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                     class="bi bi-filter" viewBox="0 0 16 16">
-                                    <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
-                                </svg>
-
-                            </button>
-                        </div>
-                    </div>
 
 
                     {# <div class="collapse multi-collapse" id="multiCollapseExample2">
@@ -158,17 +184,6 @@
                     {% endif %}
 
 
-                    {% if filter.status is defined and filter.status.vars.data %}
-                        <div><small class="text-muted small">Статус заказа:</small>&nbsp;
-                            <strong>{{ wb_order_status(filter.status.vars.data.value) }}</strong>
-                        </div>
-                    {% endif %}
-
-                    {% if filter.wildberries is defined and filter.wildberries.vars.data %}
-                        <div><small class="text-muted small">Статус Wildberries:</small>&nbsp;
-                            <strong>{{ wb_order_status(filter.wildberries.vars.data.value) }}</strong>
-                        </div>
-                    {% endif %}
 
                 </div>
 
@@ -185,65 +200,3 @@
     </section>
 
 </main>
-
-
-{# Тюлбар #}
-{#
-{{ include(_self|replace({ "content.html.twig": "_breadcrumb.html.twig" })) }}
-
-<div class="d-flex flex-column-fluid align-items-start container mt-3">
-
-	<div class="clearfix position-absolute w-100 start-0 separator mt-3"></div>
-
-	<div class="content flex-row-fluid mt-10">
-		<div class="card card-flush">
-#}
-{# Форма поиска #}{#
-{{ include(_self|replace({ "content.html.twig": "_search.html.twig" })) }}
-
-<div class="card-body pt-0">
-    <div class="table-responsive">
-#}
-{# Список #}{#
-<table class="align-middle table-row-dashed fs-6 gy-5 dataTable no-footer mb-5">
-
-    {{ include(_self|replace({ "content.html.twig": "_table.thead.html.twig" })) }}
-
-    <tbody class="fw-bold text-gray-600">
-    {% for item in query.data %}
-        {{ include(_self|replace({ "content.html.twig": "_table.tbody.html.twig" })) }}
-    {% endfor %}
-    </tbody>
-
-</table>
-
-<div class="card-footer position-sticky bg-body pb-3" style="bottom: 0rem;">
-    <div class="d-flex d-none pb-5" id="all_usecase">
-        <a href="#" class="modal-link btn btn-danger btn-sm fw-bolder"
-           data-bs-toggle="modal" data-bs-target="#modal">
-#}
-{# Удалить #}{#
-{{ 'btn.delete'|trans({}, 'core.btn') }}
-</a>
-
-<a href="#" class="modal-link btn btn btn-sm fw-bolder"
-data-bs-toggle="modal" data-bs-target="#modal">
-#}
-{# Удалить #}{#
-{{ 'btn.delete'|trans({}, 'core.btn') }}
-</a>
-
-</div>
-<div class="d-flex justify-content-between">
-#}
-{# Пагинация #}{#
-{{ include('@Template/_includes/pagination.html.twig') }}
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-</div>
-</div> #}

@@ -1,7 +1,9 @@
 {# Пользовательское меню #}
 
+{% set random = random() %}
+
 <button class="btn btn-link btn-sm p-0"
-		id="usecase-{{ item.wb_order_id }}"
+		id="usecase-{{ random }}"
 		data-bs-container="body"
 		data-bs-toggle="popover"
 		data-bs-placement="right"
@@ -24,7 +26,7 @@
 </label>#}
 
 
-<div id="usecase-{{ item.wb_order_id }}-content" class="d-none">
+<div id="usecase-{{ random }}-content" class="d-none">
 	<ul class="leader list-group list-group-flush ">
 
 

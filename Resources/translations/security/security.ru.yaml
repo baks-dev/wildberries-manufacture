@@ -1,8 +1,8 @@
 # Роль
 
 ROLE_WB_MANUFACTURE:
-  name: 'Настройки соотношений'
-  desc: 'Настройки соотношений данных Wildberries'
+  name: 'Производство'
+  desc: 'Произвосдство продукции Wildberries'
 
 # Правила
 

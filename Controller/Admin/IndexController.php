@@ -25,44 +25,107 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Controller\Admin;
 
+use BaksDev\Centrifugo\Services\Token\TokenUserGenerator;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Wildberries\Orders\Repository\AllWbOrders\AllWbOrdersInterface;
+use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
+use BaksDev\Manufacture\Part\Type\Marketplace\ManufacturePartMarketplace;
+use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup\AllWbOrdersManufactureInterface;
+use BaksDev\Wildberries\Manufacture\Type\Marketplace\ManufacturePartMarketplaceWildberries;
+use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterDTO;
+use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterForm;
+use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterFormAdmin;
+use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterDTO;
+use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterForm;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[AsController]
-#[RoleSecurity('ROLE_WB_ORDERS')]
+#[RoleSecurity('ROLE_WB_MANUFACTURE')]
 final class IndexController extends AbstractController
 {
     #[Route('/admin/wb/manufacture/{page<\d+>}', name: 'admin.index', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
-        AllWbOrdersInterface $allWbOrders,
+        AllWbOrdersManufactureInterface $allWbOrdersGroup,
+        OpenManufacturePartInterface $openManufacturePart,
+        TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
     ): Response
     {
-        // Поиск
-        $search = new SearchDTO();
-        $searchForm = $this->createForm(SearchForm::class, $search);
-        $searchForm->handleRequest($request);
-        
-        // Фильтр
-        // $filter = new ProductsStocksFilterDTO($request, $ROLE_ADMIN ? null : $this->getProfileUid());
-        // $filterForm = $this->createForm(ProductsStocksFilterForm::class, $filter);
-        // $filterForm->handleRequest($request);
+        /**
+         * Поиск
+         */
 
-        // Получаем список
-        $WbOrders = $allWbOrders->fetchAllWbOrdersAssociative($search);
+        $search = new SearchDTO($request);
+        $searchForm = $this->createForm(
+            SearchForm::class, $search, [
+                'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
+            ]
+        );
+        $searchForm->handleRequest($request);
+
+
+        /**
+         * Фильтр профиля пользователя
+         */
+
+        $profile = new ProfileFilterDTO($request, $this->getProfileUid());
+        $ROLE_ADMIN = $this->isGranted('ROLE_ADMIN');
+
+        if($ROLE_ADMIN)
+        {
+            $profileForm = $this->createForm(ProfileFilterFormAdmin::class, $profile, [
+                'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
+            ]);
+        }
+        else
+        {
+            $profileForm = $this->createForm(ProfileFilterForm::class, $profile, [
+                'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
+            ]);
+        }
+
+        $profileForm->handleRequest($request);
+        !$profileForm->isSubmitted()?:$this->redirectToReferer();
+
+
+
+        /**
+         * Фильтр заказов
+         */
+
+        $filter = new WbOrdersProductFilterDTO($request);
+        $filterForm = $this->createForm(WbOrdersProductFilterForm::class, $filter, [
+            'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
+        ]);
+        $filterForm->handleRequest($request);
+        !$filterForm->isSubmitted()?:$this->redirectToReferer();
+
+
+        // Получаем список открытых поставок
+        $opens = $openManufacturePart->fetchAllOpenManufacturePartAssociative($this->getProfileUid(),
+            new ManufacturePartMarketplace(ManufacturePartMarketplaceWildberries::class));
+
+
+        /**
+         * Получаем список заказов
+         */
+
+        $WbOrders = $allWbOrdersGroup->fetchAllWbOrdersGroupAssociative($search, $profile, $filter);
 
         return $this->render(
             [
+                'opens' => $opens,
                 'query' => $WbOrders,
                 'search' => $searchForm->createView(),
+                'profile' => $profileForm->createView(),
+                'filter' => $filterForm->createView(),
+                'token' => $tokenUserGenerator->generate($this->getUser()),
             ]
         );
     }

@@ -1,0 +1,9 @@
+
+{{ form_row(form.action, {
+    label: 'Производственный процесс'|trans,
+    placeholder: 'Выберите категорию из списка ...'|trans,
+    attr: { 'data-select' : 'select2' }
+}) }}
+
+{{ form_widget(form.comment, { attr: { placeholder : 'Комментарий'} }) }}
+

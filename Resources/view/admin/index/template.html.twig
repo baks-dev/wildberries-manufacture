@@ -1,4 +1,4 @@
-{% trans_default_domain("admin.wildberries.manufacture") %}
+{% trans_default_domain("admin.wb.manufacture") %}
 
 {% set ROLE = 'ROLE_USERPROFILE' %}
 
@@ -56,7 +56,7 @@
 <script nonce="{{ csp_nonce() }}">
 document.addEventListener("DOMContentLoaded", (event) => {
 
-	const form = document.forms.wb_orders_filter_form;
+	const form = document.forms.wb_orders_product_filter_form;
 	form.addEventListener('change', () => { form.submit(); });
 
 	const profile_form = document.forms.profile_filter_form_admin ? document.forms.profile_filter_form_admin : document.forms.profile_filter_form;
@@ -64,4 +64,57 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 });
 </script>
+
+<script nonce="{{ csp_nonce() }}" data-src="https://unpkg.com/centrifuge@3.1.1/dist/centrifuge.js" class='lazy'></script>
+
+<script nonce="{{ csp_nonce() }}">
+
+/** Сокеты */
+setTimeout(function SpgGHaQzun() {
+
+    if (typeof Centrifuge === 'function') {
+        centrifuge = new Centrifuge("wss://{{ centrifugo_dsn }}/connection/websocket",
+            {
+                token: "{{ token }}", //"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMTg2NWMxMC1jZDQ1LTdmMjEtYTUxNi0wMDM5NDFiMWM0Y2IiLCJpZCI6IjAxODY2ZjllLTcwZDAtNzNlMC1iNzYzLTg3OTRiNmU2YjFjYiIsImV2ZW50IjoiMDE4NzJjZjEtMDhjNy03NTUzLWJmMjctOTQxNTVhOTMxYjZhIiwiZXhwIjoxNjgyOTYyMzY3fQ.IeIMimmMTn2W4leLQAR3O8T70LOVaWau3B-HXHwOdzM",
+                getToken: function (ctx) {
+                    return getToken('/centrifugo/credentials/user', ctx);
+                },
+                debug: false,
+            });
+
+
+		{% for part in opens %}
+
+			  centrifuge.newSubscription('{{ part.event }}').on('publication', function (ctx) {
+                    document.getElementById('product-{{ part.event }}').innerHTML = ctx.data.product;
+
+                    $total = parseInt(document.getElementById('total-{{ part.event }}').textContent);
+                     document.getElementById('total-{{ part.event }}').textContent = $total + ctx.data.total
+
+$identifier = document.getElementById(ctx.data.identifier);
+                     $identifier.remove();
+
+            }).subscribe();
+
+            centrifuge.connect();
+
+		{% endfor %}
+
+        return;
+    }
+
+    setTimeout(SpgGHaQzun, 100);
+
+}, 100);
+
+
+
+
+
+</script>
+
+
+
+
+
 {% endblock %}

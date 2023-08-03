@@ -21,32 +21,21 @@
  *  THE SOFTWARE.
  */
 
-namespace Symfony\Component\DependencyInjection\Loader\Configurator;
+namespace BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup;
 
-use BaksDev\Wildberries\Products\Type\Cards\Id\WbCardUid;
-use BaksDev\Wildberries\Products\Type\Cards\Id\WbCardUidType;
-use BaksDev\Wildberries\Products\Type\Settings\Event\WbProductSettingsEventType;
-use BaksDev\Wildberries\Products\Type\Settings\Event\WbProductSettingsEventUid;
-use Symfony\Config\DoctrineConfig;
+use BaksDev\Core\Form\Search\SearchDTO;
+use BaksDev\Core\Services\Paginator\PaginatorInterface;
+use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterInterface;
+use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterInterface;
 
-return static function(DoctrineConfig $doctrine): void {
-
-    $doctrine->dbal()
-        ->type(WbProductSettingsEventUid::TYPE)
-        ->class(WbProductSettingsEventType::class);
-
-    $doctrine->dbal()
-        ->type(WbCardUid::TYPE)
-        ->class(WbCardUidType::class);
-
-    $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
-
-    $MODULE = substr(__DIR__, 0, strpos(__DIR__, "Resources"));
-
-    $emDefault->mapping('WildberriesProducts')
-        ->type('attribute')
-        ->dir($MODULE.'Entity')
-        ->isBundle(false)
-        ->prefix('BaksDev\Wildberries\Products\Entity')
-        ->alias('WildberriesProducts');
-};
+interface AllWbOrdersManufactureInterface
+{
+    /**
+     * Метод возвращает сгруппированные заказы по артикулам
+     */
+    public function fetchAllWbOrdersGroupAssociative(
+        SearchDTO $search,
+        ProfileFilterInterface $profile,
+        WbOrdersProductFilterInterface $filter,
+    ): PaginatorInterface;
+}
