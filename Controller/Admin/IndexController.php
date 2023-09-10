@@ -31,18 +31,21 @@ use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
-use BaksDev\Manufacture\Part\Type\Marketplace\ManufacturePartMarketplace;
+use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
+use BaksDev\Products\Category\Type\Id\ProductCategoryUid;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup\AllWbOrdersManufactureInterface;
-use BaksDev\Wildberries\Manufacture\Type\Marketplace\ManufacturePartMarketplaceWildberries;
-use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterDTO;
-use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterForm;
-use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterFormAdmin;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterDTO;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterForm;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
+
+//use BaksDev\Manufacture\Part\Type\Marketplace\ManufacturePartMarketplace;
+//use BaksDev\Wildberries\Manufacture\Type\Marketplace\ManufacturePartMarketplaceWildberries;
+//use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterDTO;
+//use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterForm;
+//use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterFormAdmin;
 
 #[AsController]
 #[RoleSecurity('ROLE_WB_MANUFACTURE')]
@@ -57,6 +60,8 @@ final class IndexController extends AbstractController
         int $page = 0,
     ): Response
     {
+
+
         /**
          * Поиск
          */
@@ -70,36 +75,46 @@ final class IndexController extends AbstractController
         $searchForm->handleRequest($request);
 
 
-        /**
-         * Фильтр профиля пользователя
-         */
+//        /**
+//         * Фильтр профиля пользователя
+//         */
+//
+//        $profile = new ProfileFilterDTO($request, $this->getProfileUid());
+//        $ROLE_ADMIN = $this->isGranted('ROLE_ADMIN');
+//
+//        if($ROLE_ADMIN)
+//        {
+//            $profileForm = $this->createForm(ProfileFilterFormAdmin::class, $profile, [
+//                'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
+//            ]);
+//        }
+//        else
+//        {
+//            $profileForm = $this->createForm(ProfileFilterForm::class, $profile, [
+//                'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
+//            ]);
+//        }
+//
+//        $profileForm->handleRequest($request);
+//        !$profileForm->isSubmitted()?:$this->redirectToReferer();
 
-        $profile = new ProfileFilterDTO($request, $this->getProfileUid());
-        $ROLE_ADMIN = $this->isGranted('ROLE_ADMIN');
-
-        if($ROLE_ADMIN)
-        {
-            $profileForm = $this->createForm(ProfileFilterFormAdmin::class, $profile, [
-                'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
-            ]);
-        }
-        else
-        {
-            $profileForm = $this->createForm(ProfileFilterForm::class, $profile, [
-                'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
-            ]);
-        }
-
-        $profileForm->handleRequest($request);
-        !$profileForm->isSubmitted()?:$this->redirectToReferer();
-
-
+        // Получаем открытую поставку
+        $opens = $openManufacturePart->fetchOpenManufacturePartAssociative($this->getCurrentProfileUid(),
+        //new ManufacturePartMarketplace(ManufacturePartMarketplaceWildberries::class)
+        );
 
         /**
          * Фильтр заказов
          */
 
         $filter = new WbOrdersProductFilterDTO($request);
+
+        if($opens)
+        {
+            /** Если открыт производственный процесс - жестко указываем категорию и скрываем выбор */
+            $filter->setCategory(new ProductCategoryUid($opens['category_id']));
+        }
+
         $filterForm = $this->createForm(WbOrdersProductFilterForm::class, $filter, [
             'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
         ]);
@@ -107,25 +122,28 @@ final class IndexController extends AbstractController
         !$filterForm->isSubmitted()?:$this->redirectToReferer();
 
 
-        // Получаем список открытых поставок
-        $opens = $openManufacturePart->fetchAllOpenManufacturePartAssociative($this->getProfileUid(),
-            new ManufacturePartMarketplace(ManufacturePartMarketplaceWildberries::class));
 
 
         /**
          * Получаем список заказов
          */
 
-        $WbOrders = $allWbOrdersGroup->fetchAllWbOrdersGroupAssociative($search, $profile, $filter);
+        $WbOrders = $allWbOrdersGroup
+            ->fetchAllWbOrdersGroupAssociative(
+                $search,
+                $this->getProfileUid(),
+                $filter,
+                $opens ? new ManufacturePartComplete($opens['complete']) : null
+            );
 
         return $this->render(
             [
                 'opens' => $opens,
                 'query' => $WbOrders,
                 'search' => $searchForm->createView(),
-                'profile' => $profileForm->createView(),
+                //'profile' => $profileForm->createView(),
                 'filter' => $filterForm->createView(),
-                'token' => $tokenUserGenerator->generate($this->getUser()),
+                'token' => $tokenUserGenerator->generate($this->getUsr()),
             ]
         );
     }

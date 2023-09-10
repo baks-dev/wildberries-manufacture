@@ -30,9 +30,10 @@ use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
+use BaksDev\Manufacture\Part\Entity\ManufacturePart;
 use BaksDev\Manufacture\Part\Entity\Products\ManufacturePartProduct;
-use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusOpen;
-use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusPackage;
+use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
+use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusCompleted;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
@@ -82,8 +83,9 @@ final class AllWbOrdersManufacture implements AllWbOrdersManufactureInterface
      */
     public function fetchAllWbOrdersGroupAssociative(
         SearchDTO $search,
-        ProfileFilterInterface $profile,
-        WbOrdersProductFilterInterface $filter
+        UserProfileUid $profile,
+        WbOrdersProductFilterInterface $filter,
+        ?ManufacturePartComplete $complete = null
     ): PaginatorInterface
     {
         $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
@@ -107,7 +109,7 @@ final class AllWbOrdersManufacture implements AllWbOrdersManufactureInterface
         );
 
         $qb->andWhere('wb_order_event.profile = :profile');
-        $qb->setParameter('profile', $profile->getProfile(), UserProfileUid::TYPE);
+        $qb->setParameter('profile', $profile, UserProfileUid::TYPE);
 
 
         $qb->andWhere('wb_order_event.status = :status');
@@ -133,37 +135,74 @@ final class AllWbOrdersManufacture implements AllWbOrdersManufactureInterface
         );
 
 
-
-
-
         /** Только заказы, которых нет на производстве */
 
-        $qbExist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
-        $qbExist->select(1);
-        $qbExist->from(ManufacturePartProduct::TABLE, 'exist_product');
-        $qbExist->join('exist_product',
-            ManufacturePartEvent::TABLE,
-            'exist_product_event',
+        //        $qbExist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+        //        $qbExist->select(1);
+        //        $qbExist->from(ManufacturePartProduct::TABLE, 'exist_product');
+        //        $qbExist->join('exist_product',
+        //            ManufacturePartEvent::TABLE,
+        //            'exist_product_event',
+        //            '
+        //
+        //                exist_product_event.status = :open
+        //            '
+        //        );
+        //        //OR exist_product_event.marketplace = :package
+        //        //  exist_product_event.marketplace = :marketplace AND
+        //
+        //        //$qb->setParameter('marketplace', ManufacturePartMarketplaceWildberries::MARKETPLACE);
+        //        $qb->setParameter('open', ManufacturePartStatusOpen::STATUS);
+        //        //$qb->setParameter('package', ManufacturePartStatusPackage::STATUS);
+        //
+        //        //ManufacturePartStatus
+        //
+        //        $qbExist->where('exist_product.product = order_product.product ');
+        //        $qbExist->andWhere('order_product.offer IS NULL OR exist_product.offer = order_product.offer ');
+        //        $qbExist->andWhere('exist_product.variation = order_product.variation ');
+        //        $qbExist->andWhere('exist_product.modification = order_product.modification ');
+
+
+        /** ******************** */
+
+        if($complete)
+        {
+
+
+            /** Только товары, которых нет в производстве */
+
+            $qbExist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+            $qbExist->select(1);
+            $qbExist->from(ManufacturePartProduct::TABLE, 'exist_product');
+
+            $qbExist->join('exist_product',
+                ManufacturePart::TABLE,
+                'exist_part',
+                '
+                exist_part.event = exist_product.event
             '
-                exist_product_event.marketplace = :marketplace AND
-                (exist_product_event.status = :open OR exist_product_event.marketplace = :package)
+            );
+
+            $qbExist->join('exist_part',
+                ManufacturePartEvent::TABLE,
+                'exist_product_event',
+                '
+                exist_product_event.id = exist_part.event AND
+                exist_product_event.complete = :complete AND
+                exist_product_event.status != :closed
             '
-        );
-
-        $qb->setParameter('marketplace', ManufacturePartMarketplaceWildberries::MARKETPLACE);
-        $qb->setParameter('open', ManufacturePartStatusOpen::STATUS);
-        $qb->setParameter('package', ManufacturePartStatusPackage::STATUS);
-
-        //ManufacturePartStatus
-
-        $qbExist->where('exist_product.product = order_product.product OR exist_product.product IS NULL');
-        $qbExist->andWhere('exist_product.offer = order_product.offer OR exist_product.offer IS NULL');
-        $qbExist->andWhere('exist_product.variation = order_product.variation OR exist_product.variation IS NULL');
-        $qbExist->andWhere('exist_product.modification = order_product.modification OR exist_product.modification IS NULL');
+            );
 
 
+            $qb->setParameter('closed', ManufacturePartStatusCompleted::STATUS);
+            $qb->setParameter('complete', $complete, ManufacturePartComplete::TYPE);
+
+            $qbExist->where('exist_product.product = order_product.product');
+            $qbExist->andWhere('(order_product.offer IS NULL OR exist_product.offer = order_product.offer)');
+            $qbExist->andWhere('(order_product.variation IS NULL OR exist_product.variation = order_product.variation)');
 
 
+        }
 
         $qb->addSelect('order_product.product AS wb_product_event');
         $qb->addSelect('order_product.offer AS wb_product_offer');
@@ -173,7 +212,7 @@ final class AllWbOrdersManufacture implements AllWbOrdersManufactureInterface
         $qb->join('ord',
             OrderProduct::TABLE,
             'order_product',
-            'order_product.event = ord.event AND NOT EXISTS('.$qbExist->getSQL().')'
+            'order_product.event = ord.event'.($complete ? ' AND NOT EXISTS('.$qbExist->getSQL().')' : '')
         );
 
 
@@ -275,7 +314,7 @@ final class AllWbOrdersManufacture implements AllWbOrdersManufactureInterface
         }
 
 
-        /* Тип множественного вараианта торгового предложения */
+        /* Тип множественного варианта торгового предложения */
         $qb->addSelect('category_variation.reference as product_variation_reference');
         $qb->leftJoin(
             'product_variation',

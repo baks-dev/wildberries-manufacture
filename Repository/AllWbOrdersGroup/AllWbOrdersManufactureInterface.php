@@ -25,7 +25,8 @@ namespace BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup;
 
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
-use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterInterface;
+use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterInterface;
 
 interface AllWbOrdersManufactureInterface
@@ -35,7 +36,8 @@ interface AllWbOrdersManufactureInterface
      */
     public function fetchAllWbOrdersGroupAssociative(
         SearchDTO $search,
-        ProfileFilterInterface $profile,
+        UserProfileUid $profile,
         WbOrdersProductFilterInterface $filter,
+        ?ManufacturePartComplete $complete = null
     ): PaginatorInterface;
 }

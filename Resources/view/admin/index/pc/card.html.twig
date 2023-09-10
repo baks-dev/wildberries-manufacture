@@ -158,7 +158,7 @@
 
 
                 <div>
-                    <a href="/admin/product/edit/06420615-8809-4662-9a2c-e3643dc95c48"
+                    <a href="{#/admin/product/edit/06420615-8809-4662-9a2c-e3643dc95c48#}"
                        class="fw-bolder mb-1 text-dark text-decoration-none">
                         {{ item.product_name }}
                     </a>
@@ -168,7 +168,6 @@
 
                         {{ item.product_variation_value|call_twig_func(item.product_variation_reference) }}
                         {{ item.product_variation_postfix }}
-
 
                     </div>
                 </div>
@@ -202,13 +201,13 @@
 
                     </div>
 
-                    {% if is_granted('ROLE_WB_MANUFACTURE_ADD') or  is_granted('ROLE_ADMIN') %}
+                    {% if is_granted('ROLE_MANUFACTURE_PART_ADD') or  is_granted('ROLE_ADMIN') %}
                         <span
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
-                                title='Добавить в партию Wildberries'
+                                title='Добавить в открытую производственную партию'
                         >
-                        <a href="{{ path('WildberriesManufacture:admin.add', {
+                        <a href="{{ path('ManufacturePart:admin.products.add', {
                             product: item.wb_product_event,
                             offer: item.wb_product_offer,
                             variation: item.wb_product_variation,

@@ -13,7 +13,8 @@
 
             <div class="w-100">
                 <h1 class="h4 text-uppercase fw-bolder mb-0">
-                    {{ 'admin.page.index'|trans }}
+                    Производственный процесс
+                    {#{{ 'admin.page.index'|trans }}#}
                 </h1>
             </div>
 
@@ -22,7 +23,7 @@
                     class="btn btn-light opacity-25"
                     data-bs-toggle="tooltip"
                     data-bs-placement="bottom"
-                    title="Производство продукции Wildberries"
+                    title="Производство"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-boxes"
                      viewBox="0 0 16 16">
@@ -44,27 +45,29 @@
                 </svg>
             </a>
 
-            {% if opens %}
+            {#{% if opens %}
                 <a href="{{ path('WildberriesManufacture:admin.newedit.new') }}"
                    class="btn modal-btn modal-link btn-primary text-nowrap" data-bs-toggle="modal"
                    data-bs-target="#modal"
                    title="Открыть производственную партию">
                     Добавить партию
                 </a>
-            {% endif %}
+            {% endif %}#}
 
         </div>
 
-        {% for item in opens %}
+        {% if opens %}
+
             {# Партия производства #}
-            {{ include(_self|replace({ "content.html.twig": "part.html.twig" })) }}
+            {{ include('@ManufacturePart/admin/index/pc/part.html.twig') }}
+
         {% else %}
             <div class="alert alert-secondary d-flex justify-content-between align-items-center" role="alert">
                 <span>
                     У Вас нет  открытых производственных партий
                 </span>
 
-                <a href="{{ path('WildberriesManufacture:admin.newedit.new') }}"
+                <a href="{{ path('ManufacturePart:admin.newedit.new') }}"
                    class="btn modal-btn modal-link btn-primary text-nowrap" data-bs-toggle="modal"
                    data-bs-target="#modal"
                    title="Открыть производственную партию">
@@ -72,7 +75,7 @@
                 </a>
             </div>
 
-        {% endfor %}
+        {% endif %}
 
 
 
@@ -84,7 +87,7 @@
                 </h2>
             </div>
 
-            <div class="w-100 d-flex align-items-center gap-3 justify-content-end">
+            {#<div class="w-100 d-flex align-items-center gap-3 justify-content-end">
                 {{ form_start(profile) }}
                 <div class="d-flex justify-content-end position-relative my-1 gap-3">
 
@@ -94,7 +97,7 @@
                     </div>
                 </div>
                 {{ form_end(profile) }}
-            </div>
+            </div>#}
 
         </div>
 

@@ -59,8 +59,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
 	const form = document.forms.wb_orders_product_filter_form;
 	form.addEventListener('change', () => { form.submit(); });
 
-	const profile_form = document.forms.profile_filter_form_admin ? document.forms.profile_filter_form_admin : document.forms.profile_filter_form;
-	profile_form.addEventListener('change', () => { profile_form.submit(); });
+	/*const profile_form = document.forms.profile_filter_form_admin ? document.forms.profile_filter_form_admin : document.forms.profile_filter_form;
+	profile_form.addEventListener('change', () => { profile_form.submit(); });*/
 
 });
 </script>
@@ -83,22 +83,27 @@ setTimeout(function SpgGHaQzun() {
             });
 
 
-		{% for part in opens %}
+		{% if opens %}
 
-			  centrifuge.newSubscription('{{ part.event }}').on('publication', function (ctx) {
-                    document.getElementById('product-{{ part.event }}').innerHTML = ctx.data.product;
+			  centrifuge.newSubscription('{{ opens.event }}').on('publication', function (ctx) {
+                    document.getElementById('product-{{ opens.event }}').innerHTML = ctx.data.product;
 
-                    $total = parseInt(document.getElementById('total-{{ part.event }}').textContent);
-                     document.getElementById('total-{{ part.event }}').textContent = $total + ctx.data.total
-
-$identifier = document.getElementById(ctx.data.identifier);
-                     $identifier.remove();
+                    $total = parseInt(document.getElementById('total-{{ opens.event }}').textContent);
+                    document.getElementById('total-{{ opens.event }}').textContent = $total + ctx.data.total
 
             }).subscribe();
 
             centrifuge.connect();
 
-		{% endfor %}
+		{% endif %}
+
+        /** Удаляем из списка у всех продукт */
+		centrifuge.newSubscription('publish').on('publication', function (ctx) {
+                     $identifier = document.getElementById(ctx.data.identifier);
+                     $identifier.remove();
+            }).subscribe();
+
+		centrifuge.connect();
 
         return;
     }
