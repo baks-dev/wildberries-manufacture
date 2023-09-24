@@ -100,7 +100,7 @@ setTimeout(function SpgGHaQzun() {
         /** Удаляем из списка у всех продукт */
 		centrifuge.newSubscription('publish').on('publication', function (ctx) {
                      $identifier = document.getElementById(ctx.data.identifier);
-                     $identifier.remove();
+                     if($identifier) { $identifier.remove(); }
             }).subscribe();
 
 		centrifuge.connect();

@@ -33,6 +33,7 @@ use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
 use BaksDev\Manufacture\Part\Entity\ManufacturePart;
 use BaksDev\Manufacture\Part\Entity\Products\ManufacturePartProduct;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
+use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusClosed;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusCompleted;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
@@ -50,11 +51,9 @@ use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Wildberries\Manufacture\Type\Marketplace\ManufacturePartMarketplaceWildberries;
 use BaksDev\Wildberries\Orders\Entity\Event\WbOrdersEvent;
 use BaksDev\Wildberries\Orders\Entity\WbOrders;
 use BaksDev\Wildberries\Orders\Entity\WbOrdersStatistics;
-use BaksDev\Wildberries\Orders\Forms\WbFilterProfile\ProfileFilterInterface;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterInterface;
 use BaksDev\Wildberries\Orders\Type\OrderStatus\Status\WbOrderStatusNew;
 use BaksDev\Wildberries\Orders\Type\OrderStatus\WbOrderStatus;
@@ -172,7 +171,8 @@ final class AllWbOrdersManufacture implements AllWbOrdersManufactureInterface
             /** Только товары, которых нет в производстве */
 
             $qbExist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
-            $qbExist->select(1);
+            //$qbExist->select(1);
+            $qbExist->select('exist_part.number');
             $qbExist->from(ManufacturePartProduct::TABLE, 'exist_product');
 
             $qbExist->join('exist_product',
@@ -188,20 +188,30 @@ final class AllWbOrdersManufacture implements AllWbOrdersManufactureInterface
                 'exist_product_event',
                 '
                 exist_product_event.id = exist_part.event AND
-                exist_product_event.complete = :complete AND
-                exist_product_event.status != :closed
+                exist_product_event.complete = :complete
             '
             );
 
-
-            $qb->setParameter('closed', ManufacturePartStatusCompleted::STATUS);
+            /** Только продукция на указанный завершающий этап */
             $qb->setParameter('complete', $complete, ManufacturePartComplete::TYPE);
 
-            $qbExist->where('exist_product.product = order_product.product');
+            $qbExist->andWhere('exist_product_event.status != :status_closed');
+            $qbExist->andWhere('exist_product_event.status != :status_completed');
+
+            /** Только продукция в процессе производства */
+            $qb->setParameter('status_closed', ManufacturePartStatusClosed::STATUS);
+            $qb->setParameter('status_completed', ManufacturePartStatusCompleted::STATUS);
+
+            $qbExist->andWhere('exist_product.product = order_product.product');
             $qbExist->andWhere('(order_product.offer IS NULL OR exist_product.offer = order_product.offer)');
             $qbExist->andWhere('(order_product.variation IS NULL OR exist_product.variation = order_product.variation)');
+            //$qbExist->andWhere('(order_product.variation IS NULL OR exist_product.modification = order_product.modification) ');
 
+            $qbExist->setMaxResults(1);
 
+            $qb->addSelect('(SELECT (' . $qbExist->getSQL() . ')) AS exist_manufacture');
+        } else {
+            $qb->addSelect('FALSE AS exist_manufacture');
         }
 
         $qb->addSelect('order_product.product AS wb_product_event');
@@ -212,7 +222,7 @@ final class AllWbOrdersManufacture implements AllWbOrdersManufactureInterface
         $qb->join('ord',
             OrderProduct::TABLE,
             'order_product',
-            'order_product.event = ord.event'.($complete ? ' AND NOT EXISTS('.$qbExist->getSQL().')' : '')
+            'order_product.event = ord.event' //.($complete ? ' AND NOT EXISTS('.$qbExist->getSQL().')' : '')
         );
 
 

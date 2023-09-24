@@ -1,7 +1,7 @@
 {% trans_default_domain('admin.wb.manufacture') %}
 
 
-<main class="main ">
+<main class="main d-print-none ">
 
     <section class="container px-4 mb-5">
 
@@ -162,7 +162,7 @@
 
                 <div class="d-flex gap-3">
 
-                    {% if filter.category.vars.data %}
+                    {% if filter.category.vars.data.options is defined %}
                         <div><small class="text-muted">Категория:</small>&nbsp;
                             <strong>{{ filter.category.vars.data.options }}</strong>
                         </div>

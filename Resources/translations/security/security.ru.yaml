@@ -6,11 +6,18 @@ ROLE_WB_MANUFACTURE:
 
 # Правила
 
+ROLE_WB_MANUFACTURE_INDEX:
+  name: 'Просмотр'
+  desc: ''
+
 ROLE_WB_MANUFACTURE_NEW:
   name: 'Добавить'
+  desc: ''
 
 ROLE_WB_MANUFACTURE_EDIT:
   name: 'Редактировать'
+  desc: ''
 
 ROLE_WB_MANUFACTURE_DELETE:
   name: 'Удалить'
+  desc: ''

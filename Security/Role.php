@@ -35,7 +35,6 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag('baks.menu.admin')]
 final class Role implements RoleInterface, MenuAdminInterface
 {
-    
     public const ROLE = 'ROLE_WB_MANUFACTURE';
 
     public function getRole(): string

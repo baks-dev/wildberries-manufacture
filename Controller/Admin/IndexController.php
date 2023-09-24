@@ -51,6 +51,9 @@ use Symfony\Component\Routing\Annotation\Route;
 #[RoleSecurity('ROLE_WB_MANUFACTURE')]
 final class IndexController extends AbstractController
 {
+    /**
+     * Список сборочных заданий Wildberries для производственной партии
+     */
     #[Route('/admin/wb/manufacture/{page<\d+>}', name: 'admin.index', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
@@ -60,8 +63,7 @@ final class IndexController extends AbstractController
         int $page = 0,
     ): Response
     {
-
-
+        
         /**
          * Поиск
          */
@@ -112,7 +114,7 @@ final class IndexController extends AbstractController
         if($opens)
         {
             /** Если открыт производственный процесс - жестко указываем категорию и скрываем выбор */
-            $filter->setCategory(new ProductCategoryUid($opens['category_id']));
+            $filter->setCategory(new ProductCategoryUid($opens['category_id'], $opens['category_name']));
         }
 
         $filterForm = $this->createForm(WbOrdersProductFilterForm::class, $filter, [
