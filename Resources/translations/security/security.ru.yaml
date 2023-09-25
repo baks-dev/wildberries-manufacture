@@ -2,7 +2,7 @@
 
 ROLE_WB_MANUFACTURE:
   name: 'Производство'
-  desc: 'Произвосдство продукции Wildberries'
+  desc: 'Производство продукции Wildberries'
 
 # Правила
 
