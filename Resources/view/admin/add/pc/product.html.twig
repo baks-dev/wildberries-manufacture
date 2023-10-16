@@ -1,13 +1,17 @@
-{% set img_path = product.product_image_cdn == true ? CDN_HOST : '' %}
-{% set product_image_ext = product.product_image_cdn == true ? 'small.'~product.product_image_ext : product.product_image_ext %}
+
+{# Обложка #}
+{% set image_path = '/assets/img/blank.svg' %}
+
+{% if product.product_image_ext is defined and product.product_image_ext is not null %}
+    {% set img_host =  product.product_image_cdn == true  ? CDN_HOST : '' %
+    {% set img_dir = product.product_image %}
+    {% set img_file = (img_host is empty ? '/image.' : '/small.') ~ product.product_image_ext %}
+    {% set image_path = img_host ~ img_table ~ img_dir ~ img_file %}
+{% endif %}
+
 
 <button class="btn btn-link icon bg-cover rounded-2 lazy img-product m-0 "
-        style="
-                width: 55px;
-                height: 70px;
-                background-image: url({{ product.product_image ? img_path ~ product.product_image ~ product_image_ext : '/assets/img/blank.svg' }});
-                "
->
+        style="width: 55px; height: 70px; background-image: url({{ image_path }});">
 </button>
 
 <div>
@@ -16,8 +20,8 @@
 
     <div>
         {% if product.product_offer_name %}
-            <small class="opacity-50">{{ product.product_offer_name }}:</small> &nbsp;
-            <strong>{{ product.product_offer_value|call_twig_func(product.product_offer_reference) }} {{ product.product_offer_postfix }}</strong>&nbsp;
+        <small class="opacity-50">{{ product.product_offer_name }}:</small> &nbsp;
+        <strong>{{ product.product_offer_value|call_twig_func(product.product_offer_reference) }} {{ product.product_offer_postfix }}</strong>&nbsp;
         {% endif %}
 
         {% if product.product_variation_name %}

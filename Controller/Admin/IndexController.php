@@ -101,9 +101,7 @@ final class IndexController extends AbstractController
 //        !$profileForm->isSubmitted()?:$this->redirectToReferer();
 
         // Получаем открытую поставку
-        $opens = $openManufacturePart->fetchOpenManufacturePartAssociative($this->getCurrentProfileUid(),
-        //new ManufacturePartMarketplace(ManufacturePartMarketplaceWildberries::class)
-        );
+        $opens = $openManufacturePart->fetchOpenManufacturePartAssociative($this->getCurrentProfileUid());
 
         /**
          * Фильтр заказов
@@ -124,8 +122,6 @@ final class IndexController extends AbstractController
         !$filterForm->isSubmitted()?:$this->redirectToReferer();
 
 
-
-
         /**
          * Получаем список заказов
          */
@@ -137,6 +133,8 @@ final class IndexController extends AbstractController
                 $filter,
                 $opens ? new ManufacturePartComplete($opens['complete']) : null
             );
+
+
 
         return $this->render(
             [

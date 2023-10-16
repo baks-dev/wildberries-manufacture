@@ -23,6 +23,7 @@
                     class="btn btn-light opacity-25"
                     data-bs-toggle="tooltip"
                     data-bs-placement="bottom"
+                    data-bs-delay='{"show":600,"hide":100}'
                     title="Производство"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-boxes"
@@ -36,6 +37,7 @@
                class="btn btn-light"
                data-bs-toggle="tooltip"
                data-bs-placement="bottom"
+               data-bs-delay='{"show":600,"hide":100}'
                title="Список производственных партий"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
@@ -59,7 +61,7 @@
         {% if opens %}
 
             {# Партия производства #}
-            {{ include('@ManufacturePart/admin/index/pc/part.html.twig') }}
+            {{ include('@ManufacturePart/admin/index/pc/part.html.twig', { card: opens} ) }}
 
         {% else %}
             <div class="alert alert-secondary d-flex justify-content-between align-items-center" role="alert">

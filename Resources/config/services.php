@@ -37,6 +37,6 @@ return static function(ContainerConfigurator $configurator) {
     $services->load($NAMESPACE, $MODULE)
         ->exclude($MODULE.'{Entity,Resources,Type,*DTO.php,*Message.php}');
 
-    $services->load($NAMESPACE.'Type\Marketplace\\', $MODULE.'Type/Marketplace');
+    $services->load($NAMESPACE.'Type\ManufacturePartComplete\\', $MODULE.'Type/ManufacturePartComplete');
 
 };

@@ -98,7 +98,7 @@ setTimeout(function SpgGHaQzun() {
 		{% endif %}
 
         /** Удаляем из списка у всех продукт */
-		centrifuge.newSubscription('publish').on('publication', function (ctx) {
+		centrifuge.newSubscription('remove').on('publication', function (ctx) {
                      $identifier = document.getElementById(ctx.data.identifier);
                      if($identifier) { $identifier.remove(); }
             }).subscribe();

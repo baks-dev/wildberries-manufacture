@@ -23,39 +23,32 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Type\Marketplace;
+namespace BaksDev\Wildberries\Manufacture\Type\ManufacturePartComplete;
 
-use BaksDev\Manufacture\Part\Type\Marketplace\ManufacturePartMarketplace\Collection\ManufacturePartMarketplaceInterface;
+use BaksDev\Manufacture\Part\Type\Complete\Collection\ManufacturePartCompleteInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-
-#[AutoconfigureTag('baks.manufacture.marketplace')]
-class ManufacturePartMarketplaceWildberries implements ManufacturePartMarketplaceInterface
+#[AutoconfigureTag('baks.part.complete')]
+final class ManufacturePartCompleteWildberriesFbs implements ManufacturePartCompleteInterface
 {
     /**
-     * Системная заявка на производство
+     * Ничего не делать
      */
-    public const MARKETPLACE = 'wildberries';
+    public const ACTION = 'wb_fbs';
 
-    /** Возвращает значение (value) */
+    /**
+     * Возвращает значение (value)
+     */
     public function getValue(): string
     {
-        return self::MARKETPLACE;
+        return self::ACTION;
     }
 
     /**
-     * Сортировка (чем меньше число - тем первым в итерации будет значение)
+     * Проверяет, относится ли строка цвета к данному объекту
      */
-    public static function sort(): int
+    public static function equals(string $action): bool
     {
-        return 0;
-    }
-
-    /**
-     * Проверяет, относится ли заявка к данному объекту
-     */
-    public static function equals(string $marketplace): bool
-    {
-        return mb_strtolower($marketplace) === self::MARKETPLACE;
+        return mb_strtolower($action) === self::ACTION;
     }
 }
