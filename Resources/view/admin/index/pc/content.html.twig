@@ -19,7 +19,7 @@
             </div>
 
 
-            <button {# href="{{ path('ProductStocks:admin.purchase.index') }}" #}
+            <button {# href="{{ path('products-stocks:admin.purchase.index') }}" #}
                     class="btn btn-light opacity-25"
                     data-bs-toggle="tooltip"
                     data-bs-placement="bottom"
@@ -33,7 +33,7 @@
             </button>
 
 
-            <a href="{{ path('ManufacturePart:admin.manufacture') }}"
+            <a href="{{ path('manufacture-part:admin.manufacture') }}"
                class="btn btn-light"
                data-bs-toggle="tooltip"
                data-bs-placement="bottom"
@@ -48,7 +48,7 @@
             </a>
 
             {#{% if opens %}
-                <a href="{{ path('WildberriesManufacture:admin.newedit.new') }}"
+                <a href="{{ path('wildberries-manufacture:admin.newedit.new') }}"
                    class="btn modal-btn modal-link btn-primary text-nowrap" data-bs-toggle="modal"
                    data-bs-target="#modal"
                    title="Открыть производственную партию">
@@ -61,7 +61,7 @@
         {% if opens %}
 
             {# Партия производства #}
-            {{ include('@ManufacturePart/admin/index/pc/part.html.twig', { card: opens} ) }}
+            {{ include('@manufacture-part/admin/index/pc/part.html.twig', { card: opens} ) }}
 
         {% else %}
             <div class="alert alert-secondary d-flex justify-content-between align-items-center" role="alert">
@@ -69,7 +69,7 @@
                     У Вас нет  открытых производственных партий
                 </span>
 
-                <a href="{{ path('ManufacturePart:admin.newedit.new') }}"
+                <a href="{{ path('manufacture-part:admin.newedit.new') }}"
                    class="btn modal-btn modal-link btn-primary text-nowrap" data-bs-toggle="modal"
                    data-bs-target="#modal"
                    title="Открыть производственную партию">

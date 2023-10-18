@@ -71,7 +71,7 @@ final class IndexController extends AbstractController
         $search = new SearchDTO($request);
         $searchForm = $this->createForm(
             SearchForm::class, $search, [
-                'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
+                'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
             ]
         );
         $searchForm->handleRequest($request);
@@ -87,13 +87,13 @@ final class IndexController extends AbstractController
 //        if($ROLE_ADMIN)
 //        {
 //            $profileForm = $this->createForm(ProfileFilterFormAdmin::class, $profile, [
-//                'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
+//                'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
 //            ]);
 //        }
 //        else
 //        {
 //            $profileForm = $this->createForm(ProfileFilterForm::class, $profile, [
-//                'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
+//                'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
 //            ]);
 //        }
 //
@@ -116,7 +116,7 @@ final class IndexController extends AbstractController
         }
 
         $filterForm = $this->createForm(WbOrdersProductFilterForm::class, $filter, [
-            'action' => $this->generateUrl('WildberriesManufacture:admin.index'),
+            'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
         ]);
         $filterForm->handleRequest($request);
         !$filterForm->isSubmitted()?:$this->redirectToReferer();

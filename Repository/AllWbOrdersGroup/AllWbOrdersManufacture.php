@@ -461,7 +461,7 @@ final class AllWbOrdersManufacture implements AllWbOrdersManufactureInterface
 
         $qb->allGroupByExclude();
 
-        return $this->paginator->fetchAllAssociative($qb, 'ManufacturePart');
+        return $this->paginator->fetchAllAssociative($qb, 'manufacture-part');
 
     }
 }

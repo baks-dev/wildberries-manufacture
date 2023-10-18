@@ -1,7 +1,7 @@
 {
   "namespaces": [
     {
-      "namespace": "WildberriesManufacture",
+      "namespace": "wildberries-manufacture",
       "path": "Resources/view"
     }
   ]

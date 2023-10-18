@@ -27,7 +27,7 @@ use Symfony\Config\TwigConfig;
 
 return static function(TwigConfig $config, ContainerConfigurator $configurator) {
 	
-	$config->path(__DIR__.'/../view', 'WildberriesManufacture');
+	$config->path(__DIR__.'/../view', 'wildberries-manufacture');
 
 };
 

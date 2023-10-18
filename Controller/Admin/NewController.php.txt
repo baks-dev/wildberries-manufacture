@@ -58,7 +58,7 @@ final class NewController extends AbstractController
 
         // Форма
         $form = $this->createForm(ManufacturePartForm::class, $ManufacturePartDTO, [
-            'action' => $this->generateUrl('WildberriesManufacture:admin.newedit.new'),
+            'action' => $this->generateUrl('wildberries-manufacture:admin.newedit.new'),
         ]);
         $form->handleRequest($request);
         
@@ -97,7 +97,7 @@ final class NewController extends AbstractController
                     'admin.wb.manufacture'
                 );
 
-                return $this->redirectToRoute('WildberriesManufacture:admin.index');
+                return $this->redirectToRoute('wildberries-manufacture:admin.index');
             }
 
             $this->addFlash

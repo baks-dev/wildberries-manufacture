@@ -34,6 +34,6 @@ return function (RoutingConfigurator $routes) {
         $MODULE.'Controller/**/*Test.php'
     )
         ->prefix(\BaksDev\Core\Type\Locale\Locale::routes())
-        ->namePrefix('WildberriesManufacture:')
+        ->namePrefix('wildberries-manufacture:')
     ;
 };

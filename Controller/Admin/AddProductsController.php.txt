@@ -78,7 +78,7 @@ final class AddProductsController extends AbstractController
 
         // Форма
         $form = $this->createForm(ManufacturePartProductsForm::class, $ManufacturePartProductDTO, [
-            'action' => $this->generateUrl('WildberriesManufacture:admin.add'),
+            'action' => $this->generateUrl('wildberries-manufacture:admin.add'),
         ]);
 
         $form->handleRequest($request);
@@ -109,7 +109,7 @@ final class AddProductsController extends AbstractController
                     'admin.manufacture.part'
                 );
 
-                return $this->redirectToRoute('WildberriesManufacture:admin.index');
+                return $this->redirectToRoute('wildberries-manufacture:admin.index');
             }
 
             /** Если был добавлен продукт в открытую партию отправляем сокет */
@@ -133,7 +133,7 @@ final class AddProductsController extends AbstractController
                     status: $request->isXmlHttpRequest() ? 200 : 302 // не делаем редирект в случае AJAX
                 );
 
-                return $request->isXmlHttpRequest() ? $return : $this->redirectToRoute('WildberriesManufacture:admin.index');
+                return $request->isXmlHttpRequest() ? $return : $this->redirectToRoute('wildberries-manufacture:admin.index');
             }
 
             $this->addFlash(
@@ -142,7 +142,7 @@ final class AddProductsController extends AbstractController
                 'admin.wb.manufacture',
                 $HandlerResult);
 
-            return $this->redirectToRoute('WildberriesManufacture:admin.index');
+            return $this->redirectToRoute('wildberries-manufacture:admin.index');
         }
 
         return $this->render([
