@@ -33,11 +33,17 @@ return static function(FrameworkConfig $framework) {
         ->transport('wildberries-manufacture')
         ->dsn('%env(MESSENGER_TRANSPORT_DSN)%')
         ->options(['queue_name' => 'wildberries-manufacture'])
+        ->failureTransport('failed-wildberries-manufacture')
         ->retryStrategy()
         ->maxRetries(3)
         ->delay(1000)
         ->maxDelay(0)
         ->multiplier(3) // увеличиваем задержку перед каждой повторной попыткой
-        ->service(null);
+        ->service(null)
+
+    ;
+
+    $messenger->transport('failed-wildberries-manufacture')
+        ->dsn('%env(MESSENGER_TRANSPORT_DSN)%');
 
 };
