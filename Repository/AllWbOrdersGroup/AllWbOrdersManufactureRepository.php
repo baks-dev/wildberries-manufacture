@@ -60,7 +60,7 @@ use BaksDev\Wildberries\Orders\Type\OrderStatus\WbOrderStatus;
 use BaksDev\Wildberries\Products\Entity\Cards\WbProductCardOffer;
 use BaksDev\Wildberries\Products\Entity\Cards\WbProductCardVariation;
 
-final class AllWbOrdersManufacture implements AllWbOrdersManufactureInterface
+final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureInterface
 {
 
     private PaginatorInterface $paginator;
