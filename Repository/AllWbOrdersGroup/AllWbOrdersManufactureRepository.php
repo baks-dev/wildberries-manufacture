@@ -38,9 +38,9 @@ use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartSt
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
-use BaksDev\Products\Category\Entity\Offers\ProductCategoryOffers;
-use BaksDev\Products\Category\Entity\Offers\Variation\ProductCategoryVariation;
-use BaksDev\Products\Category\Type\Id\ProductCategoryUid;
+use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
+use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
+use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Entity\Category\ProductCategory;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
@@ -260,7 +260,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'product_category.event = product_event.id AND product_category.category = :category AND product_category.root = true'
             );
 
-            $qb->setParameter('category', $filter->getCategory(), ProductCategoryUid::TYPE);
+            $qb->setParameter('category', $filter->getCategory(), CategoryProductUid::TYPE);
         }
 
 
@@ -298,7 +298,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         $qb->addSelect('category_offer.reference as product_offer_reference');
         $qb->leftJoin(
             'product_offer',
-            ProductCategoryOffers::TABLE,
+            CategoryProductOffers::TABLE,
             'category_offer',
             'category_offer.id = product_offer.category_offer'
         );
@@ -328,7 +328,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         $qb->addSelect('category_variation.reference as product_variation_reference');
         $qb->leftJoin(
             'product_variation',
-            ProductCategoryVariation::TABLE,
+            CategoryProductVariation::TABLE,
             'category_variation',
             'category_variation.id = product_variation.category_variation'
         );

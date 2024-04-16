@@ -32,7 +32,7 @@ use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
-use BaksDev\Products\Category\Type\Id\ProductCategoryUid;
+use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup\AllWbOrdersManufactureInterface;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterDTO;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterForm;
@@ -112,7 +112,7 @@ final class IndexController extends AbstractController
         if($opens)
         {
             /** Если открыт производственный процесс - жестко указываем категорию и скрываем выбор */
-            $filter->setCategory(new ProductCategoryUid($opens['category_id'], $opens['category_name']));
+            $filter->setCategory(new CategoryProductUid($opens['category_id'], $opens['category_name']));
         }
 
         $filterForm = $this->createForm(WbOrdersProductFilterForm::class, $filter, [
