@@ -1,6 +1,6 @@
 # BaksDev Wildberries Manufacture
 
-[![Version](https://img.shields.io/badge/version-7.0.12-blue)](https://github.com/baks-dev/wildberries-manufacture/releases)
+[![Version](https://img.shields.io/badge/version-7.0.13-blue)](https://github.com/baks-dev/wildberries-manufacture/releases)
 ![php 8.2+](https://img.shields.io/badge/php-min%208.1-red.svg)
 
 Модуль производства продукции заказов Wildberries
