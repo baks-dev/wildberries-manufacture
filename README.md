@@ -1,6 +1,6 @@
 # BaksDev Wildberries Manufacture
 
-[![Version](https://img.shields.io/badge/version-7.0.13-blue)](https://github.com/baks-dev/wildberries-manufacture/releases)
+[![Version](https://img.shields.io/badge/version-7.0.14-blue)](https://github.com/baks-dev/wildberries-manufacture/releases)
 ![php 8.2+](https://img.shields.io/badge/php-min%208.1-red.svg)
 
 Модуль производства продукции заказов Wildberries
@@ -36,4 +36,3 @@ $ php bin/phpunit --group=wildberries-manufacture
 ## Лицензия ![License](https://img.shields.io/badge/MIT-green)
 
 The MIT License (MIT). Обратитесь к [Файлу лицензии](LICENSE.md) за дополнительной информацией.
-
