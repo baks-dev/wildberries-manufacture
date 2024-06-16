@@ -132,7 +132,9 @@
                                     ><small>{{ item.product_article }}</small> #}
 
                         <div class="btn-group p-0" role="group">
-                            <button type="submit" class="btn btn-primary btn-sm py-0"
+                            <button type="submit"
+                                    class="btn btn-primary btn-sm py-0"
+                                    role="tooltip"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
                                     data-bs-delay='{"show":600,"hide":100}'
@@ -142,7 +144,9 @@
                             </button>
 
                             {% if item.wb_order_alarm %}
-                                <button type="submit" class="btn btn-danger btn-sm py-0"
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm py-0"
+                                        role="tooltip"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
                                         data-bs-delay='{"show":600,"hide":100}'
@@ -166,6 +170,7 @@
 
 
                 <div class="text-truncate"
+                     role="tooltip"
                      data-bs-toggle="tooltip"
                      data-bs-placement="top"
                      data-bs-delay='{"show":600,"hide":100}'
@@ -225,6 +230,7 @@
 
                         {% if opens %}
                             <span
+                                    role="tooltip"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
                                     data-bs-delay='{"show":600,"hide":100}'
@@ -259,6 +265,7 @@
 
                             {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MANUFACTURE_PART_NEW') %}
                                 <span
+                                        role="tooltip"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="bottom"
                                         data-bs-delay='{"show":600,"hide":100}'
