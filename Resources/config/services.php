@@ -25,7 +25,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use BaksDev\Wildberries\Manufacture\BaksDevWildberriesManufactureBundle;
 
-return static function(ContainerConfigurator $configurator) {
+return static function (ContainerConfigurator $configurator) {
 
     $services = $configurator->services()
         ->defaults()
@@ -38,11 +38,14 @@ return static function(ContainerConfigurator $configurator) {
     $services->load($NAMESPACE, $PATH)
         ->exclude([
             $PATH.'{Entity,Resources,Type}',
-            $PATH.'**/*Message.php',
-            $PATH.'**/*DTO.php',
-        ])
-    ;
+            $PATH.'**'.DIRECTORY_SEPARATOR.'*Message.php',
+            $PATH.'**'.DIRECTORY_SEPARATOR.'*DTO.php',
+            $PATH.'**'.DIRECTORY_SEPARATOR.'*Test.php',
+        ]);
 
-    $services->load($NAMESPACE.'Type\ManufacturePartComplete\\', $PATH.'Type/ManufacturePartComplete');
+    $services->load(
+        $NAMESPACE.'Type\ManufacturePartComplete\\',
+        $PATH.implode(DIRECTORY_SEPARATOR, ['Type', 'ManufacturePartComplete'])
+    );
 
 };
