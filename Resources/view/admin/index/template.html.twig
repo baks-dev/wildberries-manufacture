@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 });
 </script>
 
-<script nonce='{{ csp_nonce() }}' async  data-src="https://unpkg.com/centrifuge@3.1.1/dist/centrifuge.js" class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/centrifugo/centrifuge.min.js?v={{ version }}" class='lazy'></script>
 
 <script nonce="{{ csp_nonce() }}">
 
