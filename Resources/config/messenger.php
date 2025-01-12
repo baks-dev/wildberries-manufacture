@@ -41,6 +41,18 @@ return static function (FrameworkConfig $framework) {
         ->multiplier(3) // увеличиваем задержку перед каждой повторной попыткой
         ->service(null);
 
+    $messenger
+        ->transport('wildberries-manufacture-low')
+        ->dsn('%env(MESSENGER_TRANSPORT_DSN)%')
+        ->options(['queue_name' => 'wildberries-manufacture'])
+        ->failureTransport('failed-wildberries-manufacture')
+        ->retryStrategy()
+        ->maxRetries(1)
+        ->delay(1000)
+        ->maxDelay(1)
+        ->multiplier(2)
+        ->service(null);
+
     $failure = $framework->messenger();
 
     $failure->transport('failed-wildberries-manufacture')
