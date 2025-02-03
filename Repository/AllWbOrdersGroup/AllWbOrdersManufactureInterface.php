@@ -26,18 +26,27 @@ namespace BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
+use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterInterface;
 
 interface AllWbOrdersManufactureInterface
 {
-    /**
-     * Метод возвращает сгруппированные заказы по артикулам
-     */
-    public function fetchAllWbOrdersGroupAssociative(
-        SearchDTO $search,
-        UserProfileUid $profile,
-        WbOrdersProductFilterInterface $filter,
-        ?ManufacturePartComplete $complete = null
-    ): PaginatorInterface;
+    public function search(SearchDTO $search): self;
+
+    public function filter(ProductFilterDTO $filter): self;
+
+    public function profile(UserProfileUid $profile): self;
+
+    public function findPaginator(ManufacturePartComplete|false $part): PaginatorInterface;
+
+    //    /**
+    //     * Метод возвращает сгруппированные заказы по артикулам
+    //     */
+    //    public function fetchAllWbOrdersGroupAssociative(
+    //        SearchDTO $search,
+    //        UserProfileUid $profile,
+    //        WbOrdersProductFilterInterface $filter,
+    //        ?ManufacturePartComplete $complete = null
+    //    ): PaginatorInterface;
 }

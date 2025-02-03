@@ -16,7 +16,9 @@
 
 <div>
 
-    <div class="fw-bolder">{{ product.product_name }}</div>
+    <div class="fw-bolder text-truncate" style="max-width: 100px;">
+        11 {{ product.product_name }} 22
+    </div>
 
     <div>
         {% if product.product_offer_name %}

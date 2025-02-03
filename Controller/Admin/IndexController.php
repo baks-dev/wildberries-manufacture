@@ -33,9 +33,9 @@ use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
 use BaksDev\Products\Category\Type\Id\CategoryProductUid;
+use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
+use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup\AllWbOrdersManufactureInterface;
-use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterDTO;
-use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterForm;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -63,77 +63,54 @@ final class IndexController extends AbstractController
         int $page = 0,
     ): Response
     {
-        
-        /**
-         * Поиск
-         */
+        $search = new SearchDTO();
 
-        $search = new SearchDTO($request);
-        $searchForm = $this->createForm(
-            SearchForm::class, $search, [
-                'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
-            ]
-        );
-        $searchForm->handleRequest($request);
+        $searchForm = $this
+            ->createForm(
+                type: SearchForm::class,
+                data: $search,
+                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.index'),]
+            )
+            ->handleRequest($request);
 
-
-//        /**
-//         * Фильтр профиля пользователя
-//         */
-//
-//        $profile = new ProfileFilterDTO($request, $this->getProfileUid());
-//        $ROLE_ADMIN = $this->isGranted('ROLE_ADMIN');
-//
-//        if($ROLE_ADMIN)
-//        {
-//            $profileForm = $this->createForm(ProfileFilterFormAdmin::class, $profile, [
-//                'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
-//            ]);
-//        }
-//        else
-//        {
-//            $profileForm = $this->createForm(ProfileFilterForm::class, $profile, [
-//                'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
-//            ]);
-//        }
-//
-//        $profileForm->handleRequest($request);
-//        !$profileForm->isSubmitted()?:$this->redirectToReferer();
-
-        // Получаем открытую поставку
-        $opens = $openManufacturePart->fetchOpenManufacturePartAssociative($this->getCurrentProfileUid());
 
         /**
-         * Фильтр заказов
+         * Получаем активную открытую поставку ответственного (Независимо от авторизации)
          */
+        $opens = $openManufacturePart
+            ->fetchOpenManufacturePartAssociative($this->getCurrentProfileUid());
 
-        $filter = new WbOrdersProductFilterDTO($request);
+
+        /**
+         * Фильтр продукции
+         */
+        $filter = new ProductFilterDTO();
 
         if($opens)
         {
-            /** Если открыт производственный процесс - жестко указываем категорию и скрываем выбор */
+            /* Если открыт производственный процесс - жестко указываем категорию и скрываем выбор */
             $filter->setCategory(new CategoryProductUid($opens['category_id'], $opens['category_name']));
+            $filter->categoryInvisible();
         }
 
-        $filterForm = $this->createForm(WbOrdersProductFilterForm::class, $filter, [
-            'action' => $this->generateUrl('wildberries-manufacture:admin.index'),
-        ]);
-        $filterForm->handleRequest($request);
-        !$filterForm->isSubmitted()?:$this->redirectToReferer();
+        $filterForm = $this
+            ->createForm(
+                type: ProductFilterForm::class,
+                data: $filter,
+                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.index')]
+            )
+            ->handleRequest($request);
 
 
         /**
          * Получаем список заказов
          */
+        $this->isAdmin() ?: $allWbOrdersGroup->profile($this->getProfileUid());
 
         $WbOrders = $allWbOrdersGroup
-            ->fetchAllWbOrdersGroupAssociative(
-                $search,
-                $this->getProfileUid(),
-                $filter,
-                $opens ? new ManufacturePartComplete($opens['complete']) : null
-            );
-
+            ->search($search)
+            ->filter($filter)
+            ->findPaginator($opens ? new ManufacturePartComplete($opens['complete']) : false);
 
 
         return $this->render(
@@ -141,7 +118,7 @@ final class IndexController extends AbstractController
                 'opens' => $opens,
                 'query' => $WbOrders,
                 'search' => $searchForm->createView(),
-                //'profile' => $profileForm->createView(),
+                'current_profile' => $this->getCurrentProfileUid(),
                 'filter' => $filterForm->createView(),
                 'token' => $tokenUserGenerator->generate($this->getUsr()),
             ]

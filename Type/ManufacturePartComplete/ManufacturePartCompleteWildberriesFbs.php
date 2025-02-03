@@ -34,7 +34,7 @@ final class ManufacturePartCompleteWildberriesFbs implements ManufacturePartComp
     /**
      * Ничего не делать
      */
-    public const ACTION = 'wb_fbs';
+    public const string ACTION = 'wb_fbs';
 
     /**
      * Возвращает значение (value)
