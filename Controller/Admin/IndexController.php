@@ -78,8 +78,8 @@ final class IndexController extends AbstractController
          * Получаем активную открытую поставку ответственного (Независимо от авторизации)
          */
         $opens = $openManufacturePart
-            ->fetchOpenManufacturePartAssociative($this->getCurrentProfileUid());
-
+            ->forFixed($this->getCurrentProfileUid())
+            ->fetchOpenManufacturePartAssociative();
 
         /**
          * Фильтр продукции

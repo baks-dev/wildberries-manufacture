@@ -121,34 +121,34 @@
                 {# {% endif %} #}
 
 
-                <form method="post" class="position-absolute bottom-0 end-0 p-1">
+                <form method="post" class="position-absolute bottom-0 end-0 p-1 d-flex gap-1">
                     <input type="hidden" name="search_form[query]" value="{{ item.card_article }}">
 
                     <button type="submit"
                             class="btn btn-primary btn-sm small m-0  text-decoration-none text-nowrap lh-normal fw-normal"
                             value="{{ item.card_article }}"
-                    ><small>
-                            {{ item.card_article }}
-                        </small>
+                    >
+                        <small>{{ item.card_article }}</small>
                     </button>
-                    {# <div class="btn-group p-0" role="group">
-                            <button type="submit"
-                                    class="btn btn-primary btn-sm py-0"
-                                    role="tooltip"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="bottom"
-                                    data-bs-delay='{"show":600,"hide":100}'
-                                    title='Общее количество аналогичных заказов'
+
+                    <div class="btn-group p-0" role="group">
+
+                        {% if item.stock_available is not empty %}
+                            <a href="{{ path('products-stocks:admin.total.index') }}"
+                               class="btn btn-success btn-sm small"
+                               target="_blank"
+                               role="tooltip"
+                               data-bs-toggle="tooltip"
+                               data-bs-placement="bottom"
+                               data-bs-delay='{"show":600,"hide":100}'
+                               title='Незарезервированное количество на складе'
                             >
-                                {{ item.card_article }}
+                                {{ item.stock_available }}
+                            </a>
+                        {% endif %}
 
-
-
-
-                        </div> #}
-
+                    </div>
                 </form>
-
             </div>
 
 
