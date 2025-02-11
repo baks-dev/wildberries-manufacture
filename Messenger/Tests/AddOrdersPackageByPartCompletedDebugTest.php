@@ -45,7 +45,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @group wildberries-manufacture
  */
 #[When(env: 'test')]
-class AddOrdersPackageByPartCompletedTest extends KernelTestCase
+class AddOrdersPackageByPartCompletedDebugTest extends KernelTestCase
 {
 
     public function testUseCase(): void

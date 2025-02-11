@@ -30,6 +30,7 @@ use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
 use BaksDev\Manufacture\Part\Messenger\ManufacturePartMessage;
 use BaksDev\Manufacture\Part\Repository\ManufacturePartCurrentEvent\ManufacturePartCurrentEventInterface;
 use BaksDev\Manufacture\Part\Repository\ProductsByManufacturePart\ProductsByManufacturePartInterface;
@@ -63,16 +64,12 @@ final readonly class AddOrdersPackageByPartCompleted
         #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
         private ManufacturePartCurrentEventInterface $ManufacturePartCurrentEvent,
         private ExistOpenSupplyProfileInterface $ExistOpenSupplyProfile,
-        private RelevantNewOrderByProductInterface $RelevantNewOrderByProduct,
-        private ProductsByManufacturePartInterface $ProductsByManufacturePart,
         private MessageDispatchInterface $messageDispatch,
         private DeduplicatorInterface $deduplicator,
         private CentrifugoPublishInterface $CentrifugoPublish,
         private OpenWbSupplyIdentifierInterface $OpenWbSupplyIdentifier,
         private ExistOrderPackageInterface $ExistOrderPackage,
         private WbPackageHandler $WbPackageHandler,
-        private ProductStocksByOrderInterface $ProductStocksByOrder,
-        private ExtraditionProductStockHandler $ExtraditionProductStockHandler,
         private CurrentOrderEventInterface $CurrentOrderEvent
     )
     {
@@ -99,7 +96,7 @@ final readonly class AddOrdersPackageByPartCompleted
             ->fromPart($message->getId())
             ->find();
 
-        if(!$ManufacturePartEvent)
+        if(false === ($ManufacturePartEvent instanceof ManufacturePartEvent))
         {
             return false;
         }
@@ -149,7 +146,6 @@ final readonly class AddOrdersPackageByPartCompleted
         $ManufacturePartDTO = new ManufacturePartDTO();
         $ManufacturePartEvent->getDto($ManufacturePartDTO);
 
-
         $UserProfileUid = $ManufacturePartDTO->getInvariable()->getProfile();
 
 
@@ -157,18 +153,9 @@ final readonly class AddOrdersPackageByPartCompleted
          * Добавляем все заказы Wildberries DBS со статусом «На упаковке» в открытую системную поставку
          */
 
-
         /** @var ManufacturePartProductsDTO $ManufacturePartProductsDTO */
         foreach($ManufacturePartDTO->getProduct() as $ManufacturePartProductsDTO)
         {
-            //            $total = $product['product_total'];
-            //
-            //            $ProductEventUid = new ProductEventUid($product['product_event']);
-            //            $ProductOfferUid = $product['product_offer_id'] ? new ProductOfferUid($product['product_offer_id']) : false;
-            //            $ProductVariationUid = $product['product_variation_id'] ? new ProductVariationUid($product['product_variation_id']) : false;
-            //            $ProductModificationUid = $product['product_modification_id'] ? new ProductModificationUid($product['product_modification_id']) : false;
-
-
             $WbSupplyUid = $this->OpenWbSupplyIdentifier->forProfile($UserProfileUid)->find();
 
             /** Создаем упаковку на заказы одного продукта */
@@ -178,12 +165,9 @@ final readonly class AddOrdersPackageByPartCompleted
             /** @var ManufacturePartProductOrderDTO $ManufacturePartProductOrderDTO */
             foreach($ManufacturePartProductsDTO->getOrd() as $ManufacturePartProductOrderDTO)
             {
-                // $ManufacturePartProductOrderDTO->getOrd()
-
                 $OrderEvent = $this->CurrentOrderEvent
                     ->forOrder($ManufacturePartProductOrderDTO->getOrd())
                     ->find();
-
 
                 if(false === ($OrderEvent instanceof OrderEvent))
                 {
@@ -240,7 +224,6 @@ final readonly class AddOrdersPackageByPartCompleted
             /**
              * Сохраняем упаковку и приступаем к этапу отправки заказов по API
              * @see AddWildberriesSupplyOrdersHandler
-             *
              */
 
             $WbPackage = $this->WbPackageHandler->handle($WbPackageDTO);
@@ -248,8 +231,8 @@ final readonly class AddOrdersPackageByPartCompleted
             if(false === ($WbPackage instanceof WbPackage))
             {
                 $this->logger->critical(
-                    'wildberries-manufacture: Ошибка при сохранении упаковки',
-                    [$WbPackage, self::class.':'.__LINE__]
+                    sprintf('wildberries-manufacture: Ошибка %s при сохранении упаковки', $WbPackage),
+                    [$message, self::class.':'.__LINE__]
                 );
 
                 return false;
