@@ -101,7 +101,7 @@ final readonly class NewSupplyByPartCompleted
         $WbSupplyNewDTO = new WbSupplyNewDTO($ManufacturePartEvent->getProfile());
         $WbSupply = $this->WbSupplyNewHandler->handle($WbSupplyNewDTO);
 
-        if($WbSupply instanceof WbSupply)
+        if(false === ($WbSupply instanceof WbSupply))
         {
             $this->logger->critical(
                 'wildberries-manufacture: Ошибка при открытии новой поставки при завершающем этапе производства Wildberries FBS',
