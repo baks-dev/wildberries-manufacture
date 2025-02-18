@@ -105,7 +105,6 @@ final class IndexController extends AbstractController
         /**
          * Получаем список заказов
          */
-        $this->isAdmin() ?: $allWbOrdersGroup->profile($this->getProfileUid());
 
         $WbOrders = $allWbOrdersGroup
             ->search($search)

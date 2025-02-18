@@ -95,7 +95,7 @@ final readonly class NewSupplyByPartCompleted
         }
 
         /**
-         * Открываем новую системную поставку
+         * Открываем новую системную поставку на указанный профиль
          */
 
         $WbSupplyNewDTO = new WbSupplyNewDTO($ManufacturePartEvent->getProfile());
@@ -105,7 +105,7 @@ final readonly class NewSupplyByPartCompleted
         {
             $this->logger->critical(
                 'wildberries-manufacture: Ошибка при открытии новой поставки при завершающем этапе производства Wildberries FBS',
-                [$message, self::class.':'.__LINE__]
+                [$WbSupply, self::class.':'.__LINE__]
             );
 
             return;

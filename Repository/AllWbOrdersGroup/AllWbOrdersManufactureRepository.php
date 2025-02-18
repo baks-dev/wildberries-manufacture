@@ -40,6 +40,7 @@ use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
+use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
@@ -61,6 +62,7 @@ use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Orders\Entity\Event\WbOrdersEvent;
 use BaksDev\Wildberries\Orders\Entity\WbOrders;
@@ -82,7 +84,8 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
-        private readonly PaginatorInterface $paginator
+        private readonly PaginatorInterface $paginator,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage
     ) {}
 
     public function search(SearchDTO $search): self
@@ -125,46 +128,45 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             //->select('invariable.number')
             ->from(OrderInvariable::class, 'invariable');
 
-        if($this->profile instanceof UserProfileUid)
-        {
-            $dbal
-                ->where('invariable.profile = :profile')
-                ->setParameter('profile', $this->profile, UserProfileUid::TYPE);
-        }
-
 
         $dbal
-            ->join(
-                'invariable',
-                Order::class,
-                'orders',
-                'orders.id = invariable.main'
+            ->where('invariable.profile = :profile')
+            ->setParameter(
+                'profile',
+                $this->profile ?: $this->UserProfileTokenStorage->getProfile(),
+                UserProfileUid::TYPE
             );
 
-        $dbal
-            ->addSelect('MIN(event.created) AS order_data')
-            ->addSelect('COUNT(*) AS order_total')
-            ->join(
-                'invariable',
-                OrderEvent::class,
-                'event',
-                'event.id = orders.event AND event.status = :status'
-            )
+
+        $dbal->join(
+            'invariable',
+            Order::class,
+            'orders',
+            'orders.id = invariable.main'
+        );
+
+
+        $dbal->join(
+            'invariable',
+            OrderEvent::class,
+            'event',
+            'event.id = orders.event AND event.status = :status'
+        )
             ->setParameter(
                 'status',
                 OrderStatus\OrderStatusNew::class,
                 OrderStatus::TYPE
             );
 
-        $dbal
-            ->leftJoin(
-                'orders',
-                OrderUser::class,
-                'order_user',
-                'order_user.event = orders.event'
-            );
+        $dbal->leftJoin(
+            'orders',
+            OrderUser::class,
+            'order_user',
+            'order_user.event = orders.event'
+        );
 
         $dbal
+            ->addSelect('MIN(order_delivery.delivery_date) AS order_data')
             ->join(
                 'order_user',
                 OrderDelivery::class,
@@ -173,32 +175,33 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                     order_delivery.delivery IN (:delivery)
                 '
             )->setParameter(
-                'delivery',
-                [TypeDeliveryDbsWildberries::TYPE, TypeDeliveryFbsWildberries::TYPE],
-                ArrayParameterType::STRING
+                key: 'delivery',
+                value: [TypeDeliveryDbsWildberries::TYPE, TypeDeliveryFbsWildberries::TYPE],
+                type: ArrayParameterType::STRING
             );
 
-        $dbal->leftJoin(
-            'orders',
-            OrderProduct::class,
-            'order_product',
-            'order_product.event = orders.event'
-        );
+        $dbal
+            ->addSelect('order_product.product')
+            ->addSelect('order_product.offer')
+            ->addSelect('order_product.variation')
+            ->addSelect('order_product.modification')
+            ->leftJoin(
+                'orders',
+                OrderProduct::class,
+                'order_product',
+                'order_product.event = orders.event'
+            );
 
 
-        //        $dbal->leftJoin(
-        //            'order_product',
-        //            OrderPrice::class,
-        //            'order_product_price',
-        //            'order_product_price.product = order_product.id'
-        //        );
+        $dbal
+            ->addSelect('SUM(order_product_price.total) AS order_total')
+            ->leftJoin(
+                'order_product',
+                OrderPrice::class,
+                'order_product_price',
+                'order_product_price.product = order_product.id'
+            );
 
-
-        //$dbal->addSelect('orders.id');
-        $dbal->addSelect('order_product.product');
-        $dbal->addSelect('order_product.offer');
-        $dbal->addSelect('order_product.variation');
-        $dbal->addSelect('order_product.modification');
 
         $dbal
             ->leftJoin(
@@ -224,11 +227,16 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             $dbal->join('order_product',
                 ProductCategory::class,
                 'product_category',
-                'product_category.event = product_info.event AND product_category.category = :category AND product_category.root = true'
-            );
-
-            $dbal->setParameter('category', $this->filter->getCategory(), CategoryProductUid::TYPE);
-
+                '
+                product_category.event = product_info.event AND 
+                product_category.category = :category AND 
+                product_category.root = true'
+            )
+                ->setParameter(
+                    key: 'category',
+                    value: $this->filter->getCategory(),
+                    type: CategoryProductUid::TYPE
+                );
 
         }
 
@@ -588,7 +596,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 
 
         $dbal
-            ->addSelect('orders.id AS order_id')
+            //->addSelect('orders.id AS order_id')
             ->join(
                 'invariable',
                 Order::class,
@@ -597,8 +605,6 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             );
 
         $dbal
-            ->addSelect('MIN(event.created) AS order_data')
-            ->addSelect('COUNT(*) AS order_total')
             ->join(
                 'invariable',
                 OrderEvent::class,
@@ -620,6 +626,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             );
 
         $dbal
+            ->addSelect('MIN(order_delivery.delivery_date) AS order_data')
             ->join(
                 'order_user',
                 OrderDelivery::class,
@@ -633,20 +640,24 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 ArrayParameterType::STRING
             );
 
-        $dbal->leftJoin(
-            'orders',
-            OrderProduct::class,
-            'order_product',
-            'order_product.event = orders.event'
-        );
+        $dbal
+            ->leftJoin(
+                'orders',
+                OrderProduct::class,
+                'order_product',
+                'order_product.event = orders.event'
+            );
 
 
-        //        $dbal->leftJoin(
-        //            'order_product',
-        //            OrderPrice::class,
-        //            'order_product_price',
-        //            'order_product_price.product = order_product.id'
-        //        );
+        $dbal
+            ->addSelect('SUM(order_product_price.total) AS order_total')
+            //->addSelect('COUNT(*) AS order_total')
+            ->leftJoin(
+                'order_product',
+                OrderPrice::class,
+                'order_product_price',
+                'order_product_price.product = order_product.id'
+            );
 
 
         //$dbal->addSelect('orders.id');
@@ -970,7 +981,6 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             $dbal->allGroupByExclude('exist_part');
 
 
-
         }
         else
         {
@@ -980,12 +990,12 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 
 
         /** Только заказы, которых нет в упаковке */
-        $dbal->join(
-            'orders',
-            WbPackageOrder::class,
-            'package',
-            'package.id != orders.id'
-        );
+        //        $dbal->join(
+        //            'orders',
+        //            WbPackageOrder::class,
+        //            'package',
+        //            'package.id != orders.id'
+        //        );
 
 
         $dbal->andWhereNotExists(
@@ -1008,6 +1018,4 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         return $this->paginator->fetchAllAssociative($dbal);
 
     }
-
-
 }
