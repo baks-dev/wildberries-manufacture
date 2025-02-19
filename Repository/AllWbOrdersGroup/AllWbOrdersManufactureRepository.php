@@ -266,7 +266,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'product_offer.id = order_product.offer AND product_offer.event = product_event.id'
             );
 
-        if(is_null($this->search?->getQuery()) && $this->filter?->getOffer())
+        if($this->filter?->getOffer())
         {
             $dbal->andWhere('product_offer.value = :offer');
             $dbal->setParameter('offer', $this->filter->getOffer());
@@ -299,6 +299,13 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'product_variation.id = order_product.variation AND product_variation.offer = product_offer.id'
             );
 
+        /** ФИЛЬТР по множественным вариантам */
+        if($this->filter?->getVariation())
+        {
+            $dbal->andWhere('product_variation.value = :variation');
+            $dbal->setParameter('variation', $this->filter->getVariation());
+        }
+
 
         /* Тип множественного варианта */
 
@@ -325,6 +332,13 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'product_modification',
                 'product_modification.id = order_product.modification AND product_modification.variation = product_variation.id'
             );
+
+        /** ФИЛЬТР по модификациям множественного варианта */
+        if($this->filter?->getModification())
+        {
+            $dbal->andWhere('product_modification.value = :modification');
+            $dbal->setParameter('modification', $this->filter->getModification());
+        }
 
         $dbal
             ->addSelect('category_modification.reference AS product_modification_reference')
@@ -495,8 +509,8 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 ->setParameter(
                     'status_part',
                     [
-                        ManufacturePartStatusClosed::STATUS/*,
-                        ManufacturePartStatusCompleted::STATUS*/
+                        ManufacturePartStatusClosed::STATUS,
+                        ManufacturePartStatusCompleted::STATUS
                     ],
                     ArrayParameterType::STRING
                 )
@@ -709,6 +723,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             );
 
 
+
         /**
          * Торговое предложение
          */
@@ -724,7 +739,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'product_offer.id = order_product.offer AND product_offer.event = product_event.id'
             );
 
-        if(is_null($this->search?->getQuery()) && $this->filter?->getOffer())
+        if($this->filter?->getOffer())
         {
             $dbal->andWhere('product_offer.value = :offer');
             $dbal->setParameter('offer', $this->filter->getOffer());
@@ -758,6 +773,14 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             );
 
 
+        /** ФИЛЬТР по множественным вариантам */
+        if($this->filter?->getVariation())
+        {
+            $dbal->andWhere('product_variation.value = :variation');
+            $dbal->setParameter('variation', $this->filter->getVariation());
+        }
+
+
         /* Тип множественного варианта */
 
         $dbal
@@ -783,6 +806,13 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'product_modification',
                 'product_modification.id = order_product.modification AND product_modification.variation = product_variation.id'
             );
+
+        /** ФИЛЬТР по модификациям множественного варианта */
+        if($this->filter?->getModification())
+        {
+            $dbal->andWhere('product_modification.value = :modification');
+            $dbal->setParameter('modification', $this->filter->getModification());
+        }
 
         $dbal
             ->addSelect('category_modification.reference AS product_modification_reference')
@@ -949,24 +979,31 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             '
             );
 
-            $dbalExist->join(
-                'exist_part',
-                ManufacturePartEvent::class,
-                'exist_product_event',
-                '
-                exist_product_event.id = exist_part.event AND exist_product_event.complete = :complete
-            '
-            );
 
-            $dbalExist->andWhere('exist_product_event.status != :status_closed');
-            $dbalExist->andWhere('exist_product_event.status != :status_completed');
+            $dbalExist
+                ->join('exist_part',
+                    ManufacturePartEvent::class,
+                    'exist_product_event',
+                    '
+                exist_product_event.id = exist_part.event AND
+                exist_product_event.complete = :complete AND
+                exist_product_event.status NOT IN (:status_part)
+            ');
+
+            /** Только продукция в процессе производства */
+            $dbal
+                ->setParameter(
+                    'status_part',
+                    [
+                        ManufacturePartStatusClosed::STATUS,
+                        ManufacturePartStatusCompleted::STATUS
+                    ],
+                    ArrayParameterType::STRING
+                );
 
             /** Только продукция на указанный завершающий этап */
             $dbal->setParameter('complete', $complete, ManufacturePartComplete::TYPE);
 
-            /** Только продукция в процессе производства */
-            $dbal->setParameter('status_closed', ManufacturePartStatusClosed::STATUS);
-            $dbal->setParameter('status_completed', ManufacturePartStatusCompleted::STATUS);
 
 
             $dbalExist->andWhere('exist_product.product = order_product.product');
