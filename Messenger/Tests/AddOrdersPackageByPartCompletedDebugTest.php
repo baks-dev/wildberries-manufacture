@@ -27,7 +27,7 @@ namespace BaksDev\Wildberries\Manufacture\Messenger\Tests;
 
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Manufacture\Part\Messenger\ManufacturePartMessage;
-use BaksDev\Manufacture\Part\Messenger\ProductStocks\ProductStocksByPartCompleted;
+use BaksDev\Manufacture\Part\Messenger\ProductStocks\ProductStocksByPartCompletedDispatcher;
 use BaksDev\Manufacture\Part\Type\Event\ManufacturePartEventUid;
 use BaksDev\Manufacture\Part\Type\Id\ManufacturePartUid;
 use BaksDev\Wildberries\Manufacture\Messenger\AddOrdersPackageByPartCompleted;

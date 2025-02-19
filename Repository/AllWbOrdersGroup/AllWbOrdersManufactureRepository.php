@@ -218,7 +218,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'order_product',
                 ProductInfo::class,
                 'product_info',
-                'product_info.product = product_event.main '
+                'product_info.product = product_event.main AND product_info.profile = invariable.profile'
             );
 
 

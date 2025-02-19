@@ -57,7 +57,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(priority: -10)]
+/**
+ * Метод добавляет заказы Wildberries в открытую поставку при выполненной производственной парии Wildberries Fbs
+ */
+#[AsMessageHandler(priority: 10)]
 final readonly class AddOrdersPackageByPartCompleted
 {
     public function __construct(
@@ -76,9 +79,7 @@ final readonly class AddOrdersPackageByPartCompleted
         $this->deduplicator->namespace('wildberries-manufacture');
     }
 
-    /**
-     * Метод добавляет заказы Wildberries в открытую поставку при выполненной производственной парии Wildberries Fbs
-     */
+
     public function __invoke(ManufacturePartMessage $message): bool
     {
 
@@ -122,7 +123,7 @@ final readonly class AddOrdersPackageByPartCompleted
         {
             /**
              * Пробуем добавить через интервал в ожидании открытия, если нет открытой поставки Wildberries
-             * @see NewSupplyByPartCompleted
+             * @see NewSupplyByPartCompletedDispatcher
              */
 
             $this->messageDispatch
