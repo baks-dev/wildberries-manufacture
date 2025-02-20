@@ -69,14 +69,14 @@
 <script nonce='{{ csp_nonce() }}' async  data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}' class='lazy'></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/products_product/filter.min.js?v={{ version }}" class="lazy"></script>
 
-<script nonce="{{ csp_nonce() }}">
+{#<script nonce="{{ csp_nonce() }}">
 document.addEventListener("DOMContentLoaded", (event) => {
 
 	const form = document.forms.wb_orders_product_filter_form;
 	form?.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
 
 });
-</script>
+</script>#}
 
 <script nonce="{{ csp_nonce() }}">
     // window.debug = true;
