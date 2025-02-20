@@ -574,7 +574,11 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         {
             $dbal
                 ->createSearchQueryBuilder($this->search)
-                ->addSearchLike('product_info.article');
+                ->addSearchLike('product_modification.article')
+                ->addSearchLike('product_variation.article')
+                ->addSearchLike('product_offer.article')
+                ->addSearchLike('product_info.article')
+                ->addSearchLike('product_trans.name');
         }
 
         //dd($dbal->fetchAllAssociative());
@@ -665,7 +669,10 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 
         $dbal
             ->addSelect('SUM(order_product_price.total) AS order_total')
-            //->addSelect('COUNT(*) AS order_total')
+            ->addSelect('order_product.product')
+            ->addSelect('order_product.offer')
+            ->addSelect('order_product.variation')
+            ->addSelect('order_product.modification')
             ->leftJoin(
                 'order_product',
                 OrderPrice::class,
@@ -674,11 +681,6 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             );
 
 
-        //$dbal->addSelect('orders.id');
-        $dbal->addSelect('order_product.product');
-        $dbal->addSelect('order_product.offer');
-        $dbal->addSelect('order_product.variation');
-        $dbal->addSelect('order_product.modification');
 
         $dbal
             ->leftJoin(
@@ -721,7 +723,6 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'product_trans',
                 'product_trans.event = product_event.id AND product_trans.local = :local'
             );
-
 
 
         /**
@@ -1005,7 +1006,6 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             $dbal->setParameter('complete', $complete, ManufacturePartComplete::TYPE);
 
 
-
             $dbalExist->andWhere('exist_product.product = order_product.product');
             $dbalExist->andWhere('(exist_product.offer = order_product.offer)');
             $dbalExist->andWhere('(exist_product.variation = order_product.variation)');
@@ -1049,7 +1049,11 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         {
             $dbal
                 ->createSearchQueryBuilder($this->search)
-                ->addSearchLike('product_info.article');
+                ->addSearchLike('product_modification.article')
+                ->addSearchLike('product_variation.article')
+                ->addSearchLike('product_offer.article')
+                ->addSearchLike('product_info.article')
+                ->addSearchLike('product_trans.name');
         }
 
         return $this->paginator->fetchAllAssociative($dbal);
