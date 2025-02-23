@@ -124,12 +124,36 @@
                 <form method="post" class="position-absolute bottom-0 end-0 p-1 d-flex gap-1">
                     <input type="hidden" name="search_form[query]" value="{{ item.card_article }}">
 
-                    <button type="submit"
-                            class="btn btn-primary btn-sm small m-0  text-decoration-none text-nowrap lh-normal fw-normal"
-                            value="{{ item.card_article }}"
-                    >
-                        <small>{{ item.card_article }}</small>
-                    </button>
+                    {% if item.order_total != item.analog %}
+                        <div class="btn-group" role="group" aria-label="Basic example">
+
+                            <button type="submit"
+                                    class="btn btn-primary btn-sm small m-0 text-decoration-none text-nowrap lh-normal fw-normal"
+                                    value="{{ item.card_article }}"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="bottom"
+                                    data-bs-delay='{"show":600,"hide":100}'
+                                    title='Количество аналогичных карточек'
+                            >
+                                <small>{{ item.analog }}</small>
+                            </button>
+
+                            {% if item.alarm %}
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm small m-0 text-decoration-none text-nowrap lh-normal fw-normal"
+                                        value="{{ item.card_article }}"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="bottom"
+                                        data-bs-delay='{"show":600,"hide":100}'
+                                        title='Количество горячих заказов'
+                                >
+                                    <small>{{ item.alarm }}</small>
+                                </button>
+                            {% endif %}
+
+                        </div>
+                    {% endif %}
+
 
                     <div class="btn-group p-0" role="group">
 

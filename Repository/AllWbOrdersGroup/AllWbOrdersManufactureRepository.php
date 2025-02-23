@@ -66,6 +66,7 @@ use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserPro
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Orders\Entity\Event\WbOrdersEvent;
 use BaksDev\Wildberries\Orders\Entity\WbOrders;
+use BaksDev\Wildberries\Orders\Entity\WbOrdersStatistics;
 use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterInterface;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryDbsWildberries;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
@@ -192,7 +193,6 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'order_product.event = orders.event'
             );
 
-
         $dbal
             ->addSelect('SUM(order_product_price.total) AS order_total')
             ->leftJoin(
@@ -211,6 +211,15 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'product_event.id = order_product.product'
             );
 
+        $dbal
+            ->addSelect('wb_orders_statistics.analog')
+            ->addSelect('wb_orders_statistics.alarm')
+            ->leftJoin(
+                'product_event',
+                WbOrdersStatistics::class,
+                'wb_orders_statistics',
+                'wb_orders_statistics.product = product_event.main'
+            );
 
         $dbal
             ->addSelect('product_info.article AS card_article')
