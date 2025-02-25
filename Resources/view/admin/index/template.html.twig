@@ -86,12 +86,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/centrifugo/centrifuge.min.js?v={{ version }}" class='lazy'></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/centrifugo/socket.min.js?v={{ version }}" class='lazy'></script>
-
+<script nonce='{{ csp_nonce() }}' async  data-src="/assets/js/print.min.js?v={{ version }}" class="lazy"></script>
 
 <script nonce="{{ csp_nonce() }}">
 
 /** Сокеты */
-
 
 let KuKutdEba = 100;
 
