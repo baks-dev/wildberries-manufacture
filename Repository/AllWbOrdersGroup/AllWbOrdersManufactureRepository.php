@@ -633,7 +633,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 
         $dbal
             ->join(
-                'invariable',
+                'orders',
                 OrderEvent::class,
                 'event',
                 'event.id = orders.event AND event.status = :status'
