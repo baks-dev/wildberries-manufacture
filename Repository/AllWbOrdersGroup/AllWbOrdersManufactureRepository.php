@@ -51,6 +51,7 @@ use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Entity\Category\ProductCategory;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
+use BaksDev\Products\Product\Entity\Material\ProductMaterial;
 use BaksDev\Products\Product\Entity\Offers\Image\ProductOfferImage;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
 use BaksDev\Products\Product\Entity\Offers\Variation\Image\ProductVariationImage;
@@ -210,6 +211,11 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'product_event',
                 'product_event.id = order_product.product'
             );
+
+        if($this->filter->getMaterials())
+        {
+            $dbal->andWhereNotExists(ProductMaterial::class, 'tmp', 'tmp.event = order_product.product');
+        }
 
         $dbal
             ->addSelect('wb_orders_statistics.analog')
