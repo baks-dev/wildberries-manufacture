@@ -25,13 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Messenger\Tests;
 
-use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Manufacture\Part\Messenger\ManufacturePartMessage;
-use BaksDev\Manufacture\Part\Messenger\ProductStocks\ProductStocksByPartCompletedDispatcher;
-use BaksDev\Manufacture\Part\Type\Event\ManufacturePartEventUid;
-use BaksDev\Manufacture\Part\Type\Id\ManufacturePartUid;
 use BaksDev\Wildberries\Manufacture\Messenger\AddOrdersPackageByPartCompleted;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
@@ -55,19 +50,17 @@ class AddOrdersPackageByPartCompletedDebugTest extends KernelTestCase
         $event = new ConsoleCommandEvent(new Command(), new StringInput(''), new NullOutput());
         $dispatcher->dispatch($event, 'console.command');
 
-
         /** @var AddOrdersPackageByPartCompleted $AddOrdersPackageByPartCompleted */
         $AddOrdersPackageByPartCompleted = self::getContainer()->get(AddOrdersPackageByPartCompleted::class);
 
         $ManufacturePartMessage = new ManufacturePartMessage(
-            new ManufacturePartUid('0194ed4a-cd92-7a22-9b9e-2ae8f8ac2ced'),
-            new ManufacturePartEventUid('0194ed5c-78a3-7c76-ba72-1859fc9de613')
+            '0194ed4a-cd92-7a22-9b9e-2ae8f8ac2ced',
+            '0194ed5c-78a3-7c76-ba72-1859fc9de613'
         );
 
         $dispatch = $AddOrdersPackageByPartCompleted($ManufacturePartMessage);
 
-        //self::assertFalse($dispatch);
-        self::assertTrue($dispatch);
+        self::assertFalse($dispatch);
 
     }
 
