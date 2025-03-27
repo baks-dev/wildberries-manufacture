@@ -23,7 +23,10 @@
   ],
   "require": {
     "php": ">=8.4",
-    "baks-dev/core": "^7.2"
+    "baks-dev/core": "^7.2",
+    "baks-dev/manufacture-part": "^7.2",
+    "baks-dev/wildberries-package": "^7.2",
+    "baks-dev/wildberries-orders": "^7.2"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest"
