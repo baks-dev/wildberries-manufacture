@@ -44,6 +44,7 @@ use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Orders\Order\Entity\User\Delivery\OrderDelivery;
 use BaksDev\Orders\Order\Entity\User\OrderUser;
 use BaksDev\Orders\Order\Type\Status\OrderStatus;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusNew;
 use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
 use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
 use BaksDev\Products\Category\Entity\Offers\Variation\Modification\CategoryProductModification;
@@ -65,15 +66,9 @@ use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Wildberries\Orders\Entity\Event\WbOrdersEvent;
-use BaksDev\Wildberries\Orders\Entity\WbOrders;
 use BaksDev\Wildberries\Orders\Entity\WbOrdersStatistics;
-use BaksDev\Wildberries\Orders\Forms\WbOrdersProductFilter\WbOrdersProductFilterInterface;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryDbsWildberries;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
-use BaksDev\Wildberries\Package\Entity\Package\Orders\WbPackageOrder;
-use BaksDev\Wildberries\Products\Entity\Cards\WbProductCardOffer;
-use BaksDev\Wildberries\Products\Entity\Cards\WbProductCardVariation;
 use Doctrine\DBAL\ArrayParameterType;
 
 final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureInterface
@@ -156,7 +151,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         )
             ->setParameter(
                 'status',
-                OrderStatus\OrderStatusNew::class,
+                OrderStatusNew::class,
                 OrderStatus::TYPE
             );
 
