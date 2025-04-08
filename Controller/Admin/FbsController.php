@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2023.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -24,33 +24,34 @@
 declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Controller\Admin;
+
 use BaksDev\Centrifugo\Services\Token\TokenUserGenerator;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
 use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
-use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\AllWbOrdersAnalyticsInterface;
+use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup\AllWbOrdersManufactureInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\HttpFoundation\Response;
-use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
 
 #[AsController]
-#[RoleSecurity('ROLE_WB_MANUFACTURE_ANALYTICS')]
-final class AnalyticsController extends AbstractController
+#[RoleSecurity('ROLE_WB_MANUFACTURE')]
+final class FbsController extends AbstractController
 {
     /**
-     * Список товаров на складах Wildberries, требующих новых поставок на склад
+     * Список сборочных заданий Wildberries для производственной партии на поступившие заказы
      */
-    #[Route('/admin/wb/manufacture/analytics/{page<\d+>}', name: 'admin.analytics', methods: ['GET', 'POST'])]
+    #[Route('/admin/wb/fbs/manufacture/{page<\d+>}', name: 'admin.fbs', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
-        AllWbOrdersAnalyticsInterface $allWbOrdersAnalyticsRepository,
+        AllWbOrdersManufactureInterface $allWbOrdersGroup,
         OpenManufacturePartInterface $openManufacturePart,
         TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
@@ -62,9 +63,10 @@ final class AnalyticsController extends AbstractController
             ->createForm(
                 type: SearchForm::class,
                 data: $search,
-                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.analytics')]
+                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.fbs'),]
             )
             ->handleRequest($request);
+
 
         /**
          * Получаем активную открытую поставку ответственного (Независимо от авторизации)
@@ -89,26 +91,30 @@ final class AnalyticsController extends AbstractController
             ->createForm(
                 type: ProductFilterForm::class,
                 data: $filter,
-                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.analytics')]
+                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.fbs')]
             )
             ->handleRequest($request);
 
+
         /**
-         * Получаем данные о товарах: количество на складе WB, среднее количество заказов в день и количество дней,
-         * и др., сортируя в порядке убывания количества продукта, необходимого для пополнения
+         * Получаем список заказов
          */
-        $WbOrdersAnalytics = $allWbOrdersAnalyticsRepository
+
+        $WbOrders = $allWbOrdersGroup
             ->search($search)
             ->filter($filter)
             ->findPaginator($opens ? new ManufacturePartComplete($opens['complete']) : false);
 
-        return $this->render([
-            'opens' => $opens,
-            "query" => $WbOrdersAnalytics,
-            'search' => $searchForm->createView(),
-            'filter' => $filterForm->createView(),
-            'token' => $tokenUserGenerator->generate($this->getUsr()),
-            'current_profile' => $this->getCurrentProfileUid(),
-        ]);
+
+        return $this->render(
+            [
+                'opens' => $opens,
+                'query' => $WbOrders,
+                'search' => $searchForm->createView(),
+                'current_profile' => $this->getCurrentProfileUid(),
+                'filter' => $filterForm->createView(),
+                'token' => $tokenUserGenerator->generate($this->getUsr()),
+            ]
+        );
     }
 }

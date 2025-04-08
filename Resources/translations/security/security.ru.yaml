@@ -1,12 +1,12 @@
 # Роль
 
 ROLE_WB_MANUFACTURE:
-  name: 'Производство'
-  desc: 'Производство продукции Wildberries'
+  name: 'Производство FBS'
+  desc: 'Производство продукции на заказы Wildberries'
 
 ROLE_WB_MANUFACTURE_ANALYTICS:
-  name: 'Аналитика'
-  desc: 'Аналитика по заказам Wildberries'
+  name: 'Производство FBO'
+  desc: 'Производство продукции на склад Wildberries'
 
 # Правила
 

@@ -32,7 +32,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 final class ManufacturePartCompleteWildberriesFbs implements ManufacturePartCompleteInterface
 {
     /**
-     * Ничего не делать
+     * Закрыть заказы Wildberries
      */
     public const string ACTION = 'wb_fbs';
 

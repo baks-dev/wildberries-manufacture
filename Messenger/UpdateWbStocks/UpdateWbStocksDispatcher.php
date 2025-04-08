@@ -47,10 +47,10 @@ final readonly class UpdateWbStocksDispatcher
 
     public function __invoke(UpdateWbStocksMessage $message): void
     {
-        $WbStocksRequestDTO = $message->getDto();
-        $barcode = $WbStocksRequestDTO->getBarcode();
+        $barcode = $message->getBarcode();
 
-        $product = $this->ProductConstByBarcodeRepository->find($barcode);
+        $product = $this->ProductConstByBarcodeRepository
+            ->find($barcode);
 
         if(!$product)
         {
@@ -58,8 +58,6 @@ final readonly class UpdateWbStocksDispatcher
         }
 
         $invariable = $product->getInvariable();
-        $quantity = $WbStocksRequestDTO->getQuantity();
-
         $WbStock = $this->WbStocksDataUpdateRepository->find($invariable);
 
         /** @var WbStock $WbStock */
@@ -67,6 +65,7 @@ final readonly class UpdateWbStocksDispatcher
             $WbStock = new WbStock()->setInvariable($invariable);
         }
 
+        $quantity = $message->getQuantity();
         $WbStock->setQuantity($quantity);
 
         $errors = $this->validator->validate($WbStock);

@@ -25,10 +25,10 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Api\Orders;
 
-use Symfony\Contracts\Cache\ItemInterface;
 use BaksDev\Wildberries\Api\Wildberries;
-use Generator;
 use DateInterval;
+use Generator;
+use Symfony\Contracts\Cache\ItemInterface;
 
 final class GetWbOrdersRequest extends Wildberries
 {
@@ -59,7 +59,7 @@ final class GetWbOrdersRequest extends Wildberries
         return $this;
     }
 
-    /*
+    /**
      * Метод предоставляет информацию обо всех заказах.
      * Данные обновляются раз в 30 минут.
      *
@@ -70,7 +70,8 @@ final class GetWbOrdersRequest extends Wildberries
      *
      * Для одного ответа на запрос с flag=0 или без flag в системе установлено условное ограничение 80000 строк. Поэтому, чтобы получить все заказы, может потребоваться более, чем один запрос. Во втором и далее запросе в параметре dateFrom используйте полное значение поля lastChangeDate из последней строки ответа на предыдущий запрос.
      * Если в ответе отдаётся пустой массив [], все заказы уже выгружены.
-     * https://dev.wildberries.ru/ru/openapi/reports/#tag/Osnovnye-otchyoty/paths/~1api~1v1~1supplier~1orders/get
+     *
+     * @see https://dev.wildberries.ru/ru/openapi/reports/#tag/Osnovnye-otchyoty/paths/~1api~1v1~1supplier~1orders/get
      */
     public function findALl(): Generator|false
     {

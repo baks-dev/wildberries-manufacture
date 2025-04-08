@@ -30,9 +30,9 @@ use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Wildberries\Manufacture\Api\Stocks\GetWbStocksRequest;
 use BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks\UpdateWbStocksMessage;
 use BaksDev\Wildberries\Manufacture\Schedule\WbNewStocks\RefreshWbStocksSchedule;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use DateTimeImmutable;
 use DateTimeZone;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Получаем данные о запасах на складах WB и отправляем сообщения для дальнейшего сохранения в базу
@@ -66,7 +66,11 @@ final readonly class GetWbStocksDispatcher
             }
 
             $this->messageDispatch->dispatch(
-                message: new UpdateWbStocksMessage($response)
+                message: new UpdateWbStocksMessage(
+                    profile: $profile,
+                    barcode: $response->getBarcode(),
+                    quantity: $response->getQuantity()
+                )
             );
         }
     }

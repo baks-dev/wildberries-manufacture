@@ -25,16 +25,51 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks;
 
-use BaksDev\Wildberries\Manufacture\Api\Stocks\WbStocksRequestDTO;
+use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
 
-final readonly class UpdateWbStocksMessage
+final class UpdateWbStocksMessage
 {
+    private string $profile;
 
-    public function __construct(private WbStocksRequestDTO $wbStocksRequest)
-    {}
+    private string $barcode;
 
-    public function getDto(): WbStocksRequestDTO
+    private int $quantity;
+
+    public function __construct(
+        UserProfileEventUid|string $profile,
+        string $barcode,
+        int $quantity
+    )
     {
-        return $this->wbStocksRequest;
+
+        $this->profile = (string) $profile;
+        $this->barcode = $barcode;
+        $this->quantity = $quantity;
     }
+
+    /**
+     * Barcode
+     */
+    public function getBarcode(): string
+    {
+        return $this->barcode;
+    }
+
+    /**
+     * Quantity
+     */
+    public function getQuantity(): int
+    {
+        return $this->quantity;
+    }
+
+    /**
+     * Profile
+     */
+    public function getProfile(): UserProfileEventUid
+    {
+        return new UserProfileEventUid($this->profile);
+    }
+
+
 }

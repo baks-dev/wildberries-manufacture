@@ -26,9 +26,9 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 
 /** @group wildberries-manufacture */
 #[When(env: 'test')]
-final class IndexControllerTest extends WebTestCase
+final class FbsControllerTest extends WebTestCase
 {
-    private const string URL = '/admin/wb/manufacture';
+    private const string URL = '/admin/wb/fbs/manufacture';
     private const string ROLE = 'ROLE_WB_MANUFACTURE';
 
     /** Доступ по роли ROLE_PRODUCT */
