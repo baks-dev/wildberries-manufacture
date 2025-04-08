@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ * Copyright 2025.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Security;
+namespace BaksDev\Wildberries\Manufacture\Security\Analytics;
 
 use BaksDev\Menu\Admin\Command\Upgrade\MenuAdminInterface;
 use BaksDev\Menu\Admin\Type\SectionGroup\Group\Collection\MenuAdminSectionGroupCollectionInterface;
@@ -35,7 +35,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag('baks.menu.admin')]
 final class Role implements RoleInterface, MenuAdminInterface
 {
-    public const string ROLE = 'ROLE_WB_MANUFACTURE';
+    public const string ROLE = 'ROLE_WB_MANUFACTURE_ANALYTICS';
 
     public function getRole(): string
     {
@@ -49,7 +49,7 @@ final class Role implements RoleInterface, MenuAdminInterface
     /** Метод возвращает PATH раздела */
     public function getPath(): string
     {
-        return 'wildberries-manufacture:admin.index';
+        return 'wildberries-manufacture:admin.analytics';
     }
 
     /**
@@ -60,12 +60,9 @@ final class Role implements RoleInterface, MenuAdminInterface
         return new MenuGroupMarketplace();
     }
 
-    /**
-     * Метод возвращает позицию, в которую располагается ссылка в секции меню.
-     */
     public static function getSortMenu(): int
     {
-        return 415;
+        return 315;
     }
 
     /**

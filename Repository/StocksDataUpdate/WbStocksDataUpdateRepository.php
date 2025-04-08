@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ * Copyright 2025.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,27 +23,28 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Security;
+namespace BaksDev\Wildberries\Manufacture\Repository\StocksDataUpdate;
 
-use BaksDev\Users\Profile\Group\Security\RoleInterface;
-use BaksDev\Users\Profile\Group\Security\VoterInterface;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+use BaksDev\Core\Doctrine\ORMQueryBuilder;
+use BaksDev\Products\Product\Entity\ProductInvariable;
+use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
+use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 
-#[AutoconfigureTag('baks.security.voter')]
-
-final class VoterIndex implements VoterInterface
+final readonly class WbStocksDataUpdateRepository implements WbStocksDataUpdateInterface
 {
-    public const string VOTER = 'INDEX';
-
-    public static function getVoter(): string
+    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
+    
+    public function find(ProductInvariableUid|ProductInvariable|string $invariable): WbStock|false
     {
-        return Role::ROLE.'_'.self::VOTER;
+        $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
+
+        $orm
+            ->select('wb_stock')
+            ->from(WbStock::class, 'wb_stock')
+            ->where('wb_stock.invariable = :invariable')
+            ->setParameter('invariable', $invariable);
+
+        return $orm->getQuery()->getOneOrNullResult() ?: false;
+
     }
-
-    public function equals(RoleInterface $role): bool
-    {
-        return $role->getRole() === Role::ROLE;
-    }
-
-
 }

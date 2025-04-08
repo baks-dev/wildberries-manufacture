@@ -4,6 +4,10 @@ ROLE_WB_MANUFACTURE:
   name: 'Production'
   desc: 'Production of Wildberries'
 
+ROLE_WB_MANUFACTURE_ANALYTICS:
+  name: 'Analytics'
+  desc: 'Analytics of Wildberries orders'
+
 # Rules
 
 ROLE_WB_MANUFACTURE_INDEX:
