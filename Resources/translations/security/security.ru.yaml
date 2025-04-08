@@ -4,6 +4,10 @@ ROLE_WB_MANUFACTURE:
   name: 'Производство'
   desc: 'Производство продукции Wildberries'
 
+ROLE_WB_MANUFACTURE_ANALYTICS:
+  name: 'Аналитика'
+  desc: 'Аналитика по заказам Wildberries'
+
 # Правила
 
 ROLE_WB_MANUFACTURE_INDEX:

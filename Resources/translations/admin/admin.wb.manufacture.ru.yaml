@@ -1,6 +1,7 @@
 admin:
   page:
     index: 'Производство продукции Wildberries'
+    analytics: 'Аналитика по продукции на складах Wildberrires'
     new: 'Добавить партию производства Wildberries'
     edit: 'Редактировать партию производства Wildberries'
     delete: 'Удалить партию производства Wildberries'
@@ -11,6 +12,7 @@ admin:
 
   breadcrumb:
     index: 'Партии на производство продукции Wildberries'
+    analytics: 'Аналитика по продукции на складах Wildberrires'
     new: 'Добавить партию на производство продукции Wildberries'
     edit: 'Редактировать партию на производство продукции Wildberries'
     delete: 'Удалить партию на производство продукции Wildberries'

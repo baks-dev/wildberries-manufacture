@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ * Copyright 2025.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,27 +23,40 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Security;
+namespace BaksDev\Wildberries\Manufacture\Api\Orders;
 
-use BaksDev\Users\Profile\Group\Security\RoleInterface;
-use BaksDev\Users\Profile\Group\Security\VoterInterface;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+use DateTimeImmutable;
 
-#[AutoconfigureTag('baks.security.voter')]
-final class VoterDelete implements VoterInterface
+final class WbOrdersRequestDTO
 {
-    /**
-     * Удалить
-     */
-    public const string VOTER = 'DELETE';
+    /** Уникальный ID заказа */
+    private string $id;
 
-    public static function getVoter(): string
+    /** Баркод. */
+    private string $barcode;
+
+    /** Если часовой пояс не указан, то берётся Московское время (UTC+3). */
+    private DateTimeImmutable $date;
+
+    public function __construct(array $data)
     {
-        return Role::ROLE.'_'.self::VOTER;
+        $this->id = $data['srid'];
+        $this->barcode = $data["barcode"];
+        $this->date = new DateTimeImmutable($data['date']);
     }
 
-    public function equals(RoleInterface $role): bool
+    public function getId(): string
     {
-        return $role->getRole() === Role::ROLE;
+        return $this->id;
+    }
+
+    public function getBarcode(): string
+    {
+        return $this->barcode;
+    }
+
+    public function getDate(): DateTimeImmutable
+    {
+        return $this->date;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ * Copyright 2025.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,27 +23,24 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Security;
+namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
 
-use BaksDev\Users\Profile\Group\Security\RoleInterface;
-use BaksDev\Users\Profile\Group\Security\VoterInterface;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
 
-#[AutoconfigureTag('baks.security.voter')]
-final class VoterEdit implements VoterInterface
+final class CountWbOrdersResult implements CountWbOrdersInterface
 {
-    /**
-     * Редактировать
-     */
-    public const string VOTER = 'EDIT';
+    public function __construct(
+        private readonly string $invariable,
+        private readonly int $count
+    ) {}
 
-    public static function getVoter(): string
+    public function getInvariable(): ProductInvariableUid
     {
-        return Role::ROLE.'_'.self::VOTER;
+        return new ProductInvariableUid($this->invariable);
     }
 
-    public function equals(RoleInterface $role): bool
+    public function getCount(): int
     {
-        return $role->getRole() === Role::ROLE;
+        return $this->count;
     }
 }

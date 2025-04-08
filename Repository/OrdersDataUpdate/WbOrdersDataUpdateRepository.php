@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ * Copyright 2025.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,27 +23,26 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Security;
+namespace BaksDev\Wildberries\Manufacture\Repository\OrdersDataUpdate;
 
-use BaksDev\Users\Profile\Group\Security\RoleInterface;
-use BaksDev\Users\Profile\Group\Security\VoterInterface;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+use BaksDev\Core\Doctrine\ORMQueryBuilder;
+use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
 
-#[AutoconfigureTag('baks.security.voter')]
-final class VoterNew implements VoterInterface
+final readonly class WbOrdersDataUpdateRepository implements WbOrdersDataUpdateInterface
 {
-    /**
-     * Добавить
-     */
-    public const string VOTER = 'NEW';
+    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
 
-    public static function getVoter(): string
+    public function find(string $id): WbOrder|false
     {
-        return Role::ROLE.'_'.self::VOTER;
-    }
+        $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
-    public function equals(RoleInterface $role): bool
-    {
-        return $role->getRole() === Role::ROLE;
+        $orm
+            ->select('wb_order')
+            ->from(WbOrder::class, 'wb_order')
+            ->where('wb_order.id = :id')
+            ->setParameter('id', $id);
+
+        return $orm->getQuery()->getOneOrNullResult() ?: false;
+
     }
 }

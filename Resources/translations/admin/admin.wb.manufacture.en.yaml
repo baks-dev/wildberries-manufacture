@@ -1,6 +1,7 @@
 admin:
   page:
     index: 'Production of Wildberries'
+    analytics: 'Wildberries stock products analytics'
     new: 'Add production batch of Wildberries'
     edit: 'Edit Wildberries Production Batch'
     delete: 'Delete production batch of Wildberries'
@@ -11,6 +12,7 @@ admin:
 
   breadcrumb:
     index: 'Lots for the production of Wildberries'
+    analytics: 'Wildberries stock products analytics'
     new: 'Add production batch for Wildberries'
     edit: 'Edit production batch for Wildberries'
     delete: 'Delete batch for Wildberries production'
