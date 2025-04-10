@@ -71,7 +71,9 @@ final readonly class GetWbAverageOrdersDispatcher
             }
 
             $this->messageDispatch->dispatch(
-                message: new UpdateWbAverageOrdersMessage($product)
+                message: new UpdateWbAverageOrdersMessage(
+                    invariable: $product->getInvariable(),
+                    count: $product->getCount())
             );
         }
 

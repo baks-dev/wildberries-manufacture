@@ -23,11 +23,36 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
+namespace BaksDev\Wildberries\Manufacture\Api\Warehouses;
 
-interface CountWbOrdersInterface
+use BaksDev\Wildberries\Api\Wildberries;
+
+final class GetWbFbsWarehousesRequest extends Wildberries
 {
-    public function getInvariable(): string;
+    public function findAll(): array|false
+    {
+        $response = $this
+            ->marketplace()
+            ->TokenHttpClient()
+            ->request(
+                method: 'GET',
+                url: '/api/v3/warehouses',
+            );
 
-    public function getCount(): int;
+        $content = $response->toArray(false);
+
+        if($response->getStatusCode() !== 200)
+        {
+            $this->logger->critical(
+                sprintf('wildberries-manufacture: Ошибка обновления остатков FBS'),
+                [
+                    self::class.':'.__LINE__,
+                    $content
+                ]);
+
+            return false;
+        }
+
+        return $content;
+    }
 }

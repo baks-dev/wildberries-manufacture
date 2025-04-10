@@ -23,11 +23,22 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
+namespace BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes;
 
-interface CountWbOrdersInterface
+final readonly class AllWbStocksBarcodesResult
 {
-    public function getInvariable(): string;
+    public function __construct(
+        private string $barcode,
+        private int $quantity,
+    ) {}
 
-    public function getCount(): int;
+    public function getBarcode(): string
+    {
+        return $this->barcode;
+    }
+
+    public function getQuantity(): int
+    {
+        return $this->quantity;
+    }
 }

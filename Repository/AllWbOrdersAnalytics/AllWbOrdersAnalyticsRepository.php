@@ -89,7 +89,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
     /*
      * Получаем среднее количество заказов товаров в день и их количество на складе
      */
-    public function findPaginator(ManufacturePartComplete|false $part): PaginatorInterface
+    public function findPaginator(ManufacturePartComplete|false $part = false): PaginatorInterface
     {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)

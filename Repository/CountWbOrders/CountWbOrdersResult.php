@@ -25,8 +25,6 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
 
-use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
-
 final class CountWbOrdersResult implements CountWbOrdersInterface
 {
     public function __construct(
@@ -34,9 +32,9 @@ final class CountWbOrdersResult implements CountWbOrdersInterface
         private readonly int $count
     ) {}
 
-    public function getInvariable(): ProductInvariableUid
+    public function getInvariable(): string
     {
-        return new ProductInvariableUid($this->invariable);
+        return $this->invariable;
     }
 
     public function getCount(): int

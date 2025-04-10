@@ -61,7 +61,18 @@ final class AllWbOrdersAnalyticsTest extends KernelTestCase
             "quantity",
             "product_image_cdn",
             "product_url",
-            "category_url"
+            "category_url",
+            "needed_amount",
+            "product_id",
+            "product_event",
+            "product_offer_id",
+            "product_offer_id",
+            "product_variation_id",
+            "product_modification_id",
+            "product_event_id",
+            "category_name",
+            "order_total",
+            "exist_manufacture",
         ];
 
         $current = current($data);

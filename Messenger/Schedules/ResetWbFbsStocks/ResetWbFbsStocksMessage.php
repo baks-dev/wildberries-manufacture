@@ -23,11 +23,28 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
+namespace BaksDev\Wildberries\Manufacture\Messenger\Schedules\ResetWbFbsStocks;
 
-interface CountWbOrdersInterface
-{
-    public function getInvariable(): string;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
-    public function getCount(): int;
+final readonly class ResetWbFbsStocksMessage {
+    /**
+     * Идентификатор профиля пользователя
+     */
+    private UserProfileUid $profile;
+
+    public function __construct(UserProfileUid|string $profile)
+    {
+        if(is_string($profile))
+        {
+            $profile = new UserProfileUid($profile);
+        }
+
+        $this->profile = $profile;
+    }
+
+    public function getProfile(): UserProfileUid
+    {
+        return $this->profile;
+    }
 }

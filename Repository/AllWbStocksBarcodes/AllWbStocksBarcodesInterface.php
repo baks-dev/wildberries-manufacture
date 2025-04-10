@@ -23,11 +23,15 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
+namespace BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes;
 
-interface CountWbOrdersInterface
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use Generator;
+
+interface AllWbStocksBarcodesInterface
 {
-    public function getInvariable(): string;
+    public function profile(UserProfile|UserProfileUid|string $profile): static;
 
-    public function getCount(): int;
+    public function findAll(): Generator|false;
 }
