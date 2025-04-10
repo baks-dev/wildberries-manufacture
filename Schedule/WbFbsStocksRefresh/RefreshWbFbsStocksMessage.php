@@ -23,11 +23,6 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
+namespace BaksDev\Wildberries\Manufacture\Schedule\WbFbsStocksRefresh;
 
-interface CountWbOrdersInterface
-{
-    public function getInvariable(): string;
-
-    public function getCount(): int;
-}
+final readonly class RefreshWbFbsStocksMessage {}

@@ -47,8 +47,7 @@ final readonly class UpdateWbOrdersDispatcher
 
     public function __invoke(UpdateWbOrdersMessage $message): void
     {
-        $WbOrdersRequestDTO = $message->getDto();
-        $barcode = $WbOrdersRequestDTO->getBarcode();
+        $barcode = $message->getBarcode();
 
         $product = $this->ProductConstByBarcodeRepository->find($barcode);
 
@@ -57,7 +56,7 @@ final readonly class UpdateWbOrdersDispatcher
             return;
         }
 
-        $id = $WbOrdersRequestDTO->getId();
+        $id = $message->getId();
 
         $WbOrder = $this->WbOrdersDataUpdateRepository->find($id);
 
@@ -67,8 +66,7 @@ final readonly class UpdateWbOrdersDispatcher
         }
 
         $invariable = $product->getInvariable();
-        $id = $WbOrdersRequestDTO->getId();
-        $date = $WbOrdersRequestDTO->getDate();
+        $date = $message->getDate();
 
         $WbOrder = new WbOrder()
             ->setId($id)

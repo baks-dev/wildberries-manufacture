@@ -67,7 +67,10 @@ final readonly class GetWbOrdersDispatcher
             }
 
             $this->messageDispatch->dispatch(
-                message: new UpdateWbOrdersMessage($response)
+                message: new UpdateWbOrdersMessage(
+                    id: $response->getId(),
+                    barcode: $response->getBarcode(),
+                    date: $response->getDate())
             );
         }
     }

@@ -23,11 +23,26 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
+namespace BaksDev\Wildberries\Manufacture\Schedule\WbFbsStocksRefresh;
 
-interface CountWbOrdersInterface
+use DateInterval;
+
+final readonly class RefreshWbFbsStocksSchedule
 {
-    public function getInvariable(): string;
+    const string FBS_STOCK_REFRESH_PERIOD = '1 day';
 
-    public function getCount(): int;
+    /** Возвращает экземпляр класса сообщения */
+    public function getMessage(): object
+    {
+        return new RefreshWbFbsStocksMessage();
+    }
+
+    /**
+     * Интервал повтора
+     * @see https://www.php.net/manual/en/dateinterval.createfromdatestring.php
+     */
+    public function getInterval(): DateInterval
+    {
+        return DateInterval::createFromDateString(self::FBS_STOCK_REFRESH_PERIOD);
+    }
 }

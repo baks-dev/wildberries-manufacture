@@ -23,11 +23,34 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
+namespace BaksDev\Wildberries\Manufacture\Repository\Tests;
 
-interface CountWbOrdersInterface
+use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesInterface;
+use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesRepository;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+
+/**
+ * @group wildberries-manufacture
+ * @group wildberries-manufacture-rep
+ */
+final class AllWbStocksBarcodesRepositoryTest extends KernelTestCase
 {
-    public function getInvariable(): string;
+    public function testRepository()
+    {
+        /** @var AllWbStocksBarcodesRepository $AllWbStocksBarcodes */
+        $AllWbStocksBarcodes = self::getContainer()->get(AllWbStocksBarcodesInterface::class);
 
-    public function getCount(): int;
+        $data = $AllWbStocksBarcodes->findAll();
+
+        if(!$data)
+        {
+            self::assertTrue(true);
+            return;
+        }
+
+        $current = $data->current();
+
+        self::assertNotEmpty($current->getBarcode());
+        self::assertNotEmpty($current->getQuantity());
+    }
 }

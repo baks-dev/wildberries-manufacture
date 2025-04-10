@@ -23,24 +23,40 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbAverageOrders;
+namespace BaksDev\Wildberries\Manufacture\Api\Warehouses\Tests;
 
-use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Wildberries\Manufacture\Api\Warehouses\GetWbFbsWarehousesRequest;
+use BaksDev\Wildberries\Type\Authorization\WbAuthorizationToken;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-final readonly class UpdateWbAverageOrdersMessage
+/**
+ * @group wildberries-manufacture
+ * @group wildberries-manufacture-api
+ */
+#[When(env: 'test')]
+final class GetWbFbsWarehousesRequestTest extends KernelTestCase
 {
-    public function __construct(
-        private string $invariable,
-        private int $count,
-    ) {}
+    private static WbAuthorizationToken $authorization;
 
-    public function getInvariable(): ProductInvariableUid
+    public static function setUpBeforeClass(): void
     {
-        return new ProductInvariableUid($this->invariable);
+        self::$authorization = new WbAuthorizationToken(
+            new UserProfileUid(),
+            $_SERVER['TEST_WILDBERRIES_TOKEN'],
+        );
     }
 
-    public function getCount(): int
+    public function testRequest(): void
     {
-        return $this->count;
+        /** @var GetWbFbsWarehousesRequest $request */
+        $request = self::getContainer()->get(GetWbFbsWarehousesRequest::class);
+        $request->TokenHttpClient(self::$authorization);
+
+        $content = $request->findAll();
+
+        self::assertNotFalse($content);
+        self::assertNotEmpty($content);
     }
 }

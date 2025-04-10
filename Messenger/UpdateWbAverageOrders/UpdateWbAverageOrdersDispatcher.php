@@ -46,10 +46,8 @@ final readonly class UpdateWbAverageOrdersDispatcher
 
     public function __invoke(UpdateWbAverageOrdersMessage $message): void
     {
-        $WbAverageOrdersRequestDTO = $message->getDto();
-
-        $count = $WbAverageOrdersRequestDTO->getCount();
-        $invariable = $WbAverageOrdersRequestDTO->getInvariable();
+        $count = $message->getCount();
+        $invariable = $message->getInvariable();
 
         /** Получаем количество дней, за которое вычисляем среднее число заказов в день. Такой сложный способ
          * приведения времени, чтобы можно было указать интервал в константе как в днях, так и, например, в часах или
