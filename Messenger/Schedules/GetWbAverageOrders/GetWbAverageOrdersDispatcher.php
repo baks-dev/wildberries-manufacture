@@ -27,17 +27,17 @@ namespace BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbAverageOrders
 
 use BaksDev\Core\Deduplicator\Deduplicator;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
-use BaksDev\Wildberries\Manufacture\Repository\CountWbOrders\CountWbOrdersResult;
+use BaksDev\Wildberries\Manufacture\Messenger\UpdateWbAverageOrders\UpdateWbAverageOrdersMessage;
 use BaksDev\Wildberries\Manufacture\Repository\CountWbOrders\CountWbOrdersRepository;
+use BaksDev\Wildberries\Manufacture\Repository\CountWbOrders\CountWbOrdersResult;
 use BaksDev\Wildberries\Manufacture\Repository\DeleteAllOrders\DeleteAllOrdersInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use BaksDev\Wildberries\Manufacture\Messenger\UpdateWbAverageOrders\UpdateWbAverageOrdersMessage;
 
 #[AsMessageHandler]
 final readonly class GetWbAverageOrdersDispatcher
 {
     /** За какой период высчитываем среднее кол-во заказов? */
-    const string INTERVAL = "14 day";
+    const string INTERVAL = "14 days";
 
     public function __construct(
         private CountWbOrdersRepository $countWbOrdersRepository,
@@ -46,14 +46,17 @@ final readonly class GetWbAverageOrdersDispatcher
         private DeleteAllOrdersInterface $deleteAllOrdersRepository,
     ) {}
 
-    /*
-    * Группируем данные о последних заказах по каждому товару, считаем количество за последний период, обновляем таблицу со средним количеством запасов в день
+    /**
+     * Группируем данные о последних заказах по каждому товару, считаем количество за последний период,
+     * обновляем таблицу со средним количеством запасов в день
     */
     public function __invoke(GetWbAverageOrdersMessage $message): void
     {
-        $WbOrdersCount = $this->countWbOrdersRepository->interval(self::INTERVAL)->countAll();
+        $WbOrdersCount = $this->countWbOrdersRepository
+            ->interval(self::INTERVAL)
+            ->countAll();
 
-        if(!$WbOrdersCount)
+        if(false === $WbOrdersCount || $WbOrdersCount->valid() === false)
         {
             return;
         }
@@ -63,7 +66,7 @@ final readonly class GetWbAverageOrdersDispatcher
         {
             $Deduplicator = $this->deduplicator
                 ->namespace('wildberries-manufacture')
-                ->deduplication([$product->getInvariable().$product->getCount(), self::class]);
+                ->deduplication([$product->getInvariable(), $product->getCount(), self::class]);
 
             if($Deduplicator->isExecuted())
             {
@@ -71,10 +74,14 @@ final readonly class GetWbAverageOrdersDispatcher
             }
 
             $this->messageDispatch->dispatch(
-                message: new UpdateWbAverageOrdersMessage($product)
+                message: new UpdateWbAverageOrdersMessage(
+                    invariable: $product->getInvariable(),
+                    count: $product->getCount())
             );
         }
 
-        $this->deleteAllOrdersRepository->interval(self::INTERVAL)->delete();
+        $this->deleteAllOrdersRepository
+            ->interval(self::INTERVAL)
+            ->delete();
     }
 }

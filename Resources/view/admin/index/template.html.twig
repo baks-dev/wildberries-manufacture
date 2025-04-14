@@ -96,7 +96,7 @@ let KuKutdEba = 100;
 
 setTimeout(function SpgGHaQzun()
 {
-    if(typeof centrifuge !== 'object')
+    if(typeof centrifuge !== "object")
     {
         if(KuKutdEba > 1000) { return; }
 
@@ -106,18 +106,18 @@ setTimeout(function SpgGHaQzun()
 
 		{% if opens %}
 
-			  centrifuge.newSubscription('{{ opens.event }}').on('publication', function (ctx) {
+			  centrifuge.newSubscription('{{ opens.event }}').on("publication", function (ctx) {
                     document.getElementById('product-{{ opens.event }}').innerHTML = ctx.data.product;
 
                     let $total = parseInt(document.getElementById('total-{{ opens.event }}').textContent);
-                    document.getElementById('total-{{ opens.event }}').textContent = $total + ctx.data.total
+                    document.getElementById('total-{{ opens.event }}').textContent = $total + ctx.data.total;
 
             }).subscribe();
 
 		{% endif %}
 
         /** Удаляем из списка у всех продукт */
-        centrifuge.newSubscription('remove').on('publication', function (ctx)
+        centrifuge.newSubscription("remove").on("publication", function (ctx)
         {
             if(ctx.data.profile === '{{ current_profile }}')
             {

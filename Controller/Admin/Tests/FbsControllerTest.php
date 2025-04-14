@@ -29,7 +29,7 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 final class FbsControllerTest extends WebTestCase
 {
     private const string URL = '/admin/wb/fbs/manufacture';
-    private const string ROLE = 'ROLE_WB_MANUFACTURE';
+    private const string ROLE = 'ROLE_WB_MANUFACTURE_FBS';
 
     /** Доступ по роли ROLE_PRODUCT */
     public function testRoleSuccessful(): void

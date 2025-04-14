@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
+ * Copyright 2025.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,32 +23,27 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Type\ManufacturePartComplete;
+namespace BaksDev\Wildberries\Manufacture\Security\Fbs;
 
-use BaksDev\Manufacture\Part\Type\Complete\Collection\ManufacturePartCompleteInterface;
+use BaksDev\Users\Profile\Group\Security\RoleInterface;
+use BaksDev\Users\Profile\Group\Security\VoterInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-#[AutoconfigureTag('baks.part.complete')]
-final class ManufacturePartCompleteWildberriesFbs implements ManufacturePartCompleteInterface
+#[AutoconfigureTag('baks.security.voter')]
+final class VoterNew implements VoterInterface
 {
     /**
-     * Закрыть заказы Wildberries
+     * Добавить
      */
-    public const string ACTION = 'wb_fbs';
+    public const string VOTER = 'NEW';
 
-    /**
-     * Возвращает значение (value)
-     */
-    public function getValue(): string
+    public static function getVoter(): string
     {
-        return self::ACTION;
+        return Role::ROLE.'_'.self::VOTER;
     }
 
-    /**
-     * Проверяет, относится ли строка цвета к данному объекту
-     */
-    public static function equals(string $action): bool
+    public function equals(RoleInterface $role): bool
     {
-        return mb_strtolower($action) === self::ACTION;
+        return $role->getRole() === Role::ROLE;
     }
 }

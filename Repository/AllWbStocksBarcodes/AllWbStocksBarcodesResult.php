@@ -23,27 +23,25 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Security\Index;
+namespace BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes;
 
-use BaksDev\Users\Profile\Group\Security\RoleInterface;
-use BaksDev\Users\Profile\Group\Security\VoterInterface;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
-#[AutoconfigureTag('baks.security.voter')]
-final class VoterEdit implements VoterInterface
+#[Exclude]
+final readonly class AllWbStocksBarcodesResult
 {
-    /**
-     * Редактировать
-     */
-    public const string VOTER = 'EDIT';
+    public function __construct(
+        private string $barcode,
+        private int $quantity,
+    ) {}
 
-    public static function getVoter(): string
+    public function getBarcode(): string
     {
-        return Role::ROLE.'_'.self::VOTER;
+        return $this->barcode;
     }
 
-    public function equals(RoleInterface $role): bool
+    public function getQuantity(): int
     {
-        return $role->getRole() === Role::ROLE;
+        return $this->quantity;
     }
 }

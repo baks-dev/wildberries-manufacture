@@ -27,9 +27,9 @@ namespace BaksDev\Wildberries\Manufacture\Entity;
 
 use BaksDev\Core\Entity\EntityState;
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'wb_stock')]

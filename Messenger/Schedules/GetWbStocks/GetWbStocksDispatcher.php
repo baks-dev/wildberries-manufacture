@@ -30,6 +30,7 @@ use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Wildberries\Manufacture\Api\Stocks\GetWbStocksRequest;
 use BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks\UpdateWbStocksMessage;
 use BaksDev\Wildberries\Manufacture\Schedule\WbNewStocks\RefreshWbStocksSchedule;
+use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -44,15 +45,26 @@ final readonly class GetWbStocksDispatcher
         private GetWbStocksRequest $request,
         private MessageDispatchInterface $messageDispatch,
         private Deduplicator $deduplicator,
-    ){}
+    ) {}
 
     public function __invoke(GetWbStocksMessage $message): void
     {
         $profile = $message->getProfile();
 
-        $timezone = new DateTimeZone(date_default_timezone_get());
-        $dateFrom = new DateTimeImmutable()->modify("-".RefreshWbStocksSchedule::STOCK_REFRESH_PERIOD)->setTimezone($timezone)->format('Y-m-d\TH:i:sP');
-        $responses = $this->request->profile($profile)->dateFrom($dateFrom)->findAll();
+        $dateFrom = new DateTimeImmutable()
+            ->setTimezone(new DateTimeZone('GMT'))
+            ->sub(DateInterval::createFromDateString(RefreshWbStocksSchedule::STOCK_REFRESH_PERIOD))
+            ->sub(DateInterval::createFromDateString('1 minute'));
+
+        $responses = $this->request
+            ->profile($profile)
+            ->dateFrom($dateFrom)
+            ->findAll();
+
+        if(false === $responses || $responses->valid() === false)
+        {
+            return;
+        }
 
         foreach($responses as $response)
         {

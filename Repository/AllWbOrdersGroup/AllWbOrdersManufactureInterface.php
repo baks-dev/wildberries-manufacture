@@ -25,6 +25,7 @@ namespace BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup;
 
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
+use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
@@ -38,7 +39,7 @@ interface AllWbOrdersManufactureInterface
 
     public function profile(UserProfileUid $profile): self;
 
-    public function findPaginator(ManufacturePartComplete|false $part): PaginatorInterface;
+    public function findPaginator(DeliveryUid|false $part): PaginatorInterface;
 
     //    /**
     //     * Метод возвращает сгруппированные заказы по артикулам

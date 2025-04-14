@@ -1,0 +1,154 @@
+{% trans_default_domain("admin.wb.manufacture") %}
+
+{% set ROLE = 'ROLE_USERPROFILE' %}
+
+{# ---- ШАБЛОН ------------------------------------------------------------ #}
+{% extends Template('/admin/base.html.twig') %}
+
+{# ---- CSS ------------------------------------------------------------ #}
+{% block title %}
+    {{ 'admin.page.index'|trans }}
+{% endblock %}
+
+{# ---- CSS ------------------------------------------------------------ #}
+{% block stylesheets %}
+    <link href="/assets/plugins/nice-select2/nice-select2.min.css" rel="stylesheet">
+    <script nonce='{{ csp_nonce() }}' async data-src="/assets/js/copy.min.js?v={{ version }}" class="lazy"></script>
+
+    <style>
+        .blink {
+            color: rgb(255, 0, 0);
+            -webkit-animation: blink 2s linear infinite;
+            animation: blink 2s linear infinite;
+        }
+
+        @-webkit-keyframes blink {
+            50% {
+                color: rgb(255, 0, 0);
+            }
+            51% {
+                color: rgba(255, 0, 0, 0);
+            }
+            100% {
+                color: rgba(255, 0, 0, 0);
+            }
+        }
+
+        @keyframes blink {
+            50% {
+                color: rgb(255, 0, 0);
+            }
+            51% {
+                color: rgba(255, 0, 0, 0);
+            }
+            100% {
+                color: rgba(255, 0, 0, 0);
+            }
+        }
+    </style>
+
+{% endblock %}
+
+
+{# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
+{% block content %}
+    {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/content.html.twig" })) }}
+
+{% endblock %}
+
+
+{# ---- FOOTER-БЛОК ------------------------------------------------------------ #}
+{#
+{% block footer %}
+    {{ include(_self|replace({ "template.html.twig": "footer.html.twig" })) }}
+{% endblock %}
+#}
+
+{% block javascript %}
+
+<script nonce='{{ csp_nonce() }}' async  data-src='/assets/plugins/nice-select2/nice-select2.min.js?v={{ version }}' class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/products_product/filter.min.js?v={{ version }}" class="lazy"></script>
+
+{#<script nonce="{{ csp_nonce() }}">
+document.addEventListener("DOMContentLoaded", (event) => {
+
+	const form = document.forms.wb_orders_product_filter_form;
+	form?.addEventListener('change', () => { setTimeout(() => { form.submit(); }, 300); });
+
+});
+</script>#}
+
+<script nonce="{{ csp_nonce() }}">
+    // window.debug = true;
+    window.centrifugo_dsn = "{{ centrifugo_dsn }}";
+    window.centrifugo_token = "{{ token }}";
+</script>
+
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/centrifugo/centrifuge.min.js?v={{ version }}" class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/centrifugo/socket.min.js?v={{ version }}" class='lazy'></script>
+<script nonce='{{ csp_nonce() }}' async  data-src="/assets/js/print.min.js?v={{ version }}" class="lazy"></script>
+
+
+{# @var opens \BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartResult #}
+
+<script nonce="{{ csp_nonce() }}">
+
+/** Сокеты */
+
+let KuKutdEba = 100;
+
+
+setTimeout(function SpgGHaQzun()
+{
+    if(typeof centrifuge !== "object")
+    {
+        if(KuKutdEba > 1000) { return; }
+
+        KuKutdEba = KuKutdEba * 2;
+        return setTimeout(SpgGHaQzun, KuKutdEba);
+    }
+
+		{% if opens %}
+
+			  centrifuge.newSubscription('{{ opens.manufacturePartEvent }}').on("publication", function (ctx) {
+                    document.getElementById('product-{{ opens.manufacturePartEvent }}').innerHTML = ctx.data.product;
+
+                    let $total = parseInt(document.getElementById('total-{{ opens.manufacturePartEvent }}').textContent);
+                    document.getElementById('total-{{ opens.manufacturePartEvent }}').textContent = $total + ctx.data.total;
+
+            }).subscribe();
+
+		{% endif %}
+
+        /** Удаляем из списка у всех продукт */
+        centrifuge.newSubscription("remove").on("publication", function (ctx)
+        {
+            if(ctx.data.profile === '{{ current_profile }}')
+            {
+                return;
+            }
+
+            let $identifier = document.getElementById(ctx.data.identifier);
+
+            if($identifier)
+            {
+                $identifier.remove();
+            }
+
+        }).subscribe();
+
+
+
+}, 100);
+
+
+
+
+
+</script>
+
+
+
+
+
+{% endblock %}

@@ -25,11 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
 
-use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
-
 interface CountWbOrdersInterface
 {
-    public function getInvariable(): ProductInvariableUid;
+    public function getInvariable(): string;
 
     public function getCount(): int;
 }

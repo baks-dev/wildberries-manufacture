@@ -26,10 +26,14 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Api\Stocks;
 
 use BaksDev\Wildberries\Api\Wildberries;
-use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
-use Generator;
-use Symfony\Contracts\Cache\ItemInterface;
+use BaksDev\Wildberries\Manufacture\Schedule\WbNewOrders\RefreshWbOrdersSchedule;
 use DateInterval;
+use DateTimeImmutable;
+use DateTimeInterface;
+use DateTimeZone;
+use Generator;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+use Symfony\Contracts\Cache\ItemInterface;
 
 #[Autoconfigure(public: true)]
 final class GetWbStocksRequest extends Wildberries
@@ -47,9 +51,9 @@ final class GetWbStocksRequest extends Wildberries
      * `2019-06-20T00:00:00.12345`
      * `2017-03-25T00:00:00`
      */
-    private string|false $dateFrom = false;
+    private DateTimeImmutable|false $dateFrom = false;
 
-    public function dateFrom(string $date): self
+    public function dateFrom(DateTimeImmutable $date): self
     {
         $this->dateFrom = $date;
 
@@ -64,17 +68,24 @@ final class GetWbStocksRequest extends Wildberries
      * Если в ответе отдаётся пустой массив [], все остатки уже выгружены.
      *
      * Максимум 1 запрос в минуту на один аккаунт продавца
+     *
+     * @see https://dev.wildberries.ru/openapi/reports/#tag/Osnovnye-otchyoty/paths/~1api~1v1~1supplier~1stocks/get
      */
     public function findAll(): Generator|false
     {
-        $dateFrom = $this->dateFrom;
+
+        $this->dateFrom ?: $this->dateFrom = new DateTimeImmutable()
+            ->setTimezone(new DateTimeZone('GMT'))
+            ->sub(DateInterval::createFromDateString(RefreshWbOrdersSchedule::ORDER_REFRESH_PERIOD))
+            ->sub(DateInterval::createFromDateString('1 minute'));
 
         while(true)
         {
             $cache = $this->getCacheInit('wildberries-manufacture');
-            $key = md5(self::class.$this->getProfile().$this->dateFrom);
+            $key = md5(self::class.$this->getProfile().$this->dateFrom->format(DateTimeInterface::ATOM));
 
-            $content = $cache->get($key, function(ItemInterface $item) use ($dateFrom) {
+            $content = $cache->get($key, function(ItemInterface $item) {
+
                 $item->expiresAfter(DateInterval::createFromDateString('1 seconds'));
 
                 $response = $this
@@ -85,7 +96,7 @@ final class GetWbStocksRequest extends Wildberries
                         url: '/api/v1/supplier/stocks',
                         options: [
                             "query" => [
-                                "dateFrom" => $dateFrom,
+                                "dateFrom" => $this->dateFrom->format(DateTimeInterface::ATOM),
                             ]
                         ]
                     );
@@ -108,7 +119,7 @@ final class GetWbStocksRequest extends Wildberries
                 return $content;
             });
 
-            if(!$content)
+            if(empty($content))
             {
                 return false;
             }
@@ -119,7 +130,7 @@ final class GetWbStocksRequest extends Wildberries
                 yield new WbStocksRequestDTO($product);
             }
 
-            $dateFrom = end($content)['lastChangeDate'];
+            $this->dateFrom = new DateTimeImmutable(end($content)['lastChangeDate']);
         }
     }
 

@@ -26,26 +26,23 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbStocks;
 
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
+#[Exclude]
 final readonly class GetWbStocksMessage
 {
     /**
      * Идентификатор профиля пользователя
      */
-    private UserProfileUid $profile;
+    private string $profile;
 
     public function __construct(UserProfileUid|string $profile)
     {
-        if(is_string($profile))
-        {
-            $profile = new UserProfileUid($profile);
-        }
-
-        $this->profile = $profile;
+        $this->profile = (string) $profile;
     }
 
     public function getProfile(): UserProfileUid
     {
-        return $this->profile;
+        return new UserProfileUid($this->profile);
     }
 }

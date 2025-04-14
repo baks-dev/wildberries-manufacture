@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks;
 
+use BaksDev\Products\Product\Repository\CurrentProductByArticle\CurrentProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductByArticle\ProductConstByBarcodeInterface;
 use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 use BaksDev\Wildberries\Manufacture\Repository\StocksDataUpdate\WbStocksDataUpdateInterface;
@@ -35,6 +36,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /*
  * Обновляем в базе данные о запасах товара на складах WB
  */
+
 #[AsMessageHandler]
 final readonly class UpdateWbStocksDispatcher
 {
@@ -52,16 +54,20 @@ final readonly class UpdateWbStocksDispatcher
         $product = $this->ProductConstByBarcodeRepository
             ->find($barcode);
 
-        if(!$product)
+        if(false === ($product instanceof CurrentProductDTO))
         {
             return;
         }
 
         $invariable = $product->getInvariable();
-        $WbStock = $this->WbStocksDataUpdateRepository->find($invariable);
+
+        $WbStock = $this->WbStocksDataUpdateRepository
+            ->forInvariable($invariable)
+            ->find();
 
         /** @var WbStock $WbStock */
-        if(!$WbStock) {
+        if(false === ($WbStock instanceof WbStock))
+        {
             $WbStock = new WbStock()->setInvariable($invariable);
         }
 

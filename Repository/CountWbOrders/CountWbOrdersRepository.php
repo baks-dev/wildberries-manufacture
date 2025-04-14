@@ -47,16 +47,15 @@ final class CountWbOrdersRepository
 
     public function countAll(): Generator|false
     {
-        $dbal = $this->DBALQueryBuilder
-            ->createQueryBuilder(self::class)
-            ->bindLocal();
+        $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
         $dbal
             ->from(WbOrder::class, "wb_order")
             ->select("COUNT(*) AS count")
             ->addSelect("wb_order.invariable AS invariable")
-            ->where("date >= (NOW() - INTERVAL '" . $this->interval . "')")
-            ->groupBy("invariable");
+            ->where("date >= (NOW() - INTERVAL :interval)")
+            ->setParameter('interval', $this->interval)
+            ->groupBy("wb_order.invariable");
 
         return $dbal->fetchAllHydrate(CountWbOrdersResult::class) ?: false;
     }

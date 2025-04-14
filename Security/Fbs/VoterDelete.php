@@ -23,17 +23,19 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Security\Index;
+namespace BaksDev\Wildberries\Manufacture\Security\Fbs;
 
 use BaksDev\Users\Profile\Group\Security\RoleInterface;
 use BaksDev\Users\Profile\Group\Security\VoterInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag('baks.security.voter')]
-
-final class VoterIndex implements VoterInterface
+final class VoterDelete implements VoterInterface
 {
-    public const string VOTER = 'INDEX';
+    /**
+     * Удалить
+     */
+    public const string VOTER = 'DELETE';
 
     public static function getVoter(): string
     {
@@ -44,6 +46,4 @@ final class VoterIndex implements VoterInterface
     {
         return $role->getRole() === Role::ROLE;
     }
-
-
 }

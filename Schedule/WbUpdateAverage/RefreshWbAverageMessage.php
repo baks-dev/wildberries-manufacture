@@ -25,4 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Schedule\WbUpdateAverage;
 
-final readonly class RefreshWbAverageMessage {}
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
+
+#[Exclude]
+final readonly class RefreshWbAverageMessage
+{
+}

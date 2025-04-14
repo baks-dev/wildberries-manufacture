@@ -25,11 +25,12 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbOrders;
 
+use BaksDev\Products\Product\Repository\CurrentProductByArticle\CurrentProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductByArticle\ProductConstByBarcodeInterface;
 use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
+use BaksDev\Wildberries\Manufacture\Repository\OrdersDataUpdate\WbOrdersDataUpdateInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use BaksDev\Wildberries\Manufacture\Repository\OrdersDataUpdate\WbOrdersDataUpdateInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -47,28 +48,26 @@ final readonly class UpdateWbOrdersDispatcher
 
     public function __invoke(UpdateWbOrdersMessage $message): void
     {
-        $WbOrdersRequestDTO = $message->getDto();
-        $barcode = $WbOrdersRequestDTO->getBarcode();
+        $barcode = $message->getBarcode();
 
         $product = $this->ProductConstByBarcodeRepository->find($barcode);
 
-        if(!$product)
+        if(false === ($product instanceof CurrentProductDTO))
         {
             return;
         }
 
-        $id = $WbOrdersRequestDTO->getId();
+        $id = $message->getId();
 
         $WbOrder = $this->WbOrdersDataUpdateRepository->find($id);
 
-        if($WbOrder)
+        if($WbOrder instanceof WbOrder)
         {
             return;
         }
 
         $invariable = $product->getInvariable();
-        $id = $WbOrdersRequestDTO->getId();
-        $date = $WbOrdersRequestDTO->getDate();
+        $date = $message->getDate();
 
         $WbOrder = new WbOrder()
             ->setId($id)

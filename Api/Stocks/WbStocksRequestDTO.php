@@ -44,7 +44,7 @@ final class WbStocksRequestDTO
     {
         return $this->quantity;
     }
-    
+
     public function getBarcode(): string
     {
         return $this->barcode;

@@ -27,11 +27,12 @@ namespace BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics;
 
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
+use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
 
 interface AllWbOrdersAnalyticsInterface
 {
     public function search(SearchDTO $search): self;
 
-    public function findPaginator(ManufacturePartComplete|false $part): PaginatorInterface;
+    public function findPaginator(DeliveryUid|false $part): PaginatorInterface;
 }

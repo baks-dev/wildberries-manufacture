@@ -31,5 +31,7 @@ use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 
 interface WbStocksDataUpdateInterface
 {
-    public function find(ProductInvariableUid|ProductInvariable|string $invariable): WbStock|false;
+    public function forInvariable(ProductInvariableUid|ProductInvariable|string $invariable): self;
+
+    public function find(): WbStock|false;
 }

@@ -23,27 +23,34 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Security\Index;
+namespace BaksDev\Wildberries\Manufacture\Repository\Tests;
 
-use BaksDev\Users\Profile\Group\Security\RoleInterface;
-use BaksDev\Users\Profile\Group\Security\VoterInterface;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesInterface;
+use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesRepository;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-#[AutoconfigureTag('baks.security.voter')]
-final class VoterDelete implements VoterInterface
+/**
+ * @group wildberries-manufacture
+ * @group wildberries-manufacture-rep
+ */
+final class AllWbStocksBarcodesRepositoryTest extends KernelTestCase
 {
-    /**
-     * Удалить
-     */
-    public const string VOTER = 'DELETE';
-
-    public static function getVoter(): string
+    public function testRepository()
     {
-        return Role::ROLE.'_'.self::VOTER;
-    }
+        /** @var AllWbStocksBarcodesRepository $AllWbStocksBarcodes */
+        $AllWbStocksBarcodes = self::getContainer()->get(AllWbStocksBarcodesInterface::class);
 
-    public function equals(RoleInterface $role): bool
-    {
-        return $role->getRole() === Role::ROLE;
+        $data = $AllWbStocksBarcodes->findAll();
+
+        if(false === $data || false === $data->valid())
+        {
+            self::assertTrue(true);
+            return;
+        }
+
+        $current = $data->current();
+
+        self::assertNotEmpty($current->getBarcode());
+        self::assertNotEmpty($current->getQuantity());
     }
 }

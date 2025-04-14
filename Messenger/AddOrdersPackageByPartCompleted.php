@@ -40,7 +40,6 @@ use BaksDev\Manufacture\Part\UseCase\Admin\NewEdit\Products\Orders\ManufacturePa
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
-use BaksDev\Wildberries\Manufacture\Type\ManufacturePartComplete\ManufacturePartCompleteWildberriesFbs;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
 use BaksDev\Wildberries\Package\Entity\Package\WbPackage;
 use BaksDev\Wildberries\Package\Repository\Package\ExistOrderPackage\ExistOrderPackageInterface;
@@ -100,7 +99,7 @@ final readonly class AddOrdersPackageByPartCompleted
             return false;
         }
 
-        if(false === $ManufacturePartEvent->equalsManufacturePartComplete(ManufacturePartCompleteWildberriesFbs::class))
+        if(false === $ManufacturePartEvent->equalsManufacturePartComplete(TypeDeliveryFbsWildberries::class))
         {
             return false;
         }

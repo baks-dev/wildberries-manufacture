@@ -34,7 +34,7 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 final class FboControllerTest extends WebTestCase
 {
     private const string URL = '/admin/wb/fbo/manufacture';
-    private const string ROLE = 'ROLE_WB_MANUFACTURE';
+    private const string ROLE = 'ROLE_WB_MANUFACTURE_FBO';
 
     /** Доступ по роли ROLE_PRODUCT */
     public function testRoleSuccessful(): void

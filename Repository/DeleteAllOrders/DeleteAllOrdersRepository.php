@@ -51,7 +51,8 @@ final class DeleteAllOrdersRepository implements DeleteAllOrdersInterface
 
         $dbal
             ->delete('wb_order')
-            ->where("date < (NOW() - INTERVAL '" . $this->interval . "')");
+            ->where("date < (NOW() - INTERVAL :interval)")
+            ->setParameter('interval', $this->interval);
 
         return $dbal->executeStatement();
     }

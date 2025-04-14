@@ -27,10 +27,11 @@ namespace BaksDev\Wildberries\Manufacture\Messenger;
 
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
+use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
 use BaksDev\Manufacture\Part\Messenger\ManufacturePartMessage;
 use BaksDev\Manufacture\Part\Repository\ManufacturePartCurrentEvent\ManufacturePartCurrentEventInterface;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusCompleted;
-use BaksDev\Wildberries\Manufacture\Type\ManufacturePartComplete\ManufacturePartCompleteWildberriesFbs;
+use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
 use BaksDev\Wildberries\Package\Entity\Supply\WbSupply;
 use BaksDev\Wildberries\Package\Repository\Supply\ExistOpenSupplyProfile\ExistOpenSupplyProfileInterface;
 use BaksDev\Wildberries\Package\UseCase\Supply\New\WbSupplyNewDTO;
@@ -69,7 +70,7 @@ final readonly class NewSupplyByPartCompletedDispatcher
             ->fromPart($message->getId())
             ->find();
 
-        if(!$ManufacturePartEvent)
+        if(false === ($ManufacturePartEvent instanceof ManufacturePartEvent))
         {
             return;
         }
@@ -79,7 +80,7 @@ final readonly class NewSupplyByPartCompletedDispatcher
             return;
         }
 
-        if(false === $ManufacturePartEvent->equalsManufacturePartComplete(ManufacturePartCompleteWildberriesFbs::class))
+        if(false === $ManufacturePartEvent->equalsManufacturePartComplete(TypeDeliveryFbsWildberries::class))
         {
             return;
         }

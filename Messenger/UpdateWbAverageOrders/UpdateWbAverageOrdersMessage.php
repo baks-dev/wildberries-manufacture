@@ -25,14 +25,22 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbAverageOrders;
 
-use BaksDev\Wildberries\Manufacture\Repository\CountWbOrders\CountWbOrdersResult;
+use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
 
 final readonly class UpdateWbAverageOrdersMessage
 {
-    public function __construct(private CountWbOrdersResult $dto) {}
+    public function __construct(
+        private string $invariable,
+        private int $count,
+    ) {}
 
-    public function getDto(): CountWbOrdersResult
+    public function getInvariable(): ProductInvariableUid
     {
-        return $this->dto;
+        return new ProductInvariableUid($this->invariable);
+    }
+
+    public function getCount(): int
+    {
+        return $this->count;
     }
 }

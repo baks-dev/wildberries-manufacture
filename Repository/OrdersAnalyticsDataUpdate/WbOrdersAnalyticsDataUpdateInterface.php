@@ -28,6 +28,7 @@ namespace BaksDev\Wildberries\Manufacture\Repository\OrdersAnalyticsDataUpdate;
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
 use BaksDev\Wildberries\Manufacture\Entity\WbOrderAnalyitcs;
 
-interface WbOrdersAnalyticsDataUpdateInterface {
-    public function find(ProductInvariableUid $invariable):WbOrderAnalyitcs|false;
+interface WbOrdersAnalyticsDataUpdateInterface
+{
+    public function find(ProductInvariableUid $invariable): WbOrderAnalyitcs|false;
 }

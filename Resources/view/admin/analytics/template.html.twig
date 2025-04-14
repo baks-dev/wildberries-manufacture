@@ -7,51 +7,51 @@
 
 {# ---- CSS ------------------------------------------------------------ #}
 {% block title %}
- {{ 'admin.page.analytics'|trans }}
+    {{ 'admin.page.analytics'|trans }}
 {% endblock %}
 
 {# ---- CSS ------------------------------------------------------------ #}
 {% block stylesheets %}
- <link href="/assets/plugins/nice-select2/nice-select2.min.css" rel="stylesheet">
- <script nonce='{{ csp_nonce() }}' async data-src="/assets/js/copy.min.js?v={{ version }}" class="lazy"></script>
+    <link href="/assets/plugins/nice-select2/nice-select2.min.css" rel="stylesheet">
+    <script nonce='{{ csp_nonce() }}' async data-src="/assets/js/copy.min.js?v={{ version }}" class="lazy"></script>
 
- <style>
-  .blink {
-   color: rgb(255, 0, 0);
-   -webkit-animation: blink 2s linear infinite;
-   animation: blink 2s linear infinite;
-  }
+    <style>
+        .blink {
+            color: rgb(255, 0, 0);
+            -webkit-animation: blink 2s linear infinite;
+            animation: blink 2s linear infinite;
+        }
 
-  @-webkit-keyframes blink {
-   50% {
-    color: rgb(255, 0, 0);
-   }
-   51% {
-    color: rgba(255, 0, 0, 0);
-   }
-   100% {
-    color: rgba(255, 0, 0, 0);
-   }
-  }
+        @-webkit-keyframes blink {
+            50% {
+                color: rgb(255, 0, 0);
+            }
+            51% {
+                color: rgba(255, 0, 0, 0);
+            }
+            100% {
+                color: rgba(255, 0, 0, 0);
+            }
+        }
 
-  @keyframes blink {
-   50% {
-    color: rgb(255, 0, 0);
-   }
-   51% {
-    color: rgba(255, 0, 0, 0);
-   }
-   100% {
-    color: rgba(255, 0, 0, 0);
-   }
-  }
- </style>
+        @keyframes blink {
+            50% {
+                color: rgb(255, 0, 0);
+            }
+            51% {
+                color: rgba(255, 0, 0, 0);
+            }
+            100% {
+                color: rgba(255, 0, 0, 0);
+            }
+        }
+    </style>
 
 {% endblock %}
 
 {# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
 {% block content %}
- {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/content.html.twig" })) }}
+    {{ include(_self|replace({ "template.html.twig": baks_settings.device~"/content.html.twig" })) }}
 
 {% endblock %}
 
@@ -77,7 +77,7 @@ let KuKutdEba = 100;
 
 setTimeout(function SpgGHaQzun()
 {
-    if(typeof centrifuge !== 'object')
+    if(typeof centrifuge !== "object")
     {
         if(KuKutdEba > 1000) { return; }
 
@@ -87,18 +87,18 @@ setTimeout(function SpgGHaQzun()
 
 		{% if opens %}
 
-			  centrifuge.newSubscription('{{ opens.event }}').on('publication', function (ctx) {
+			  centrifuge.newSubscription('{{ opens.event }}').on("publication", function (ctx) {
                     document.getElementById('product-{{ opens.event }}').innerHTML = ctx.data.product;
 
                     let $total = parseInt(document.getElementById('total-{{ opens.event }}').textContent);
-                    document.getElementById('total-{{ opens.event }}').textContent = $total + ctx.data.total
+                    document.getElementById('total-{{ opens.event }}').textContent = $total + ctx.data.total;
 
             }).subscribe();
 
 		{% endif %}
 
         /** Удаляем из списка у всех продукт */
-        centrifuge.newSubscription('remove').on('publication', function (ctx)
+        centrifuge.newSubscription("remove").on("publication", function (ctx)
         {
             if(ctx.data.profile === '{{ current_profile }}')
             {

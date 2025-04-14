@@ -25,8 +25,10 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\Tests;
 
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\AllWbOrdersAnalyticsInterface;
+use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFboWildberries;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * @group wildberries-manufacture
@@ -38,7 +40,7 @@ final class AllWbOrdersAnalyticsTest extends KernelTestCase
     {
         /** @var AllWbOrdersAnalyticsInterface $AllWbOrdersAnaltics */
         $AllWbOrdersAnaltics = self::getContainer()->get(AllWbOrdersAnalyticsInterface::class);
-        $paginator = $AllWbOrdersAnaltics->findPaginator();
+        $paginator = $AllWbOrdersAnaltics->findPaginator(new DeliveryUid(TypeDeliveryFboWildberries::TYPE));
 
         $data = $paginator->getData();
 
@@ -61,7 +63,18 @@ final class AllWbOrdersAnalyticsTest extends KernelTestCase
             "quantity",
             "product_image_cdn",
             "product_url",
-            "category_url"
+            "category_url",
+            "needed_amount",
+            "product_id",
+            "product_event",
+            "product_offer_id",
+            "product_offer_id",
+            "product_variation_id",
+            "product_modification_id",
+            "product_event_id",
+            "category_name",
+            "order_total",
+            "exist_manufacture",
         ];
 
         $current = current($data);

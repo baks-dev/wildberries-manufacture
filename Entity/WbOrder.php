@@ -26,12 +26,11 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Entity;
 
 use BaksDev\Core\Entity\EntityState;
-use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
+use DateTimeImmutable;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Doctrine\DBAL\Types\Types;
-use DateTimeImmutable;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'wb_order')]

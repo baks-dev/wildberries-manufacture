@@ -25,14 +25,39 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbOrders;
 
-use BaksDev\Wildberries\Manufacture\Api\Orders\WbOrdersRequestDTO;
+use DateTimeImmutable;
+use DateTimeInterface;
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
+#[Exclude]
 final readonly class UpdateWbOrdersMessage
 {
-    public function __construct(private WbOrdersRequestDTO $dto) {}
+    private string $date;
 
-    public function getDto(): WbOrdersRequestDTO
+    public function __construct(
+        private string $id,
+        private string $barcode,
+        DateTimeImmutable $date,
+    )
     {
-        return $this->dto;
+        $this->date = $date->format(DateTimeInterface::ATOM);
+    }
+
+    /** Уникальный ID заказа */
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    /** Баркод. */
+    public function getBarcode(): string
+    {
+        return $this->barcode;
+    }
+
+    /** Если часовой пояс не указан, то берётся Московское время (UTC+3). */
+    public function getDate(): DateTimeImmutable
+    {
+        return new DateTimeImmutable($this->date);
     }
 }

@@ -25,4 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Schedule\WbNewOrders;
 
-final readonly class RefreshWbOrdersMessage {}
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
+
+#[Exclude]
+final readonly class RefreshWbOrdersMessage
+{
+}

@@ -41,7 +41,11 @@ final readonly class WbOrdersAnalyticsUpdateRepository implements WbOrdersAnalyt
             ->select('wb_order_analytics')
             ->from(WbOrderAnalyitcs::class, 'wb_order_analytics')
             ->where('wb_order_analytics.invariable = :invariable')
-            ->setParameter('invariable', $invariable);
+            ->setParameter(
+                key: 'invariable',
+                value: $invariable,
+                type: ProductInvariableUid::TYPE
+            );
 
         return $orm->getQuery()->getOneOrNullResult() ?: false;
     }

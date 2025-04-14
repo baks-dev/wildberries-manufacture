@@ -27,11 +27,13 @@ namespace BaksDev\Wildberries\Manufacture\Api\Orders\Tests;
 
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Api\Orders\GetWbOrdersRequest;
+use BaksDev\Wildberries\Manufacture\Api\Orders\WbOrdersRequestDTO;
 use BaksDev\Wildberries\Type\Authorization\WbAuthorizationToken;
+use DateInterval;
+use DateTimeImmutable;
+use DateTimeZone;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
-use DateTimeZone;
-use DateTimeImmutable;
 
 /**
  * @group wildberries-manufacture
@@ -56,12 +58,23 @@ final class GetWbOrdersRequestTest extends KernelTestCase
         $request = self::getContainer()->get(GetWbOrdersRequest::class);
         $request->TokenHttpClient(self::$authorization);
 
-        $timezone = new DateTimeZone(date_default_timezone_get());
-        $dateFrom = new DateTimeImmutable()->modify("-1 day")->setTimezone($timezone)->format('Y-m-d\TH:i:sP');
+        $dateFrom = new DateTimeImmutable()
+            ->setTimezone(new DateTimeZone('GMT'))
+            ->sub(DateInterval::createFromDateString('1 day'));
 
-        $content = $request->dateFrom($dateFrom)->findAll();
+        $content = $request
+            ->dateFrom($dateFrom)
+            ->findAll();
 
         self::assertNotFalse($content);
         self::assertNotEmpty($content->current());
+
+        $WbOrdersRequestDTO = $content->current();
+
+        self::assertInstanceOf(WbOrdersRequestDTO::class, $WbOrdersRequestDTO);
+        self::assertIsString($WbOrdersRequestDTO->getId());
+        self::assertIsString($WbOrdersRequestDTO->getBarcode());
+        self::assertInstanceOf(DateTimeImmutable::class, $WbOrdersRequestDTO->getDate());
+
     }
 }

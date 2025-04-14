@@ -25,4 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbAverageOrders;
 
-final readonly class GetWbAverageOrdersMessage {}
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
+
+#[Exclude]
+final readonly class GetWbAverageOrdersMessage
+{
+}

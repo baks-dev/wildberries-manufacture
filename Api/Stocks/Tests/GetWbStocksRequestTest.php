@@ -28,10 +28,11 @@ namespace BaksDev\Wildberries\Manufacture\Api\Stocks\Tests;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Api\Stocks\GetWbStocksRequest;
 use BaksDev\Wildberries\Type\Authorization\WbAuthorizationToken;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\Attribute\When;
+use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
 /**
  * @group wildberries-manufacture
@@ -56,8 +57,9 @@ final class GetWbStocksRequestTest extends KernelTestCase
         $request = self::getContainer()->get(GetWbStocksRequest::class);
         $request->TokenHttpClient(self::$authorization);
 
-        $timezone = new DateTimeZone(date_default_timezone_get());
-        $dateFrom = new DateTimeImmutable()->modify("-1 day")->setTimezone($timezone)->format('Y-m-d\TH:i:sP');
+        $dateFrom = new DateTimeImmutable()
+            ->setTimezone(new DateTimeZone('GMT'))
+            ->sub(DateInterval::createFromDateString('1 day'));
 
         $content = $request->dateFrom($dateFrom)->findAll();
 

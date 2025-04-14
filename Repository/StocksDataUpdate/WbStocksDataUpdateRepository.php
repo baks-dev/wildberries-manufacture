@@ -29,20 +29,55 @@ use BaksDev\Core\Doctrine\ORMQueryBuilder;
 use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
 use BaksDev\Wildberries\Manufacture\Entity\WbStock;
+use InvalidArgumentException;
 
-final readonly class WbStocksDataUpdateRepository implements WbStocksDataUpdateInterface
+final  class WbStocksDataUpdateRepository implements WbStocksDataUpdateInterface
 {
-    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
-    
-    public function find(ProductInvariableUid|ProductInvariable|string $invariable): WbStock|false
+    private ProductInvariableUid|false $invariable = false;
+
+    public function __construct(private readonly ORMQueryBuilder $ORMQueryBuilder) {}
+
+    public function forInvariable(ProductInvariableUid|ProductInvariable|string $invariable): self
     {
+        if(empty($invariable))
+        {
+            $this->invariable = false;
+            return $this;
+        }
+
+        if(is_string($invariable))
+        {
+            $invariable = new ProductInvariableUid($invariable);
+        }
+
+        if($invariable instanceof ProductInvariable)
+        {
+            $invariable = $invariable->getId();
+        }
+
+        $this->invariable = $invariable;
+
+        return $this;
+    }
+
+    public function find(): WbStock|false
+    {
+        if(false === ($this->invariable instanceof ProductInvariableUid))
+        {
+            throw new InvalidArgumentException('Invalid Argument ProductInvariable');
+        }
+
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
         $orm
             ->select('wb_stock')
             ->from(WbStock::class, 'wb_stock')
             ->where('wb_stock.invariable = :invariable')
-            ->setParameter('invariable', $invariable);
+            ->setParameter(
+                'invariable',
+                $this->invariable,
+                ProductInvariableUid::TYPE
+            );
 
         return $orm->getQuery()->getOneOrNullResult() ?: false;
 

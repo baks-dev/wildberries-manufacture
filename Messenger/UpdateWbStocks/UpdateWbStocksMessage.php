@@ -26,8 +26,10 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks;
 
 use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
-final class UpdateWbStocksMessage
+#[Exclude]
+final readonly class UpdateWbStocksMessage
 {
     private string $profile;
 

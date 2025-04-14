@@ -29,6 +29,7 @@ namespace BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
+use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
 use BaksDev\Manufacture\Part\Entity\Invariable\ManufacturePartInvariable;
 use BaksDev\Manufacture\Part\Entity\ManufacturePart;
@@ -115,18 +116,14 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         return $this;
     }
 
-    public function findPaginator(ManufacturePartComplete|false $part): PaginatorInterface
+    public function findPaginator(DeliveryUid|false $part): PaginatorInterface
     {
         $dbal = $this->DBALQueryBuilder
             ->createQueryBuilder(self::class)
             ->bindLocal();
 
         $dbal
-            //->select('invariable.number')
-            ->from(OrderInvariable::class, 'invariable');
-
-
-        $dbal
+            ->from(OrderInvariable::class, 'invariable')
             ->where('invariable.profile = :profile')
             ->setParameter(
                 'profile',
@@ -171,7 +168,8 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'order_delivery.usr = order_user.id AND 
                     order_delivery.delivery IN (:delivery)
                 '
-            )->setParameter(
+            )
+            ->setParameter(
                 key: 'delivery',
                 value: [TypeDeliveryDbsWildberries::TYPE, TypeDeliveryFbsWildberries::TYPE],
                 type: ArrayParameterType::STRING
@@ -234,14 +232,16 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 
         if($this->filter?->getCategory())
         {
-            $dbal->join('order_product',
-                ProductCategory::class,
-                'product_category',
-                '
-                product_category.event = product_info.event AND 
-                product_category.category = :category AND 
-                product_category.root = true'
-            )
+            $dbal
+                ->join(
+                    'order_product',
+                    ProductCategory::class,
+                    'product_category',
+                    '
+                    product_category.event = product_info.event AND 
+                    product_category.category = :category AND 
+                    product_category.root = true
+                ')
                 ->setParameter(
                     key: 'category',
                     value: $this->filter->getCategory(),
@@ -278,8 +278,9 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 
         if($this->filter?->getOffer())
         {
-            $dbal->andWhere('product_offer.value = :offer');
-            $dbal->setParameter('offer', $this->filter->getOffer());
+            $dbal
+                ->andWhere('product_offer.value = :offer')
+                ->setParameter('offer', $this->filter->getOffer());
         }
 
 
@@ -312,8 +313,9 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         /** ФИЛЬТР по множественным вариантам */
         if($this->filter?->getVariation())
         {
-            $dbal->andWhere('product_variation.value = :variation');
-            $dbal->setParameter('variation', $this->filter->getVariation());
+            $dbal
+                ->andWhere('product_variation.value = :variation')
+                ->setParameter('variation', $this->filter->getVariation());
         }
 
 
@@ -346,8 +348,9 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         /** ФИЛЬТР по модификациям множественного варианта */
         if($this->filter?->getModification())
         {
-            $dbal->andWhere('product_modification.value = :modification');
-            $dbal->setParameter('modification', $this->filter->getModification());
+            $dbal
+                ->andWhere('product_modification.value = :modification')
+                ->setParameter('modification', $this->filter->getModification());
         }
 
         $dbal
@@ -461,13 +464,12 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             ) AS product_article
 		');
 
-        $dbal->orderBy('order_data');
+
 
         $dbal->allGroupByExclude();
 
 
         /** ******************** */
-
 
         if($part)
         {
@@ -524,20 +526,12 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                     ],
                     ArrayParameterType::STRING
                 )
-                ->setParameter('complete', $part, ManufacturePartComplete::TYPE);
-
-
-            //$dbalExist->andWhere('exist_product_event.status != :status_closed');
-            //$dbalExist->andWhere('exist_product_event.status != :status_completed');
-            //$dbal->setParameter('status_closed', ManufacturePartStatusClosed::STATUS);
-            //$dbal->setParameter('status_completed', ManufacturePartStatusCompleted::STATUS);
-
-
-            //$dbalExist->andWhere('(order_product.variation IS NULL OR exist_product.modification = order_product.modification) ');
+                ->setParameter('complete', $part, DeliveryUid::TYPE);
 
             $dbalExist->setMaxResults(1);
 
             $dbal->addSelect('(SELECT ('.$dbalExist->getSQL().')) AS exist_manufacture');
+            $dbal->addOrderBy('exist_manufacture', 'DESC');
 
         }
         else
@@ -545,11 +539,12 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             $dbal->addSelect('FALSE AS exist_manufacture');
         }
 
+        $dbal->addOrderBy('order_data');
+
 
         /** Наличие на складе */
 
         $dbal
-            //->addSelect('SUM(stock.total) AS stock_total')
             ->addSelect('(SUM(stock.total) - SUM(stock.reserve)) AS stock_available')
             ->leftJoin(
                 'product_modification',

@@ -14,7 +14,7 @@
             <div class="w-100">
                 <h1 class="h4 text-uppercase fw-bolder mb-0">
                     Производственный процесс
-                    {#{{ 'admin.page.index'|trans }}#}
+                    {# {{ 'admin.page.index'|trans }} #}
                 </h1>
             </div>
 
@@ -49,14 +49,14 @@
                 </svg>
             </a>
 
-            {#{% if opens %}
+            {# {% if opens %}
                 <a href="{{ path('wildberries-manufacture:admin.newedit.new') }}"
                    class="btn modal-btn modal-link disabled btn-primary text-nowrap" data-bs-toggle="modal"
                    data-bs-target="#modal"
                    title="Открыть производственную партию">
                     Добавить партию
                 </a>
-            {% endif %}#}
+            {% endif %} #}
 
         </div>
 
@@ -75,12 +75,11 @@
                    class="btn modal-btn modal-link disabled btn-primary text-nowrap" data-bs-toggle="modal"
                    data-bs-target="#modal"
                    title="Открыть производственную партию">
-                    Открыть  новую партию
+                    Открыть новую партию
                 </a>
             </div>
 
         {% endif %}
-
 
 
         <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
@@ -91,7 +90,7 @@
                 </h2>
             </div>
 
-            {#<div class="w-100 d-flex align-items-center gap-3 justify-content-end">
+            {# <div class="w-100 d-flex align-items-center gap-3 justify-content-end">
                 {{ form_start(profile) }}
                 <div class="d-flex justify-content-end position-relative my-1 gap-3">
 
@@ -101,7 +100,7 @@
                     </div>
                 </div>
                 {{ form_end(profile) }}
-            </div>#}
+            </div> #}
 
         </div>
 

@@ -28,5 +28,6 @@ namespace BaksDev\Wildberries\Manufacture\Repository\DeleteAllOrders;
 interface DeleteAllOrdersInterface
 {
     public function interval(string $interval): self;
+
     public function delete(): int;
 }

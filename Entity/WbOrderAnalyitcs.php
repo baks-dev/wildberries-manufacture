@@ -25,11 +25,11 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Entity;
 
+use BaksDev\Core\Entity\EntityState;
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use BaksDev\Core\Entity\EntityState;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'wb_orders_analytics')]
@@ -54,9 +54,9 @@ final class WbOrderAnalyitcs extends EntityState
         return $this;
     }
 
-    public function setAverage(int $average): self
+    public function setAverage(int|float $average): self
     {
-        $this->average = $average;
+        $this->average = (int) $average;
 
         return $this;
     }

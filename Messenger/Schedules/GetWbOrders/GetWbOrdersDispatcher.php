@@ -29,10 +29,7 @@ use BaksDev\Core\Deduplicator\Deduplicator;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Wildberries\Manufacture\Api\Orders\GetWbOrdersRequest;
 use BaksDev\Wildberries\Manufacture\Messenger\UpdateWbOrders\UpdateWbOrdersMessage;
-use BaksDev\Wildberries\Manufacture\Schedule\WbNewOrders\RefreshWbOrdersSchedule;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use DateTimeZone;
-use DateTimeImmutable;
 
 /**
  * Получаем данные о последних заказах WB и отправляем сообщения для дальнейшего сохранения в базу
@@ -44,16 +41,20 @@ final readonly class GetWbOrdersDispatcher
         private GetWbOrdersRequest $request,
         private MessageDispatchInterface $messageDispatch,
         private Deduplicator $deduplicator,
-    ){}
+    ) {}
 
     public function __invoke(GetWbOrdersMessage $message): void
     {
         $profile = $message->getProfile();
 
-        $timezone = new DateTimeZone(date_default_timezone_get());
-        $dateFrom = new DateTimeImmutable()->modify("-".RefreshWbOrdersSchedule::ORDER_REFRESH_PERIOD)->setTimezone($timezone)->format('Y-m-d\TH:i:sP');
+        $responses = $this->request
+            ->profile($profile)
+            ->findAll();
 
-        $responses = $this->request->profile($profile)->dateFrom($dateFrom)->findAll();
+        if(false === $responses || $responses->valid() === false)
+        {
+            return;
+        }
 
         foreach($responses as $response)
         {
@@ -67,7 +68,10 @@ final readonly class GetWbOrdersDispatcher
             }
 
             $this->messageDispatch->dispatch(
-                message: new UpdateWbOrdersMessage($response)
+                message: new UpdateWbOrdersMessage(
+                    id: $response->getId(),
+                    barcode: $response->getBarcode(),
+                    date: $response->getDate())
             );
         }
     }

@@ -24,12 +24,15 @@
 declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Controller\Admin;
+
 use BaksDev\Centrifugo\Services\Token\TokenUserGenerator;
 use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
+use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartResult;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
 use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
@@ -41,7 +44,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[AsController]
-#[RoleSecurity('ROLE_WB_MANUFACTURE_ANALYTICS')]
+#[RoleSecurity('ROLE_WB_MANUFACTURE_FBO')]
 final class FboController extends AbstractController
 {
     /**
@@ -71,17 +74,18 @@ final class FboController extends AbstractController
          */
         $opens = $openManufacturePart
             ->forFixed($this->getCurrentProfileUid())
-            ->fetchOpenManufacturePartAssociative();
+            ->find();
+        //->fetchOpenManufacturePartAssociative();
 
         /**
          * Фильтр продукции
          */
         $filter = new ProductFilterDTO();
 
-        if($opens)
+        if($opens instanceof OpenManufacturePartResult)
         {
             /* Если открыт производственный процесс - жестко указываем категорию и скрываем выбор */
-            $filter->setCategory(new CategoryProductUid($opens['category_id'], $opens['category_name']));
+            $filter->setCategory(new CategoryProductUid($opens->getCategoryId(), $opens->getCategoryName()));
             $filter->categoryInvisible();
         }
 
@@ -100,7 +104,7 @@ final class FboController extends AbstractController
         $WbOrdersAnalytics = $allWbOrdersAnalyticsRepository
             ->search($search)
             ->filter($filter)
-            ->findPaginator($opens ? new ManufacturePartComplete($opens['complete']) : false);
+            ->findPaginator($opens ? $opens->getComplete() : false);
 
         return $this->render([
             'opens' => $opens,
