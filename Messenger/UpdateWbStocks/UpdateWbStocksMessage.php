@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks;
 
-use BaksDev\Users\Profile\UserProfile\Type\Event\UserProfileEventUid;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
 #[Exclude]
@@ -38,7 +38,7 @@ final readonly class UpdateWbStocksMessage
     private int $quantity;
 
     public function __construct(
-        UserProfileEventUid|string $profile,
+        UserProfileUid|string $profile,
         string $barcode,
         int $quantity
     )
@@ -68,9 +68,9 @@ final readonly class UpdateWbStocksMessage
     /**
      * Profile
      */
-    public function getProfile(): UserProfileEventUid
+    public function getProfile(): UserProfileUid
     {
-        return new UserProfileEventUid($this->profile);
+        return new UserProfileUid($this->profile);
     }
 
 
