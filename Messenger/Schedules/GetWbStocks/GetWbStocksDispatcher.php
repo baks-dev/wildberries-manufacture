@@ -33,6 +33,8 @@ use BaksDev\Wildberries\Manufacture\Schedule\WbNewStocks\RefreshWbStocksSchedule
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -42,6 +44,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class GetWbStocksDispatcher
 {
     public function __construct(
+        #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
         private GetWbStocksRequest $request,
         private MessageDispatchInterface $messageDispatch,
         private Deduplicator $deduplicator,
@@ -70,6 +73,7 @@ final readonly class GetWbStocksDispatcher
         {
             $Deduplicator = $this->deduplicator
                 ->namespace('wildberries-manufacture')
+                ->expiresAfter('1 day')
                 ->deduplication([$response->getBarcode().$response->getQuantity(), self::class]);
 
             if($Deduplicator->isExecuted())
@@ -77,13 +81,20 @@ final readonly class GetWbStocksDispatcher
                 continue;
             }
 
+            /** Обновляем остаток товара */
+
+            $this->logger->info(sprintf('%s: Обновляем остаток товара FBO => %s', $response->getBarcode(), $response->getQuantity()));
+
+            $UpdateWbStocksMessage = new UpdateWbStocksMessage(
+                profile: $profile,
+                barcode: $response->getBarcode(),
+                quantity: $response->getQuantity()
+            );
+
             /** @see UpdateWbStocksDispatcher */
             $this->messageDispatch->dispatch(
-                message: new UpdateWbStocksMessage(
-                    profile: $profile,
-                    barcode: $response->getBarcode(),
-                    quantity: $response->getQuantity()
-                )
+                message: $UpdateWbStocksMessage,
+                transport: 'wildberries-manufacture'.($response->getQuantity() > 0 ? '-low' : '')
             );
         }
     }

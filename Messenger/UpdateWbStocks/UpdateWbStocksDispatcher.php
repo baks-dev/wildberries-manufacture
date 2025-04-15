@@ -30,6 +30,8 @@ use BaksDev\Products\Product\Repository\CurrentProductByArticle\ProductConstByBa
 use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 use BaksDev\Wildberries\Manufacture\Repository\StocksDataUpdate\WbStocksDataUpdateInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -40,6 +42,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 final readonly class UpdateWbStocksDispatcher
 {
     public function __construct(
+        #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
         private ProductConstByBarcodeInterface $ProductConstByBarcodeRepository,
         private WbStocksDataUpdateInterface $WbStocksDataUpdateRepository,
         private ValidatorInterface $validator,
@@ -48,17 +51,16 @@ final readonly class UpdateWbStocksDispatcher
 
     public function __invoke(UpdateWbStocksMessage $message): void
     {
-        $barcode = $message->getBarcode();
 
-        $product = $this->ProductConstByBarcodeRepository
-            ->find($barcode);
+        $CurrentProductDTO = $this->ProductConstByBarcodeRepository
+            ->find($message->getBarcode());
 
-        if(false === ($product instanceof CurrentProductDTO))
+        if(false === ($CurrentProductDTO instanceof CurrentProductDTO))
         {
             return;
         }
 
-        $invariable = $product->getInvariable();
+        $invariable = $CurrentProductDTO->getInvariable();
 
         $WbStock = $this->WbStocksDataUpdateRepository
             ->forInvariable($invariable)
@@ -82,5 +84,11 @@ final readonly class UpdateWbStocksDispatcher
 
         $this->entityManager->persist($WbStock);
         $this->entityManager->flush();
+
+        $this->logger->info(sprintf(
+                '%s: Обновили остаток товара FBO => %s',
+                $message->getBarcode(),
+                $message->getQuantity())
+        );
     }
 }

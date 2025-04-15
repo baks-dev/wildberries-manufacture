@@ -35,6 +35,9 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final readonly class ResetWbFbsStocksDispatcher
 {
+    /** Минимальное количество на складе, при котором обнулять остаток FBS */
+    private const int REDUCTION = 5;
+
     public function __construct(
         private AllWbStocksBarcodesInterface $allWbStocksBarcodes,
         private PutWbFbsStocksRequest $putWbFbsStocksRequest,
@@ -44,16 +47,23 @@ final readonly class ResetWbFbsStocksDispatcher
     public function __invoke(ResetWbFbsStocksMessage $message): void
     {
         $profile = $message->getProfile();
-        $barcodes = $this->allWbStocksBarcodes->forProfile($profile)->findAll();
-        $warehouses = $this->getWbFbsWarehousesRequest->profile($profile)->findAll();
+
+        $barcodes = $this->allWbStocksBarcodes
+            ->forProfile($profile)
+            ->findAll();
+
+        $warehouses = $this->getWbFbsWarehousesRequest
+            ->profile($profile)
+            ->findAll();
 
         $data = [];
+
         /**  @var AllWbStocksBarcodesResult $result */
         foreach($barcodes as $key => $result)
         {
             $data[] = [
                 "sku" => $result->getBarcode(),
-                "amount" => $result->getQuantity() > 0 ? 0 : new Randomizer()->getInt(1000, 2000),
+                "amount" => $result->getQuantity() > self::REDUCTION ? 0 : new Randomizer()->getInt(1000, 2000),
             ];
 
             /**

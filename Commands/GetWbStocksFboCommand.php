@@ -141,7 +141,7 @@ final class GetWbStocksFboCommand extends Command
 
         $this->messageDispatch->dispatch(
             message: new GetWbStocksMessage($profile),
-            transport: $async === true ? (string) $profile : null
+            transport: $async === true ? $profile.'-low' : null
         );
     }
 }

@@ -141,7 +141,7 @@ final class GetWbOrdersLastCommand extends Command
 
         $this->messageDispatch->dispatch(
             message: new GetWbOrdersMessage($profile),
-            transport: $async === true ? (string) $profile : null
+            transport: $async === true ? $profile.'-low' : null
         );
     }
 }
