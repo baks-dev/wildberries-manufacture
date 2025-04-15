@@ -27,19 +27,30 @@ namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
 
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
+use DateInterval;
+use DateTimeImmutable;
+use Doctrine\DBAL\Types\Types;
 use Generator;
 
 final class CountWbOrdersRepository
 {
     /** За какое время запрашивать данные... */
-    private string $interval = "14 day";
+    private const string INTERVAL = '14 days';
 
-    public function __construct(
-        private readonly DBALQueryBuilder $DBALQueryBuilder,
-    ) {}
+    private DateInterval $interval;
 
-    public function interval(string $interval): self
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder)
     {
+        $this->interval = DateInterval::createFromDateString(self::INTERVAL);
+    }
+
+    public function interval(string|DateInterval $interval): self
+    {
+        if(false === ($interval instanceof DateInterval))
+        {
+            $interval = DateInterval::createFromDateString($interval);
+        }
+
         $this->interval = $interval;
 
         return $this;
@@ -49,13 +60,19 @@ final class CountWbOrdersRepository
     {
         $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
+        $interval = new DateTimeImmutable()->sub($this->interval);
+
         $dbal
-            ->from(WbOrder::class, "wb_order")
-            ->select("COUNT(*) AS count")
-            ->addSelect("wb_order.invariable AS invariable")
-            ->where("date >= (NOW() - INTERVAL :interval)")
-            ->setParameter('interval', $this->interval)
-            ->groupBy("wb_order.invariable");
+            ->from(WbOrder::class, 'wb_order')
+            ->select('COUNT(*) AS count')
+            ->addSelect('wb_order.invariable AS invariable')
+            ->where('DATE(date) >= :interval')
+            ->setParameter(
+                key: 'interval',
+                value: $interval,
+                type: Types::DATE_IMMUTABLE
+            )
+            ->groupBy('wb_order.invariable');
 
         return $dbal->fetchAllHydrate(CountWbOrdersResult::class) ?: false;
     }

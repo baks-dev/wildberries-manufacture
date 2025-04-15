@@ -29,10 +29,17 @@ use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Services\Paginator\PaginatorInterface;
 use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
+use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 
 interface AllWbOrdersAnalyticsInterface
 {
     public function search(SearchDTO $search): self;
+
+    public function filter(ProductFilterDTO $filter): self;
+
+    public function forProfile(UserProfile|UserProfileUid|string $profile): self;
 
     public function findPaginator(DeliveryUid|false $part): PaginatorInterface;
 }

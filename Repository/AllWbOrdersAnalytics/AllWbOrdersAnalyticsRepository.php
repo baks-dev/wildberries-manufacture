@@ -57,6 +57,9 @@ use BaksDev\Products\Product\Entity\Product;
 use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
+use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Entity\WbOrderAnalyitcs;
 use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 use Doctrine\DBAL\ArrayParameterType;
@@ -71,9 +74,12 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
 
     private ?SearchDTO $search = null;
 
+    private UserProfileUid|false $profile = false;
+
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
         private readonly PaginatorInterface $paginator,
+        private readonly UserProfileTokenStorageInterface $UserProfileTokenStorage
     ) {}
 
     public function search(SearchDTO $search): self
@@ -85,6 +91,29 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
     public function filter(ProductFilterDTO $filter): self
     {
         $this->filter = $filter;
+        return $this;
+    }
+
+    public function forProfile(UserProfile|UserProfileUid|string $profile): self
+    {
+        if(empty($profile))
+        {
+            $this->profile = false;
+            return $this;
+        }
+
+        if(is_string($profile))
+        {
+            $profile = new UserProfileUid($profile);
+        }
+
+        if($profile instanceof UserProfile)
+        {
+            $profile = $profile->getId();
+        }
+
+        $this->profile = $profile;
+
         return $this;
     }
 
@@ -142,7 +171,18 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'product',
                 ProductInfo::class,
                 'product_info',
-                'product_info.product = product.id'
+                '
+                product_info.product = product.id AND 
+                (
+                    product_info.profile IS NULL OR 
+                    product_info.profile = :profile
+                )'
+            )
+            ->setParameter(
+                key: 'profile',
+                value: $this->profile ?: $this->UserProfileTokenStorage->getProfile(),
+                type: UserProfileUid::TYPE
+
             );
 
         /**  Название */
@@ -281,26 +321,16 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
             ) AS product_article
 		');
 
-        $dbal
-            ->addSelect("product_event.id AS product_event_id")
-            ->leftJoin(
-                'product',
-                ProductEvent::class,
-                'product_event',
-                'product_event.id = product.event'
-            );
-
-
         /* Категория товара */
         $dbal->leftJoin(
-            'product_event',
+            'product',
             ProductCategory::class,
             'product_category',
-            'product_category.event = product_event.id'
+            'product_category.event = product.event'
         );
 
         $dbal->leftJoin(
-            'product_event',
+            'product_category',
             CategoryProduct::class,
             'category',
             'category.id = product_category.category');
@@ -412,7 +442,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 );
 
 
-            $dbalExist->andWhere('exist_product.product = product_event.id');
+            $dbalExist->andWhere('exist_product.product = product.event');
             $dbalExist->andWhere('(exist_product.offer IS NULL OR exist_product.offer = product_offer.id)');
             $dbalExist->andWhere('(exist_product.variation IS NULL OR exist_product.variation = product_variation.id)');
 
@@ -470,6 +500,6 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 ->addSearchLike('product_trans.name');
         }
 
-        return $this->paginator->fetchAllAssociative($dbal);
+        return $this->paginator->fetchAllHydrate($dbal, AllWbOrdersAnalyticsResult::class);
     }
 }

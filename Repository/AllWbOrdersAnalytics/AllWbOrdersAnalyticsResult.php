@@ -44,6 +44,8 @@ final readonly class AllWbOrdersAnalyticsResult
 
         private string $product_id, //" => "0195f0c4-4f14-70b1-b7e8-0e46bf299b88"
         private string $product_event, //" => "0195f0c4-51ac-749f-a9fa-3aebea522fdb"
+        private string $product_event_id, //" => "0195f0c4-51ac-749f-a9fa-3aebea522fdb"
+
 
         private string $product_url, //" => "67ebb75fa29d1"
         private string $product_trans_name, //" => "Оверсайз хлопковая с принтом булавка"

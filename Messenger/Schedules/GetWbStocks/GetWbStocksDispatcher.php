@@ -77,6 +77,7 @@ final readonly class GetWbStocksDispatcher
                 continue;
             }
 
+            /** @see UpdateWbStocksDispatcher */
             $this->messageDispatch->dispatch(
                 message: new UpdateWbStocksMessage(
                     profile: $profile,

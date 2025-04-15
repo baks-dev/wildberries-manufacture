@@ -26,18 +26,29 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Repository\DeleteAllOrders;
 
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
+use DateInterval;
+use DateTimeImmutable;
+use Doctrine\DBAL\Types\Types;
 
 final class DeleteAllOrdersRepository implements DeleteAllOrdersInterface
 {
     /** За какое время запрашивать данные... */
-    private string $interval = "14 day";
+    private const string INTERVAL = '14 days';
 
-    public function __construct(
-        private readonly DBALQueryBuilder $DBALQueryBuilder,
-    ) {}
+    private DateInterval $interval;
 
-    public function interval(string $interval): self
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder)
     {
+        $this->interval = DateInterval::createFromDateString(self::INTERVAL);
+    }
+
+    public function interval(string|DateInterval $interval): self
+    {
+        if(false === ($interval instanceof DateInterval))
+        {
+            $interval = new DateInterval($interval);
+        }
+
         $this->interval = $interval;
 
         return $this;
@@ -45,13 +56,18 @@ final class DeleteAllOrdersRepository implements DeleteAllOrdersInterface
 
     public function delete(): int
     {
-        $dbal = $this->DBALQueryBuilder
-            ->createQueryBuilder(self::class)
-            ->bindLocal();
+        $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+
+        $interval = new DateTimeImmutable()->sub($this->interval);
 
         $dbal
             ->delete('wb_order')
-            ->where("date < (NOW() - INTERVAL :interval)")
+            ->where('DATE(date) < :interval')
+            ->setParameter(
+                key: 'interval',
+                value: $interval,
+                type: Types::DATE_IMMUTABLE
+            )
             ->setParameter('interval', $this->interval);
 
         return $dbal->executeStatement();

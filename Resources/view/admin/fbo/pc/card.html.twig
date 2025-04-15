@@ -82,18 +82,18 @@
                      data-bs-toggle="tooltip"
                      data-bs-placement="top"
                      data-bs-delay='{"show":600,"hide":100}'
-                     title="{{ item.product_trans_name }}"
+                     title="{{ item.productName }}"
                 >
                     <a href="{{ path('products-product:user.detail', {
-                        category: item.category_url,
-                        url: item.product_url,
-                        offer: item.product_offer_value,
-                        variation: item.product_variation_value,
-                        modification: item.product_modification_value
+                        category: item.categoryUrl,
+                        url: item.productUrl,
+                        offer: item.productOfferValue,
+                        variation: item.productVariationValue,
+                        modification: item.productModificationValue
                     }) }}"
                        class="fw-bolder mb-1 text-dark text-decoration-none"
                     >
-                        {{ item.product_trans_name|capitalize }}
+                        {{ item.productName|capitalize }}
                     </a>
                 </div>
 
