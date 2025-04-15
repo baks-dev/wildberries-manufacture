@@ -167,7 +167,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
 
         $dbal
             ->addSelect('product_info.url AS product_url')
-            ->leftJoin(
+            ->join(
                 'product',
                 ProductInfo::class,
                 'product_info',

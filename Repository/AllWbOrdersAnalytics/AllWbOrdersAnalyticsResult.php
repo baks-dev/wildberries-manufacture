@@ -44,8 +44,6 @@ final readonly class AllWbOrdersAnalyticsResult
 
         private string $product_id, //" => "0195f0c4-4f14-70b1-b7e8-0e46bf299b88"
         private string $product_event, //" => "0195f0c4-51ac-749f-a9fa-3aebea522fdb"
-        private string $product_event_id, //" => "0195f0c4-51ac-749f-a9fa-3aebea522fdb"
-
 
         private string $product_url, //" => "67ebb75fa29d1"
         private string $product_trans_name, //" => "Оверсайз хлопковая с принтом булавка"
@@ -62,7 +60,7 @@ final readonly class AllWbOrdersAnalyticsResult
 
         private ?string $product_image, //" => "/upload/product_offer_images/7b4b268344fc3a8404556e5bdf35f469"
         private ?string $product_image_ext, //" => "webp"
-        private ?string $product_image_cdn, //" => false
+        private ?bool $product_image_cdn, //" => false
 
         private ?string $category_url, //" => "futbolki"
         private ?string $category_name, //" => "Футболки"
