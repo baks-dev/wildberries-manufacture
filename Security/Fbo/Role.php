@@ -57,7 +57,7 @@ final class Role implements RoleInterface, MenuAdminInterface
     /** Метод возвращает PATH раздела */
     public function getPath(): string
     {
-        return 'wildberries-manufacture:admin.fbs';
+        return 'wildberries-manufacture:admin.fbo';
     }
 
     /**
