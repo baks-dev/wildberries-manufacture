@@ -33,10 +33,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/*
+/**
  * Обновляем в базе данные о запасах товара на складах WB
  */
-
 #[AsMessageHandler]
 final readonly class UpdateWbStocksDispatcher
 {

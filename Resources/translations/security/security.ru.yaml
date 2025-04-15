@@ -1,27 +1,49 @@
 # Роль
 
-ROLE_WB_MANUFACTURE:
+ROLE_WB_MANUFACTURE_FBS:
   name: 'Производство FBS'
   desc: 'Производство продукции на заказы Wildberries'
 
-ROLE_WB_MANUFACTURE_ANALYTICS:
+# Правила
+
+ROLE_WB_MANUFACTURE_FBS_INDEX:
+  name: 'Просмотр'
+  desc: ''
+
+ROLE_WB_MANUFACTURE_FBS_NEW:
+  name: 'Добавить'
+  desc: ''
+
+ROLE_WB_MANUFACTURE_FBS_EDIT:
+  name: 'Редактировать'
+  desc: ''
+
+ROLE_WB_MANUFACTURE_FBS_DELETE:
+  name: 'Удалить'
+  desc: ''
+
+
+# Роль
+
+
+ROLE_WB_MANUFACTURE_FBO:
   name: 'Производство FBO'
   desc: 'Производство продукции на склад Wildberries'
 
 # Правила
 
-ROLE_WB_MANUFACTURE_INDEX:
+ROLE_WB_MANUFACTURE_FBO_INDEX:
   name: 'Просмотр'
   desc: ''
 
-ROLE_WB_MANUFACTURE_NEW:
+ROLE_WB_MANUFACTURE_FBO_NEW:
   name: 'Добавить'
   desc: ''
 
-ROLE_WB_MANUFACTURE_EDIT:
+ROLE_WB_MANUFACTURE_FBO_EDIT:
   name: 'Редактировать'
   desc: ''
 
-ROLE_WB_MANUFACTURE_DELETE:
+ROLE_WB_MANUFACTURE_FBO_DELETE:
   name: 'Удалить'
   desc: ''

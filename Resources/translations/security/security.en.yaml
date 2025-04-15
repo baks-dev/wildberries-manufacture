@@ -1,27 +1,49 @@
 # Role
 
-ROLE_WB_MANUFACTURE:
-  name: 'Production'
-  desc: 'Production of Wildberries'
-
-ROLE_WB_MANUFACTURE_ANALYTICS:
-  name: 'Analytics'
-  desc: 'Analytics of Wildberries orders'
+Role_wb_manufacture_fbs:
+  NAME: 'FBS production'
+  Desc: 'Production of products for Wildberries orders'
 
 # Rules
 
-ROLE_WB_MANUFACTURE_INDEX:
-  name: 'View'
-  desc: ''
+Role_wb_manufacture_fbs_index:
+  NAME: 'View'
+  Desc: ''
 
-ROLE_WB_MANUFACTURE_NEW:
-  name: 'Add'
-  desc: ''
+Role_wb_manufacture_fbs_new:
+  NAME: 'Add'
+  Desc: ''
 
-ROLE_WB_MANUFACTURE_EDIT:
-  name: 'Edit'
-  desc: ''
+Role_wb_manufacture_fbs_edit:
+  name: 'edit'
+  Desc: ''
 
-ROLE_WB_MANUFACTURE_DELETE:
-  name: 'Delete'
-  desc: ''
+Role_wb_manufacture_fbs_delete:
+  NAME: 'Delete'
+  Desc: ''
+
+
+
+
+
+Role_wb_manufacture_fbo:
+  NAME: 'FBO production'
+  Desc: 'Production of products at Wildberries warehouse'
+
+# Rules
+
+Role_wb_manufacture_fbo_index:
+  NAME: 'View'
+  Desc: ''
+
+Role_wb_manufacture_fbo_new:
+  NAME: 'Add'
+  Desc: ''
+
+Role_wb_manufacture_fbo_edit:
+  name: 'edit'
+  Desc: ''
+
+Role_wb_manufacture_fbo_delete:
+  NAME: 'Delete'
+  Desc: ''
