@@ -66,7 +66,7 @@ final readonly class AllWbOrdersAnalyticsResult
         private ?string $category_name, //" => "Футболки"
 
         private ?string $order_total, //" => null
-        private bool|string $exist_manufacture, //" => false
+        private string|bool|null $exist_manufacture, //" => false
 
     ) {}
 
@@ -113,9 +113,9 @@ final readonly class AllWbOrdersAnalyticsResult
         return $this->order_total;
     }
 
-    public function isExistManufacture(): bool
+    public function isExistManufacture(): bool|string
     {
-        return $this->exist_manufacture;
+        return $this->exist_manufacture ?: false;
     }
 
 

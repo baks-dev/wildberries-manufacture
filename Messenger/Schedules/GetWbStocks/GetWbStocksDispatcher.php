@@ -29,7 +29,6 @@ use BaksDev\Core\Deduplicator\Deduplicator;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Wildberries\Manufacture\Api\Stocks\GetWbStocksRequest;
 use BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks\UpdateWbStocksMessage;
-use BaksDev\Wildberries\Manufacture\Schedule\WbNewStocks\RefreshWbStocksSchedule;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -56,7 +55,7 @@ final readonly class GetWbStocksDispatcher
 
         $dateFrom = new DateTimeImmutable()
             ->setTimezone(new DateTimeZone('GMT'))
-            ->sub(DateInterval::createFromDateString(RefreshWbStocksSchedule::STOCK_REFRESH_PERIOD))
+            ->sub(DateInterval::createFromDateString('30 days'))
             ->sub(DateInterval::createFromDateString('1 minute'));
 
         $responses = $this->request
@@ -64,37 +63,47 @@ final readonly class GetWbStocksDispatcher
             ->dateFrom($dateFrom)
             ->findAll();
 
+
         if(false === $responses || $responses->valid() === false)
         {
             return;
         }
 
+        $barcodes = [];
+
         foreach($responses as $response)
         {
-            $Deduplicator = $this->deduplicator
-                ->namespace('wildberries-manufacture')
-                ->expiresAfter('1 day')
-                ->deduplication([$response->getBarcode().$response->getQuantity(), self::class]);
+            if(!isset($barcodes[$response->getBarcode()]))
+            {
+                $barcodes[$response->getBarcode()] = 0;
+            }
 
-            if($Deduplicator->isExecuted())
+            if($response->getQuantity() === 0)
             {
                 continue;
             }
 
-            /** Обновляем остаток товара */
+            $quantity = $barcodes[$response->getBarcode()];
+            $barcodes[$response->getBarcode()] = $quantity + $response->getQuantity();
+        }
 
-            $this->logger->info(sprintf('%s: Обновляем остаток товара FBO => %s', $response->getBarcode(), $response->getQuantity()));
+
+        foreach($barcodes as $barcode => $quantity)
+        {
+            /** Обновляем остаток товара */
+            echo $info = sprintf('%s: Обновляем остаток товара FBO => %s', $barcode, $quantity).PHP_EOL;
+            $this->logger->info($info);
 
             $UpdateWbStocksMessage = new UpdateWbStocksMessage(
                 profile: $profile,
-                barcode: $response->getBarcode(),
-                quantity: $response->getQuantity()
+                barcode: (string) $barcode,
+                quantity: $quantity
             );
 
             /** @see UpdateWbStocksDispatcher */
             $this->messageDispatch->dispatch(
                 message: $UpdateWbStocksMessage,
-                transport: 'wildberries-manufacture'.($response->getQuantity() > 0 ? '-low' : '')
+                transport: 'wildberries-manufacture-low'
             );
         }
     }

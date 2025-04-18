@@ -46,7 +46,7 @@ final class DeleteAllOrdersRepository implements DeleteAllOrdersInterface
     {
         if(false === ($interval instanceof DateInterval))
         {
-            $interval = new DateInterval($interval);
+            $interval = DateInterval::createFromDateString($interval);
         }
 
         $this->interval = $interval;
@@ -54,6 +54,10 @@ final class DeleteAllOrdersRepository implements DeleteAllOrdersInterface
         return $this;
     }
 
+    /**
+     * Метод очищает устаревшие данные (по умолчанию старше 14 дней)
+     * @see self::INTERVAL
+     */
     public function delete(): int
     {
         $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);
@@ -67,8 +71,7 @@ final class DeleteAllOrdersRepository implements DeleteAllOrdersInterface
                 key: 'interval',
                 value: $interval,
                 type: Types::DATE_IMMUTABLE
-            )
-            ->setParameter('interval', $this->interval);
+            );
 
         return $dbal->executeStatement();
     }

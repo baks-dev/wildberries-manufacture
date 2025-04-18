@@ -25,9 +25,15 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Repository\DeleteAllOrders;
 
+use DateInterval;
+
 interface DeleteAllOrdersInterface
 {
-    public function interval(string $interval): self;
+    public function interval(string|DateInterval $interval): self;
 
+    /**
+     * Метод очищает устаревшие данные (по умолчанию старше 14 дней)
+     * @see self::INTERVAL
+     */
     public function delete(): int;
 }

@@ -28,7 +28,7 @@ namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
 use Symfony\Component\DependencyInjection\Attribute\Exclude;
 
 #[Exclude]
-final readonly class CountWbOrdersResult implements CountWbOrdersInterface
+final readonly class CountWbOrdersResult
 {
     public function __construct(
         private string $invariable,

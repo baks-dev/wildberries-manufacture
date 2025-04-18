@@ -66,6 +66,7 @@ final readonly class GetWbAverageOrdersDispatcher
         {
             $Deduplicator = $this->deduplicator
                 ->namespace('wildberries-manufacture')
+                ->expiresAfter('1 hour')
                 ->deduplication([$product->getInvariable(), $product->getCount(), self::class]);
 
             if($Deduplicator->isExecuted())
@@ -78,6 +79,8 @@ final readonly class GetWbAverageOrdersDispatcher
                     invariable: $product->getInvariable(),
                     count: $product->getCount())
             );
+
+            $Deduplicator->save();
         }
 
         $this->deleteAllOrdersRepository

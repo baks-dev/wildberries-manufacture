@@ -76,6 +76,7 @@ final class GetWbOrdersRequest extends Wildberries
      * Если в ответе отдаётся пустой массив [], все заказы уже выгружены.
      *
      * @see https://dev.wildberries.ru/ru/openapi/reports/#tag/Osnovnye-otchyoty/paths/~1api~1v1~1supplier~1orders/get
+     * @return Generator<int, WbOrdersRequestDTO>|false
      */
     public function findALl(): Generator|false
     {

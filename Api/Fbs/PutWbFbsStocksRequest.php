@@ -67,7 +67,7 @@ final class PutWbFbsStocksRequest extends Wildberries
                 ]
             );
 
-        if($response->getStatusCode() !== 200)
+        if($response->getStatusCode() !== 204)
         {
             $content = $response->toArray(false);
 
@@ -77,6 +77,7 @@ final class PutWbFbsStocksRequest extends Wildberries
                     self::class.':'.__LINE__,
                     $content
                 ]);
+
             return false;
         }
 

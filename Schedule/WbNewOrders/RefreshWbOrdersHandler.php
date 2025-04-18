@@ -70,7 +70,7 @@ final readonly class RefreshWbOrdersHandler
             $this->messageDispatch->dispatch(
                 message: new GetWbOrdersMessage($profile),
                 stamps: [new MessageDelay('5 seconds')],
-                transport: (string) $profile,
+                transport: $profile.'-low',
             );
         }
     }

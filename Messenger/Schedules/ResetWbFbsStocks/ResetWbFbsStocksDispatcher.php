@@ -29,7 +29,9 @@ use BaksDev\Wildberries\Manufacture\Api\Fbs\PutWbFbsStocksRequest;
 use BaksDev\Wildberries\Manufacture\Api\Warehouses\GetWbFbsWarehousesRequest;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesInterface;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesResult;
+use Psr\Log\LoggerInterface;
 use Random\Randomizer;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -39,6 +41,7 @@ final readonly class ResetWbFbsStocksDispatcher
     private const int REDUCTION = 5;
 
     public function __construct(
+        #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
         private AllWbStocksBarcodesInterface $allWbStocksBarcodes,
         private PutWbFbsStocksRequest $putWbFbsStocksRequest,
         private GetWbFbsWarehousesRequest $getWbFbsWarehousesRequest,
@@ -46,6 +49,9 @@ final readonly class ResetWbFbsStocksDispatcher
 
     public function __invoke(ResetWbFbsStocksMessage $message): void
     {
+        return;
+
+
         $profile = $message->getProfile();
 
         $barcodes = $this->allWbStocksBarcodes
@@ -66,6 +72,10 @@ final readonly class ResetWbFbsStocksDispatcher
                 "amount" => $result->getQuantity() > self::REDUCTION ? 0 : new Randomizer()->getInt(1000, 2000),
             ];
 
+            $this->logger->warning(
+                sprintf('Обновляем остатки FBS %s => %s', $result->getBarcode(), $result->getQuantity())
+            );
+
             /**
              * Т.к. 0 считается кратным любому числу, если мы начнем отсчет с этого числа, в первый раз условие
              * выполнится при наличии только одного элемента в массиве. Поэтому мы начнем отсчет ключей с числа 1.
@@ -76,7 +86,7 @@ final readonly class ResetWbFbsStocksDispatcher
                 {
                     $this->putWbFbsStocksRequest
                         ->profile($profile)
-                        ->warehouse($warehouse["officeId"])
+                        ->warehouse($warehouse["id"])
                         ->update($data);
                 }
 
@@ -85,7 +95,7 @@ final readonly class ResetWbFbsStocksDispatcher
         }
 
         /**
-         * Обновляет оставшиеся склады
+         * Обновляет оставшиеся остатки
          */
         if(count($data) > 0)
         {
@@ -93,7 +103,7 @@ final readonly class ResetWbFbsStocksDispatcher
             {
                 $this->putWbFbsStocksRequest
                     ->profile($profile)
-                    ->warehouse($warehouse["officeId"])
+                    ->warehouse($warehouse["id"])
                     ->update($data);
             }
         }

@@ -25,9 +25,13 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Repository\CountWbOrders;
 
+use Generator;
+
 interface CountWbOrdersInterface
 {
-    public function getInvariable(): string;
-
-    public function getCount(): int;
+    /**
+     * Метод возвращает количество заказов за определенный период
+     * @return Generator<int, CountWbOrdersResult>|false
+     */
+    public function countAll(): Generator|false;
 }

@@ -32,10 +32,9 @@ final class WbOrdersRequestDTO
     /** Уникальный ID заказа */
     private string $id;
 
-    /** Баркод. */
+    /** Штрихкод */
     private string $barcode;
 
-    /** Если часовой пояс не указан, то берётся Московское время (UTC+3). */
     private DateTimeImmutable $date;
 
     public function __construct(array $data)
@@ -45,11 +44,13 @@ final class WbOrdersRequestDTO
         $this->date = new DateTimeImmutable($data['date']);
     }
 
+    /** Уникальный ID заказа */
     public function getId(): string
     {
         return $this->id;
     }
 
+    /** Штрихкод */
     public function getBarcode(): string
     {
         return $this->barcode;

@@ -69,7 +69,7 @@ final readonly class RefreshWbStocksHandler
             $this->messageDispatch->dispatch(
                 message: new GetWbStocksMessage($profile),
                 stamps: [new MessageDelay('5 seconds')],
-                transport: (string) $profile,
+                transport: $profile.'-low',
             );
         }
     }

@@ -35,7 +35,7 @@ final class WbStocksRequestDTO
 
     public function __construct(array $data)
     {
-        $this->quantity = $data['quantityFull'];
+        $this->quantity = $data['quantity'];
 
         $this->barcode = $data['barcode'];
     }

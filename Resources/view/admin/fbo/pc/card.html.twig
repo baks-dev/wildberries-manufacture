@@ -131,14 +131,13 @@
                                 offer: item.productOfferId,
                                 variation: item.productVariationId,
                                 modification: item.productModificationId,
-                                total: item.recommended
+                                total: 100
                             }) }}"
 
                                     class="btn btn-sm modal-link disabled {{ item.existManufacture ?: 'btn-primary' }}"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modal"
                                         {% if item.existManufacture %}
-                                            disabled="disabled"
                                             id="manufacture-{{ identifier }}"
                                         {% endif %}
                                 >

@@ -28,6 +28,8 @@ namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbAverageOrders;
 use BaksDev\Wildberries\Manufacture\Entity\WbOrderAnalyitcs;
 use BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbAverageOrders\GetWbAverageOrdersDispatcher;
 use BaksDev\Wildberries\Manufacture\Repository\OrdersAnalyticsDataUpdate\WbOrdersAnalyticsDataUpdateInterface;
+use DateInterval;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -49,13 +51,15 @@ final readonly class UpdateWbAverageOrdersDispatcher
         $count = $message->getCount();
         $invariable = $message->getInvariable();
 
-        /**
-         * Получаем количество дней, за которое вычисляем среднее число заказов в день.
-         * Такой сложный способ приведения времени, чтобы можно было указать интервал в константе как в днях,
-         * так и, например, в часах или неделях или любых других единицах измерения времени
-         */
-        $days = (int) floor((strtotime(GetWbAverageOrdersDispatcher::INTERVAL) - strtotime('now')) / (60 * 60 * 24));
+        // Вычисляем предыдущую дату относительно текущей
+        $pastDate = new DateTimeImmutable()
+            ->sub(DateInterval::createFromDateString(GetWbAverageOrdersDispatcher::INTERVAL));
 
+        // Вычисляем разницу между датами
+        $diff = new DateTimeImmutable()->diff($pastDate);
+
+        // Получаем количество прошедших дней и среднесуточный показатель
+        $days = $diff->days;
         $average = round($count / $days);
 
         $WbOrderAnalytics = $this->wbOrdersAnalyticsDataUpdateRepository->find($invariable);

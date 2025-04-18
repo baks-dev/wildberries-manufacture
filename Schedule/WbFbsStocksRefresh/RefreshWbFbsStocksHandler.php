@@ -71,7 +71,7 @@ final readonly class RefreshWbFbsStocksHandler
             $this->messageDispatch->dispatch(
                 message: new ResetWbFbsStocksMessage($profile),
                 stamps: [new MessageDelay('5 seconds')],
-                transport: (string) $profile,
+                transport: (string) $profile - 'low',
             );
         }
     }

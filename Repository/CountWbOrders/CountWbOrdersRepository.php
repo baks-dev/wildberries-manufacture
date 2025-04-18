@@ -32,7 +32,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Generator;
 
-final class CountWbOrdersRepository
+final class CountWbOrdersRepository implements CountWbOrdersInterface
 {
     /** За какое время запрашивать данные... */
     private const string INTERVAL = '14 days';
@@ -56,6 +56,10 @@ final class CountWbOrdersRepository
         return $this;
     }
 
+    /**
+     * Метод возвращает количество заказов за определенный период
+     * @return Generator<int, CountWbOrdersResult>|false
+     */
     public function countAll(): Generator|false
     {
         $dbal = $this->DBALQueryBuilder->createQueryBuilder(self::class);

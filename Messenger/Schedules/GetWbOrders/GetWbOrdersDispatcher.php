@@ -60,6 +60,7 @@ final readonly class GetWbOrdersDispatcher
         {
             $Deduplicator = $this->deduplicator
                 ->namespace('wildberries-manufacture')
+                ->expiresAfter('1 hour')
                 ->deduplication([$response->getId(), self::class]);
 
             if($Deduplicator->isExecuted())

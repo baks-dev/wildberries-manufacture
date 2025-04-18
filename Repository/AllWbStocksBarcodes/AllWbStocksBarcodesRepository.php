@@ -40,12 +40,16 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
 {
     private UserProfileUid|false $profile = false;
 
-    public function __construct(
-        private readonly DBALQueryBuilder $DBALQueryBuilder,
-    ) {}
+    public function __construct(private readonly DBALQueryBuilder $DBALQueryBuilder) {}
 
     public function forProfile(UserProfile|UserProfileUid|string $profile): static
     {
+        if(empty($profile))
+        {
+            $this->profile = false;
+            return $this;
+        }
+
         if(is_string($profile))
         {
             $profile = new UserProfileUid($profile);
@@ -61,6 +65,10 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
         return $this;
     }
 
+    /**
+     * Метод возвращает штрихкод и его остаток на складах Wildberries
+     * @return Generator<int, AllWbStocksBarcodesResult>|false
+     */
     public function findAll(): Generator|false
     {
         $dbal = $this->DBALQueryBuilder
@@ -68,12 +76,14 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
             ->bindLocal();
 
         $dbal
-            ->from(WbStock::class, 'wb_stocks')
-            ->join(
-                'wb_stocks',
-                ProductInvariable::class, 'invariable',
-                'wb_stocks.invariable = invariable.id'
-            );
+            ->addSelect('wb_stocks.quantity AS quantity')
+            ->from(WbStock::class, 'wb_stocks');
+
+        $dbal->join(
+            'wb_stocks',
+            ProductInvariable::class, 'invariable',
+            'wb_stocks.invariable = invariable.id'
+        );
 
         $dbal->join(
             'invariable',
@@ -81,23 +91,39 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
             'product_info.product = invariable.product'
         );
 
+        if($this->profile)
+        {
+            $dbal->andWhere('product_info.profile = :profile');
+            $dbal->setParameter(
+                key: 'profile',
+                value: $this->profile,
+                type: UserProfileUid::TYPE
+            );
+        }
+
         $dbal->leftJoin(
             'invariable',
             ProductOffer::class, 'offer',
-            'offer.const = invariable.offer AND invariable.variation IS NULL AND invariable.modification IS NULL'
-        );
+            '
+                (invariable.offer AND offer.const IS NULL) OR
+                (invariable.offer IS NOT NULL AND offer.const = invariable.offer)
+            ');
 
         $dbal->leftJoin(
             'invariable',
             ProductVariation::class, 'variation',
-            'variation.const = invariable.variation AND invariable.modification IS NULL'
-        );
+            '
+                (invariable.variation AND variation.const IS NULL) OR
+                (invariable.variation IS NOT NULL AND variation.const = invariable.variation)
+            ');
 
         $dbal->leftJoin(
             'invariable',
             ProductModification::class, 'modification',
-            'modification.const = invariable.modification'
-        );
+            '
+                (invariable.modification AND modification.const IS NULL) OR
+                (invariable.modification IS NOT NULL AND modification.const = invariable.modification)
+            ');
 
 
         $dbal->select('
@@ -116,13 +142,6 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
 
             END AS barcode');
 
-        $dbal->addSelect('wb_stocks.quantity AS quantity');
-
-        if($this->profile)
-        {
-            $dbal->andWhere("product_info.profile = :profile");
-            $dbal->setParameter("profile", $this->profile);
-        }
 
         return $dbal->fetchAllHydrate(AllWbStocksBarcodesResult::class);
     }

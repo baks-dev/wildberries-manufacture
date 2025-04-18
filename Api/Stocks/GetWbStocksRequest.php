@@ -70,14 +70,16 @@ final class GetWbStocksRequest extends Wildberries
      * Максимум 1 запрос в минуту на один аккаунт продавца
      *
      * @see https://dev.wildberries.ru/openapi/reports/#tag/Osnovnye-otchyoty/paths/~1api~1v1~1supplier~1stocks/get
+     * @return Generator<int, WbStocksRequestDTO>|false
      */
     public function findAll(): Generator|false
     {
-
         $this->dateFrom ?: $this->dateFrom = new DateTimeImmutable()
             ->setTimezone(new DateTimeZone('GMT'))
             ->sub(DateInterval::createFromDateString(RefreshWbOrdersSchedule::ORDER_REFRESH_PERIOD))
             ->sub(DateInterval::createFromDateString('1 minute'));
+
+        $this->dateFrom = $this->dateFrom->setTime((int) $this->dateFrom->format('H'), 0, 0);
 
         while(true)
         {
@@ -131,6 +133,19 @@ final class GetWbStocksRequest extends Wildberries
             }
 
             $this->dateFrom = new DateTimeImmutable(end($content)['lastChangeDate']);
+
+            /**
+             * Максимальное количество возвращаемых элементов 60000
+             */
+            if(count($content) >= 60000)
+            {
+                // Максимум 1 запрос в минуту
+                sleep(60);
+            }
+            else
+            {
+                break;
+            }
         }
     }
 
