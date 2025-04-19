@@ -201,7 +201,8 @@ final readonly class AddOrdersPackageByPartCompleted
 
                 /** Добавляем заказ в упаковку */
                 $WbPackageOrderDTO = new WbPackageOrderDTO()
-                    ->setId($OrderEvent->getMain());
+                    ->setId($OrderEvent->getMain())
+                    ->setSort($ManufacturePartProductsDTO->getSort());
 
                 $WbPackageDTO->addOrd($WbPackageOrderDTO);
 
