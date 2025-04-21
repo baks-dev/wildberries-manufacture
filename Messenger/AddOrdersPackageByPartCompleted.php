@@ -33,6 +33,7 @@ use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
 use BaksDev\Manufacture\Part\Messenger\ManufacturePartMessage;
 use BaksDev\Manufacture\Part\Repository\ManufacturePartCurrentEvent\ManufacturePartCurrentEventInterface;
+use BaksDev\Manufacture\Part\Repository\ManufacturePartEvent\ManufacturePartEventInterface;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusCompleted;
 use BaksDev\Manufacture\Part\UseCase\Admin\NewEdit\ManufacturePartDTO;
 use BaksDev\Manufacture\Part\UseCase\Admin\NewEdit\Products\ManufacturePartProductsDTO;
@@ -60,6 +61,7 @@ final readonly class AddOrdersPackageByPartCompleted
 {
     public function __construct(
         #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
+        private ManufacturePartEventInterface $ManufacturePartEventRepository,
         private ManufacturePartCurrentEventInterface $ManufacturePartCurrentEvent,
         private ExistOpenSupplyProfileInterface $ExistOpenSupplyProfile,
         private MessageDispatchInterface $messageDispatch,
@@ -85,12 +87,21 @@ final readonly class AddOrdersPackageByPartCompleted
             return false;
         }
 
-        $ManufacturePartEvent = $this->ManufacturePartCurrentEvent
-            ->fromPart($message->getId())
+        //        $ManufacturePartEvent = $this->ManufacturePartCurrentEvent
+        //            ->fromPart($message->getId())
+        //            ->find();
+
+        $ManufacturePartEvent = $this->ManufacturePartEventRepository
+            ->forEvent($message->getId())
             ->find();
 
         if(false === ($ManufacturePartEvent instanceof ManufacturePartEvent))
         {
+            $this->logger->critical(
+                'manufacture-part: ManufacturePartEvent не определено',
+                [$message, self::class.':'.__LINE__]
+            );
+
             return false;
         }
 
@@ -149,15 +160,24 @@ final readonly class AddOrdersPackageByPartCompleted
         /** @var ManufacturePartProductsDTO $ManufacturePartProductsDTO */
         foreach($ManufacturePartDTO->getProduct() as $ManufacturePartProductsDTO)
         {
-            $WbSupplyUid = $this->OpenWbSupplyIdentifier->forProfile($UserProfileUid)->find();
+            $WbSupplyUid = $this
+                ->OpenWbSupplyIdentifier
+                ->forProfile($UserProfileUid)
+                ->find();
 
             /** Создаем упаковку на заказы одного продукта */
             $WbPackageDTO = new WbPackageDTO($UserProfileUid)
                 ->setPackageSupply($WbSupplyUid);
 
+            $defaultSort = time();
+
             /** @var ManufacturePartProductOrderDTO $ManufacturePartProductOrderDTO */
             foreach($ManufacturePartProductsDTO->getOrd() as $ManufacturePartProductOrderDTO)
             {
+
+                /** Применяем сортировку по умолчанию, если не присвоена ранее (свойство readonly) */
+                $ManufacturePartProductsDTO->setSort($defaultSort);
+
                 $OrderEvent = $this->CurrentOrderEvent
                     ->forOrder($ManufacturePartProductOrderDTO->getOrd())
                     ->find();

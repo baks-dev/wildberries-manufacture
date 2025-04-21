@@ -30,6 +30,7 @@ use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
 use BaksDev\Manufacture\Part\Messenger\ManufacturePartMessage;
 use BaksDev\Manufacture\Part\Repository\ManufacturePartCurrentEvent\ManufacturePartCurrentEventInterface;
+use BaksDev\Manufacture\Part\Repository\ManufacturePartEvent\ManufacturePartEventInterface;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusCompleted;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
 use BaksDev\Wildberries\Package\Entity\Supply\WbSupply;
@@ -48,6 +49,7 @@ final readonly class NewSupplyByPartCompletedDispatcher
 {
     public function __construct(
         #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
+        private ManufacturePartEventInterface $ManufacturePartEventRepository,
         private ManufacturePartCurrentEventInterface $ManufacturePartCurrentEvent,
         private ExistOpenSupplyProfileInterface $ExistOpenSupplyProfile,
         private WbSupplyNewHandler $WbSupplyNewHandler,
@@ -57,21 +59,30 @@ final readonly class NewSupplyByPartCompletedDispatcher
 
     public function __invoke(ManufacturePartMessage $message): void
     {
-        $Deduplicator = $this->deduplicator
+        $DeduplicatorExecuted = $this->deduplicator
             ->namespace('wildberries-manufacture')
             ->deduplication([$message, self::class]);
 
-        if($Deduplicator->isExecuted())
+        if($DeduplicatorExecuted->isExecuted())
         {
             return;
         }
 
-        $ManufacturePartEvent = $this->ManufacturePartCurrentEvent
-            ->fromPart($message->getId())
+        //        $ManufacturePartEvent = $this->ManufacturePartCurrentEvent
+        //            ->fromPart($message->getId())
+        //            ->find();
+
+        $ManufacturePartEvent = $this->ManufacturePartEventRepository
+            ->forEvent($message->getEvent())
             ->find();
 
         if(false === ($ManufacturePartEvent instanceof ManufacturePartEvent))
         {
+            $this->logger->critical(
+                'manufacture-part: ManufacturePartEvent не определено',
+                [$message, self::class.':'.__LINE__]
+            );
+
             return;
         }
 
@@ -92,7 +103,7 @@ final readonly class NewSupplyByPartCompletedDispatcher
         /** Не открываем новую поставку, если уже открыта */
         if(true === $ExistOpenSupply)
         {
-            $Deduplicator->save();
+            $DeduplicatorExecuted->save();
             return;
         }
 
@@ -113,6 +124,6 @@ final readonly class NewSupplyByPartCompletedDispatcher
             return;
         }
 
-        $Deduplicator->save();
+        $DeduplicatorExecuted->save();
     }
 }
