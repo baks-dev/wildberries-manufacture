@@ -97,7 +97,7 @@ final readonly class NewSupplyByPartCompletedDispatcher
         }
 
         $ExistOpenSupply = $this->ExistOpenSupplyProfile
-            ->forProfile($ManufacturePartEvent->getProfile())
+            ->forProfile($ManufacturePartEvent->getPartProfile())
             ->isExistNewOrOpenSupply();
 
         /** Не открываем новую поставку, если уже открыта */
@@ -111,7 +111,7 @@ final readonly class NewSupplyByPartCompletedDispatcher
          * Открываем новую системную поставку на указанный профиль
          */
 
-        $WbSupplyNewDTO = new WbSupplyNewDTO($ManufacturePartEvent->getProfile());
+        $WbSupplyNewDTO = new WbSupplyNewDTO($ManufacturePartEvent->getPartProfile());
         $WbSupply = $this->WbSupplyNewHandler->handle($WbSupplyNewDTO);
 
         if(false === ($WbSupply instanceof WbSupply))

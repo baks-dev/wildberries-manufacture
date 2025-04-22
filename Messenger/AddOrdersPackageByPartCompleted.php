@@ -92,7 +92,7 @@ final readonly class AddOrdersPackageByPartCompleted
         //            ->find();
 
         $ManufacturePartEvent = $this->ManufacturePartEventRepository
-            ->forEvent($message->getId())
+            ->forEvent($message->getEvent())
             ->find();
 
         if(false === ($ManufacturePartEvent instanceof ManufacturePartEvent))
@@ -118,7 +118,7 @@ final readonly class AddOrdersPackageByPartCompleted
         /** Проверяем, что имеется открытая поставка со статусом OPEN (отправлено на API получен номер) */
 
         $ExistOpenSupply = $this->ExistOpenSupplyProfile
-            ->forProfile($ManufacturePartEvent->getProfile())
+            ->forProfile($ManufacturePartEvent->getPartProfile())
             ->isExistOpenSupply();
 
 
