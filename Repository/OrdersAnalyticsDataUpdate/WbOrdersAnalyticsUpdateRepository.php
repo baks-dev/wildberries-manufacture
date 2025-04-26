@@ -47,6 +47,6 @@ final readonly class WbOrdersAnalyticsUpdateRepository implements WbOrdersAnalyt
                 type: ProductInvariableUid::TYPE
             );
 
-        return $orm->getQuery()->getOneOrNullResult() ?: false;
+        return $orm->getOneOrNullResult() ?: false;
     }
 }

@@ -42,7 +42,7 @@ final readonly class WbOrdersDataUpdateRepository implements WbOrdersDataUpdateI
             ->where('wb_order.id = :id')
             ->setParameter('id', $id);
 
-        return $orm->getQuery()->getOneOrNullResult() ?: false;
+        return $orm->getOneOrNullResult() ?: false;
 
     }
 }

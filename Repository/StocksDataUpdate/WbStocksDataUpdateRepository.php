@@ -79,7 +79,7 @@ final  class WbStocksDataUpdateRepository implements WbStocksDataUpdateInterface
                 ProductInvariableUid::TYPE
             );
 
-        return $orm->getQuery()->getOneOrNullResult() ?: false;
+        return $orm->getOneOrNullResult() ?: false;
 
     }
 }
