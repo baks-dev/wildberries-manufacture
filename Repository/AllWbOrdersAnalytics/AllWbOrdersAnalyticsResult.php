@@ -98,6 +98,11 @@ final readonly class AllWbOrdersAnalyticsResult
         return $this->average * 14 - $this->quantity;
     }
 
+    public function days(): int
+    {
+        return (int) round(($this->quantity / $this->average));
+    }
+
     public function getCategoryUrl(): ?string
     {
         return $this->category_url;

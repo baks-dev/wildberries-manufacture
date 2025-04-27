@@ -28,9 +28,7 @@ namespace BaksDev\Wildberries\Manufacture\Messenger\Schedules\ResetWbFbsStocks;
 use BaksDev\Wildberries\Manufacture\Api\Fbs\PutWbFbsStocksRequest;
 use BaksDev\Wildberries\Manufacture\Api\Warehouses\GetWbFbsWarehousesRequest;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesInterface;
-use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesResult;
 use Psr\Log\LoggerInterface;
-use Random\Randomizer;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -49,63 +47,71 @@ final readonly class ResetWbFbsStocksDispatcher
 
     public function __invoke(ResetWbFbsStocksMessage $message): void
     {
+        /* TODO: Обновление остатков ременно заблокировано !!! */
+
         return;
 
+        //        $profile = $message->getProfile();
+        //
+        //        $barcodes = $this->allWbStocksBarcodes
+        //            ->forProfile($profile)
+        //            ->findAll();
+        //
+        //        $warehouses = $this->getWbFbsWarehousesRequest
+        //            ->profile($profile)
+        //            ->findAll();
+        //
+        //        $data = [];
+        //
+        //        /**  @var AllWbStocksBarcodesResult $result */
+        //        foreach($barcodes as $key => $result)
+        //        {
+        //            /** Сбрасываем остаток если на FBO больше 90 */
+        //            if($result->getQuantity() < 90)
+        //            {
+        //                continue;
+        //            }
+        //
+        //            $data[] = [
+        //                "sku" => $result->getBarcode(),
+        //                "amount" => $result->getQuantity() > self::REDUCTION ? 0 : new Randomizer()->getInt(1000, 2000),
+        //            ];
+        //
+        //            $this->logger->warning(
+        //                sprintf('Обновляем остатки FBS %s => %s', $result->getBarcode(), $result->getQuantity())
+        //            );
+        //
+        //            /**
+        //             * Т.к. 0 считается кратным любому числу, если мы начнем отсчет с этого числа, в первый раз условие
+        //             * выполнится при наличии только одного элемента в массиве. Поэтому мы начнем отсчет ключей с числа 1.
+        //             */
+        //            if(($key + 1) % 1000 === 0)
+        //            {
+        //                foreach($warehouses as $warehouse)
+        //                {
+        //                    $this->putWbFbsStocksRequest
+        //                        ->profile($profile)
+        //                        ->warehouse($warehouse["id"])
+        //                        ->update($data);
+        //                }
+        //
+        //                $data = [];
+        //            }
+        //        }
+        //
+        //        /**
+        //         * Обновляет оставшиеся остатки
+        //         */
+        //        if(count($data) > 0)
+        //        {
+        //            foreach($warehouses as $warehouse)
+        //            {
+        //                $this->putWbFbsStocksRequest
+        //                    ->profile($profile)
+        //                    ->warehouse($warehouse["id"])
+        //                    ->update($data);
+        //            }
+        //        }
 
-        $profile = $message->getProfile();
-
-        $barcodes = $this->allWbStocksBarcodes
-            ->forProfile($profile)
-            ->findAll();
-
-        $warehouses = $this->getWbFbsWarehousesRequest
-            ->profile($profile)
-            ->findAll();
-
-        $data = [];
-
-        /**  @var AllWbStocksBarcodesResult $result */
-        foreach($barcodes as $key => $result)
-        {
-            $data[] = [
-                "sku" => $result->getBarcode(),
-                "amount" => $result->getQuantity() > self::REDUCTION ? 0 : new Randomizer()->getInt(1000, 2000),
-            ];
-
-            $this->logger->warning(
-                sprintf('Обновляем остатки FBS %s => %s', $result->getBarcode(), $result->getQuantity())
-            );
-
-            /**
-             * Т.к. 0 считается кратным любому числу, если мы начнем отсчет с этого числа, в первый раз условие
-             * выполнится при наличии только одного элемента в массиве. Поэтому мы начнем отсчет ключей с числа 1.
-             */
-            if(($key + 1) % 1000 === 0)
-            {
-                foreach($warehouses as $warehouse)
-                {
-                    $this->putWbFbsStocksRequest
-                        ->profile($profile)
-                        ->warehouse($warehouse["id"])
-                        ->update($data);
-                }
-
-                $data = [];
-            }
-        }
-
-        /**
-         * Обновляет оставшиеся остатки
-         */
-        if(count($data) > 0)
-        {
-            foreach($warehouses as $warehouse)
-            {
-                $this->putWbFbsStocksRequest
-                    ->profile($profile)
-                    ->warehouse($warehouse["id"])
-                    ->update($data);
-            }
-        }
     }
 }

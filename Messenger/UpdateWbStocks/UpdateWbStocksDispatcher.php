@@ -51,8 +51,6 @@ final readonly class UpdateWbStocksDispatcher
 
     public function __invoke(UpdateWbStocksMessage $message): void
     {
-        return;
-
         $CurrentProductDTO = $this->ProductConstByBarcodeRepository
             ->find($message->getBarcode());
 
