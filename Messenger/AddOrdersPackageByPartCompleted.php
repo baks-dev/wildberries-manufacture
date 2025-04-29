@@ -76,23 +76,17 @@ final readonly class AddOrdersPackageByPartCompleted
 
     public function __invoke(ManufacturePartMessage $message): bool
     {
-
         $Deduplicator = $this->deduplicator
             ->namespace('wildberries-manufacture')
             ->deduplication([$message->getId(), self::class]);
-
 
         if($Deduplicator->isExecuted())
         {
             return false;
         }
 
-        //        $ManufacturePartEvent = $this->ManufacturePartCurrentEvent
-        //            ->fromPart($message->getId())
-        //            ->find();
-
-        $ManufacturePartEvent = $this->ManufacturePartEventRepository
-            ->forEvent($message->getEvent())
+        $ManufacturePartEvent = $this->ManufacturePartCurrentEvent
+            ->fromPart($message->getId())
             ->find();
 
         if(false === ($ManufacturePartEvent instanceof ManufacturePartEvent))
@@ -140,12 +134,6 @@ final readonly class AddOrdersPackageByPartCompleted
 
             return false;
         }
-
-        //        /** Получаем всю продукцию в производственной партии */
-        //
-        //        $ProductsManufacture = $this->ProductsByManufacturePart
-        //            ->forPart($message->getId())
-        //            ->findAll();
 
         $ManufacturePartDTO = new ManufacturePartDTO();
         $ManufacturePartEvent->getDto($ManufacturePartDTO);
