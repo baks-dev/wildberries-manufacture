@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\Tests;
 
 use BaksDev\Delivery\Type\Id\DeliveryUid;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\AllWbOrdersAnalyticsInterface;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFboWildberries;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -40,7 +41,9 @@ final class AllWbOrdersAnalyticsTest extends KernelTestCase
     {
         /** @var AllWbOrdersAnalyticsInterface $AllWbOrdersAnaltics */
         $AllWbOrdersAnaltics = self::getContainer()->get(AllWbOrdersAnalyticsInterface::class);
-        $paginator = $AllWbOrdersAnaltics->findPaginator(new DeliveryUid(TypeDeliveryFboWildberries::TYPE));
+        $paginator = $AllWbOrdersAnaltics
+            ->forProfile(new UserProfileUid())
+            ->findPaginator(new DeliveryUid(TypeDeliveryFboWildberries::TYPE));
 
         $data = $paginator->getData();
 

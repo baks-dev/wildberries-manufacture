@@ -105,7 +105,7 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
             'invariable',
             ProductOffer::class, 'offer',
             '
-                (invariable.offer AND offer.const IS NULL) OR
+                (invariable.offer IS NULL AND offer.const IS NULL) OR
                 (invariable.offer IS NOT NULL AND offer.const = invariable.offer)
             ');
 
@@ -113,7 +113,7 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
             'invariable',
             ProductVariation::class, 'variation',
             '
-                (invariable.variation AND variation.const IS NULL) OR
+                (invariable.variation IS NULL AND variation.const IS NULL) OR
                 (invariable.variation IS NOT NULL AND variation.const = invariable.variation)
             ');
 
@@ -121,7 +121,7 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
             'invariable',
             ProductModification::class, 'modification',
             '
-                (invariable.modification AND modification.const IS NULL) OR
+                (invariable.modification IS NULL AND modification.const IS NULL) OR
                 (invariable.modification IS NOT NULL AND modification.const = invariable.modification)
             ');
 
