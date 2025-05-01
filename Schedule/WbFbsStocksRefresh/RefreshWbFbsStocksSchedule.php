@@ -25,9 +25,10 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Schedule\WbFbsStocksRefresh;
 
+use BaksDev\Core\Schedule\ScheduleInterface;
 use DateInterval;
 
-final readonly class RefreshWbFbsStocksSchedule
+final readonly class RefreshWbFbsStocksSchedule implements ScheduleInterface
 {
     const string FBS_STOCK_REFRESH_PERIOD = '1 day';
 

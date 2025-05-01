@@ -25,11 +25,12 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Schedule\WbUpdateAverage;
 
+use BaksDev\Core\Schedule\ScheduleInterface;
 use DateInterval;
 
-final readonly class RefreshWbAverageSchedule
+final readonly class RefreshWbAverageSchedule implements ScheduleInterface
 {
-    const string AVG_REFRESH_PERIOD = '1 day';
+    const string AVG_REFRESH_PERIOD = '3 hours';
 
     /** Возвращает экземпляр класса сообщения */
     public function getMessage(): object

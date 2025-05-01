@@ -29,7 +29,6 @@ use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbOrders\GetWbOrdersMessage;
-use BaksDev\Wildberries\Manufacture\Schedule\WbNewStocks\RefreshWbStocksMessage;
 use BaksDev\Wildberries\Repository\AllProfileToken\AllProfileTokenInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -47,7 +46,7 @@ final readonly class RefreshWbOrdersHandler
         private AllProfileTokenInterface $allProfileTokens,
     ) {}
 
-    public function __invoke(RefreshWbStocksMessage $message): void
+    public function __invoke(RefreshWbOrdersMessage $message): void
     {
         /** Идентификаторы профилей пользователей, у которых есть активный токен WB */
         $profiles = $this->allProfileTokens

@@ -25,9 +25,10 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Schedule\WbNewOrders;
 
+use BaksDev\Core\Schedule\ScheduleInterface;
 use DateInterval;
 
-final readonly class RefreshWbOrdersSchedule
+final readonly class RefreshWbOrdersSchedule implements ScheduleInterface
 {
     const string ORDER_REFRESH_PERIOD = '1 hour';
 
