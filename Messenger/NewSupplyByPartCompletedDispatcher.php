@@ -28,9 +28,11 @@ namespace BaksDev\Wildberries\Manufacture\Messenger;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
+use BaksDev\Manufacture\Part\Entity\Invariable\ManufacturePartInvariable;
 use BaksDev\Manufacture\Part\Messenger\ManufacturePartMessage;
 use BaksDev\Manufacture\Part\Repository\ManufacturePartCurrentEvent\ManufacturePartCurrentEventInterface;
 use BaksDev\Manufacture\Part\Repository\ManufacturePartEvent\ManufacturePartEventInterface;
+use BaksDev\Manufacture\Part\Repository\ManufacturePartInvariable\ManufacturePartInvariableInterface;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusCompleted;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
 use BaksDev\Wildberries\Package\Entity\Supply\WbSupply;
@@ -54,6 +56,7 @@ final readonly class NewSupplyByPartCompletedDispatcher
         private ExistOpenSupplyProfileInterface $ExistOpenSupplyProfile,
         private WbSupplyNewHandler $WbSupplyNewHandler,
         private DeduplicatorInterface $deduplicator,
+        private ManufacturePartInvariableInterface $ManufacturePartInvariableRepository
     ) {}
 
 
@@ -92,8 +95,16 @@ final readonly class NewSupplyByPartCompletedDispatcher
             return;
         }
 
+
+        $ManufacturePartInvariable = $this->ManufacturePartInvariableRepository->forPart($message->getId())->find();
+
+        if(false === ($ManufacturePartInvariable instanceof ManufacturePartInvariable))
+        {
+            return;
+        }
+
         $ExistOpenSupply = $this->ExistOpenSupplyProfile
-            ->forProfile($ManufacturePartEvent->getPartProfile())
+            ->forProfile($ManufacturePartInvariable->getProfile())
             ->isExistNewOrOpenSupply();
 
         /** Не открываем новую поставку, если уже открыта */
@@ -107,7 +118,7 @@ final readonly class NewSupplyByPartCompletedDispatcher
          * Открываем новую системную поставку на указанный профиль
          */
 
-        $WbSupplyNewDTO = new WbSupplyNewDTO($ManufacturePartEvent->getPartProfile());
+        $WbSupplyNewDTO = new WbSupplyNewDTO($ManufacturePartInvariable->getProfile());
         $WbSupply = $this->WbSupplyNewHandler->handle($WbSupplyNewDTO);
 
         if(false === ($WbSupply instanceof WbSupply))

@@ -31,9 +31,11 @@ use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
+use BaksDev\Manufacture\Part\Entity\Invariable\ManufacturePartInvariable;
 use BaksDev\Manufacture\Part\Messenger\ManufacturePartMessage;
 use BaksDev\Manufacture\Part\Repository\ManufacturePartCurrentEvent\ManufacturePartCurrentEventInterface;
 use BaksDev\Manufacture\Part\Repository\ManufacturePartEvent\ManufacturePartEventInterface;
+use BaksDev\Manufacture\Part\Repository\ManufacturePartInvariable\ManufacturePartInvariableInterface;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusCompleted;
 use BaksDev\Manufacture\Part\UseCase\Admin\NewEdit\ManufacturePartDTO;
 use BaksDev\Manufacture\Part\UseCase\Admin\NewEdit\Products\ManufacturePartProductsDTO;
@@ -70,7 +72,8 @@ final readonly class AddOrdersPackageByPartCompleted
         private OpenWbSupplyIdentifierInterface $OpenWbSupplyIdentifier,
         private ExistOrderPackageInterface $ExistOrderPackage,
         private WbPackageHandler $WbPackageHandler,
-        private CurrentOrderEventInterface $CurrentOrderEvent
+        private CurrentOrderEventInterface $CurrentOrderEvent,
+        private ManufacturePartInvariableInterface $ManufacturePartInvariableRepository
     ) {}
 
 
@@ -109,10 +112,18 @@ final readonly class AddOrdersPackageByPartCompleted
             return false;
         }
 
+        $ManufacturePartInvariable = $this->ManufacturePartInvariableRepository->forPart($message->getId())->find();
+
+        if(false === ($ManufacturePartInvariable instanceof ManufacturePartInvariable))
+        {
+            return false;
+        }
+
+
         /** Проверяем, что имеется открытая поставка со статусом OPEN (отправлено на API получен номер) */
 
         $ExistOpenSupply = $this->ExistOpenSupplyProfile
-            ->forProfile($ManufacturePartEvent->getPartProfile())
+            ->forProfile($ManufacturePartInvariable->getProfile())
             ->isExistOpenSupply();
 
 
@@ -135,10 +146,11 @@ final readonly class AddOrdersPackageByPartCompleted
             return false;
         }
 
+
         $ManufacturePartDTO = new ManufacturePartDTO();
         $ManufacturePartEvent->getDto($ManufacturePartDTO);
 
-        $UserProfileUid = $ManufacturePartDTO->getInvariable()->getProfile();
+        $UserProfileUid = $ManufacturePartInvariable->getProfile();
 
 
         /**
