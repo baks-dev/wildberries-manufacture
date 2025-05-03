@@ -45,7 +45,7 @@ final readonly class RefreshWbFbsStocksHandler
     ) {}
 
     /**
-     * Инициируем получение данных о количестве товара на складе WB и изменение информации о его количестве на
+     * Инициируем получение данных о количестве товара на складах WB и изменение информации о его количестве на
      * собственных складах для Wildberries
      */
     public function __invoke(RefreshWbStocksMessage $message): void

@@ -44,7 +44,8 @@ final readonly class RefreshWbAverageHandler
     {
         $this->messageDispatch->dispatch(
             message: new GetWbAverageOrdersMessage(),
-            stamps: [new MessageDelay('5 seconds')]
+            stamps: [new MessageDelay('5 seconds')],
+            transport: 'wildberries-manufacture-low',
         );
     }
 }
