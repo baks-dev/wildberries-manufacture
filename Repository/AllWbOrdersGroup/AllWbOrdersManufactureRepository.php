@@ -542,7 +542,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         $dbal->addOrderBy('order_data');
 
 
-        /** Наличие на складе */
+        /** Сверх наличие на складе */
 
         $dbal
             ->addSelect('(SUM(stock.total) - SUM(stock.reserve)) AS stock_available')
@@ -551,27 +551,31 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 ProductStockTotal::class,
                 'stock',
                 '
-                stock.profile = invariable.profile AND
-                stock.product = product_event.main AND
-
-                    (
-                        (product_offer.const IS NOT NULL AND stock.offer = product_offer.const) OR 
-                        (product_offer.const IS NULL AND stock.offer IS NULL)
-                    )
-                    
-                    AND
-                     
-                    (
-                        (product_variation.const IS NOT NULL AND stock.variation = product_variation.const) OR 
-                        (product_variation.const IS NULL AND stock.variation IS NULL)
-                    )
-                     
-                   AND
-                   
-                   (
-                        (product_modification.const IS NOT NULL AND stock.modification = product_modification.const) OR 
-                        (product_modification.const IS NULL AND stock.modification IS NULL)
-                   )
+                        stock.profile = invariable.profile AND
+                        stock.product = product_event.main 
+                        
+                        AND
+                        
+                            CASE 
+                                WHEN product_offer.const IS NOT NULL THEN stock.offer = product_offer.const
+                                ELSE stock.offer = product_offer.const IS NULL
+                            END
+                                
+                        AND 
+                        
+                            CASE
+                                WHEN product_variation.const IS NOT NULL THEN stock.variation = product_variation.const
+                                ELSE stock.variation IS NULL
+                            END
+                            
+                        AND
+                        
+                            CASE
+                                WHEN product_modification.const IS NOT NULL THEN stock.modification = product_modification.const
+                                ELSE stock.modification = product_modification.const IS NULL
+                            END
+                            
+                        AND (stock.total - stock.reserve) > 0
             ');
 
 
