@@ -146,7 +146,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'stock',
                 "stock.invariable = analytics.invariable "
             )
-            ->andWhere('stock.quantity IS NOT NULL AND (stock.quantity / analytics.average) < :minimum');
+            ->andWhere('stock.quantity IS NOT NULL AND (stock.quantity / analytics.average) BETWEEN 0 AND :minimum');
 
         $dbal->join(
             'analytics',

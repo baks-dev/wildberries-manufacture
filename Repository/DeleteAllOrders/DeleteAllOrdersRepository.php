@@ -32,8 +32,8 @@ use Doctrine\DBAL\Types\Types;
 
 final class DeleteAllOrdersRepository implements DeleteAllOrdersInterface
 {
-    /** За какое время запрашивать данные... */
-    private const string INTERVAL = '14 days';
+    /** Период очистки данных по умолчанию */
+    private const string INTERVAL = '30 days';
 
     private DateInterval $interval;
 
@@ -55,7 +55,7 @@ final class DeleteAllOrdersRepository implements DeleteAllOrdersInterface
     }
 
     /**
-     * Метод очищает устаревшие данные (по умолчанию старше 14 дней)
+     * Метод очищает устаревшие данные (по умолчанию старше 30 дней)
      * @see self::INTERVAL
      */
     public function delete(): int

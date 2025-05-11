@@ -85,12 +85,26 @@ final class GetWbOrdersRequest extends Wildberries
             ->sub(DateInterval::createFromDateString(RefreshWbOrdersSchedule::ORDER_REFRESH_PERIOD))
             ->sub(DateInterval::createFromDateString('1 minute'));
 
+
+        $this->dateFrom = match (true)
+        {
+
+            str_contains(RefreshWbOrdersSchedule::ORDER_REFRESH_PERIOD, 'minute') =>
+            $this->dateFrom->setTime((int) $this->dateFrom->format('H'), (int) $this->dateFrom->format('i'), 0),
+
+            str_contains(RefreshWbOrdersSchedule::ORDER_REFRESH_PERIOD, 'hour') =>
+            $this->dateFrom->setTime((int) $this->dateFrom->format('H'), 0, 0),
+
+            str_contains(RefreshWbOrdersSchedule::ORDER_REFRESH_PERIOD, 'day') =>
+            $this->dateFrom->setTime(0, 0, 0),
+        };
+
         while(true)
         {
             $cache = $this->getCacheInit('wildberries-manufacture');
             $key = md5($this->getProfile().$this->dateFrom->format(DateTimeInterface::ATOM).$this->flag.self::class);
 
-            $content = $cache->get($key, function(ItemInterface $item) {
+            $content = $cache->get($key, function(ItemInterface $item): bool|array {
 
                 $item->expiresAfter(DateInterval::createFromDateString('1 seconds'));
 
@@ -108,6 +122,12 @@ final class GetWbOrdersRequest extends Wildberries
                         ]
                     );
 
+                /** Если попадаем на блокировку - включаем ожидание */
+                if($response->getStatusCode() === 429)
+                {
+                    return true;
+                }
+
                 $content = $response->toArray(false);
 
                 if($response->getStatusCode() !== 200)
@@ -118,6 +138,7 @@ final class GetWbOrdersRequest extends Wildberries
                             self::class.':'.__LINE__,
                             $content
                         ]);
+
                     return false;
                 }
 
@@ -126,7 +147,15 @@ final class GetWbOrdersRequest extends Wildberries
                 return $content;
             });
 
-            if(!$content)
+            /** Если попали на блокировку - пробуем повторно через 30 сек... */
+            if(true === $content)
+            {
+                echo 'Пробуем повторно через 60 сек ...'.PHP_EOL;
+                sleep(60);
+                continue;
+            }
+
+            if(false === $content)
             {
                 return false;
             }

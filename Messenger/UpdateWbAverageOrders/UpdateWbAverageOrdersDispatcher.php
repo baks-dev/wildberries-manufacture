@@ -60,7 +60,7 @@ final readonly class UpdateWbAverageOrdersDispatcher
 
         // Получаем количество прошедших дней и среднесуточный показатель
         $days = $diff->days;
-        $average = round($count / $days);
+        $average = ceil($count / $days);
 
         $WbOrderAnalytics = $this->wbOrdersAnalyticsDataUpdateRepository->find($invariable);
 
