@@ -29,6 +29,9 @@ use BaksDev\Core\Deduplicator\Deduplicator;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Wildberries\Manufacture\Api\Orders\GetWbOrdersRequest;
 use BaksDev\Wildberries\Manufacture\Messenger\UpdateWbOrders\UpdateWbOrdersMessage;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -40,7 +43,7 @@ final readonly class GetWbOrdersDispatcher
     public function __construct(
         private GetWbOrdersRequest $request,
         private MessageDispatchInterface $messageDispatch,
-        private Deduplicator $deduplicator,
+        private Deduplicator $deduplicator
     ) {}
 
     public function __invoke(GetWbOrdersMessage $message): void
@@ -56,12 +59,13 @@ final readonly class GetWbOrdersDispatcher
             return;
         }
 
+        $Deduplicator = $this->deduplicator
+            ->namespace('wildberries-manufacture')
+            ->expiresAfter('1 hour');
+
         foreach($responses as $response)
         {
-            $Deduplicator = $this->deduplicator
-                ->namespace('wildberries-manufacture')
-                ->expiresAfter('1 hour')
-                ->deduplication([$response->getId(), self::class]);
+            $Deduplicator->deduplication([$response->getId(), self::class]);
 
             if($Deduplicator->isExecuted())
             {
@@ -72,8 +76,11 @@ final readonly class GetWbOrdersDispatcher
                 message: new UpdateWbOrdersMessage(
                     id: $response->getId(),
                     barcode: $response->getBarcode(),
-                    date: $response->getDate())
+                    date: $response->getDate()),
+                transport: 'wildberries-manufacture-low',
             );
+
+            $Deduplicator->save();
         }
     }
 }

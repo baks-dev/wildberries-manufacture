@@ -142,6 +142,11 @@ final class GetWbOrdersRequest extends Wildberries
                     return false;
                 }
 
+                if(empty($content))
+                {
+                    return false;
+                }
+
                 $item->expiresAfter(DateInterval::createFromDateString('1 hours'));
 
                 return $content;
