@@ -28,12 +28,10 @@ namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks;
 use BaksDev\Products\Product\Repository\CurrentProductByArticle\CurrentProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductByArticle\ProductConstByBarcodeInterface;
 use BaksDev\Wildberries\Manufacture\Entity\WbStock;
-use BaksDev\Wildberries\Manufacture\Repository\StocksDataUpdate\WbStocksDataUpdateInterface;
-use Doctrine\ORM\EntityManagerInterface;
+use BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New\WbStockNewDTO;
+use BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New\WbStockNewHandler;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Обновляем в базе данные о запасах товара на складах WB
@@ -42,11 +40,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 final readonly class UpdateWbStocksDispatcher
 {
     public function __construct(
-        #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
         private ProductConstByBarcodeInterface $ProductConstByBarcodeRepository,
-        private WbStocksDataUpdateInterface $WbStocksDataUpdateRepository,
-        private ValidatorInterface $validator,
-        private EntityManagerInterface $entityManager,
+        private WbStockNewHandler $WbStockNewHandler,
+        private LoggerInterface $logger,
     ) {}
 
     public function __invoke(UpdateWbStocksMessage $message): void
@@ -60,34 +56,28 @@ final readonly class UpdateWbStocksDispatcher
         }
 
         $invariable = $CurrentProductDTO->getInvariable();
-
-        $WbStock = $this->WbStocksDataUpdateRepository
-            ->forInvariable($invariable)
-            ->find();
-
-        /** @var WbStock $WbStock */
-        if(false === ($WbStock instanceof WbStock))
-        {
-            $WbStock = new WbStock()->setInvariable($invariable);
-        }
-
         $quantity = $message->getQuantity();
-        $WbStock->setQuantity($quantity);
+        $barcode = $message->getBarcode();
 
-        $errors = $this->validator->validate($WbStock);
+        $dto = new WbStockNewDTO()
+            ->setInvariable($invariable)
+            ->setQuantity($quantity);
 
-        if(count($errors) > 0)
-        {
+        $wbStock = $this->WbStockNewHandler->handle($dto);
+
+        if($wbStock instanceof WbStock) {
+            $this->logger->info(sprintf(
+                    '%s: Обновили остаток товара FBO => %s',
+                    $barcode,
+                    $quantity)
+            );
+
             return;
         }
 
-        $this->entityManager->persist($WbStock);
-        $this->entityManager->flush();
-
-        $this->logger->info(sprintf(
-                '%s: Обновили остаток товара FBO => %s',
-                $message->getBarcode(),
-                $message->getQuantity())
-        );
+        $this->logger->critical(sprintf(
+                '%s: Ошибка обновления остатка товара FBO: ',
+                $barcode,
+            ) . $wbStock);
     }
 }

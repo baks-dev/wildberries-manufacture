@@ -33,6 +33,9 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use DateTimeZone;
+use BaksDev\Wildberries\Manufacture\Schedule\WbNewOrders\RefreshWbOrdersSchedule;
+use DateTimeImmutable;
 
 /**
  * Получаем данные о последних заказах WB и отправляем сообщения для дальнейшего сохранения в базу
@@ -50,6 +53,17 @@ final readonly class GetWbOrdersDispatcher
     {
         $profile = $message->getProfile();
 
+        if($message->getDays() !== null)
+        {
+            $timezone = new DateTimeZone(date_default_timezone_get());
+            $period = $message->getDays() === null ? RefreshWbOrdersSchedule::ORDER_REFRESH_PERIOD : $message->getDays().' days';
+            $dateFrom = new DateTimeImmutable()
+                ->modify("-".$period)
+                ->setTimezone($timezone);
+
+            $this->request->dateFrom($dateFrom);
+        }
+
         $responses = $this->request
             ->profile($profile)
             ->findAll();
@@ -65,6 +79,8 @@ final readonly class GetWbOrdersDispatcher
 
         foreach($responses as $response)
         {
+            echo 'Заказ '.$response->getId().' (баркод: '.$response->getBarcode().')'.PHP_EOL;
+
             $Deduplicator->deduplication([$response->getId(), self::class]);
 
             if($Deduplicator->isExecuted())

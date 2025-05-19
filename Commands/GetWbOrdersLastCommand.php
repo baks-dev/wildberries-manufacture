@@ -34,6 +34,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -99,12 +100,24 @@ final class GetWbOrdersLastCommand extends Command
             return Command::SUCCESS;
         }
 
+        $question = new Question('За сколько дней необходимо обновить информацию? ');
+
+        // Устанавливаем валидатор для проверки, что введено число
+        $question->setValidator(function ($answer) {
+            if ($answer !== (string)(int)$answer || $answer <= 0) {
+                throw new \RuntimeException('Пожалуйста, введите корректное целое число.');
+            }
+            return (int)$answer;
+        });
+
+        $days = $helper->ask($input, $output, $question);
+
         if($key === '+' || $key === '0' || $key === 'Все')
         {
             /** @var UserProfileUid $profile */
             foreach($profiles as $profile)
             {
-                $this->update($profile, $key === '+');
+                $this->update($profile, $days, $key === '+');
             }
 
             $this->io->success('Данные о заказах успешно обновлены');
@@ -125,7 +138,7 @@ final class GetWbOrdersLastCommand extends Command
 
         if($UserProfileUid)
         {
-            $this->update($UserProfileUid);
+            $this->update($UserProfileUid, $days);
 
             $this->io->success('Данные о заказах успешно обновлены');
             return Command::SUCCESS;
@@ -135,12 +148,11 @@ final class GetWbOrdersLastCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function update(UserProfileUid|string $profile, bool $async = false): void
+    private function update(UserProfileUid|string $profile, int $days, bool $async = false): void
     {
         $this->io->note(sprintf('Обновляем профиль %s', $profile->getAttr()));
-
         $this->messageDispatch->dispatch(
-            message: new GetWbOrdersMessage($profile),
+            message: new GetWbOrdersMessage($profile, $days),
             transport: $async === true ? $profile.'-low' : null
         );
     }

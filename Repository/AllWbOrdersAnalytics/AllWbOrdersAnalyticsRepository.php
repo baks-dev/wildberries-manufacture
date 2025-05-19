@@ -33,17 +33,18 @@ use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
 use BaksDev\Manufacture\Part\Entity\Invariable\ManufacturePartInvariable;
 use BaksDev\Manufacture\Part\Entity\ManufacturePart;
 use BaksDev\Manufacture\Part\Entity\Products\ManufacturePartProduct;
-use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusClosed;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusCompleted;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
 use BaksDev\Orders\Order\Entity\Products\Price\OrderPrice;
 use BaksDev\Products\Category\Entity\CategoryProduct;
 use BaksDev\Products\Category\Entity\Info\CategoryProductInfo;
+use BaksDev\Products\Category\Entity\Offers\CategoryProductOffers;
+use BaksDev\Products\Category\Entity\Offers\Variation\CategoryProductVariation;
+use BaksDev\Products\Category\Entity\Offers\Variation\Modification\CategoryProductModification;
 use BaksDev\Products\Category\Entity\Trans\CategoryProductTrans;
 use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Entity\Category\ProductCategory;
-use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
 use BaksDev\Products\Product\Entity\Material\ProductMaterial;
 use BaksDev\Products\Product\Entity\Offers\Image\ProductOfferImage;
@@ -60,10 +61,12 @@ use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Wildberries\Manufacture\Entity\WbOrderAnalyitcs;
 use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\ParameterType;
+use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
+use DateTimeImmutable;
+use DateInterval;
+use Doctrine\DBAL\Types\Types;
 
 final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterface
 {
@@ -75,6 +78,9 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
     private ?SearchDTO $search = null;
 
     private UserProfileUid|false $profile = false;
+
+    /** Дефолтное количество дней, за которые получаем аналитику, по умолчанию установлено как равное 30 */
+    private int $days = 30;
 
     public function __construct(
         private readonly DBALQueryBuilder $DBALQueryBuilder,
@@ -117,6 +123,12 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
         return $this;
     }
 
+    public function days(int $days): self
+    {
+        $this->days = $days;
+        return $this;
+    }
+
     /*
      * Получаем среднее количество заказов товаров в день и их количество на складе
      */
@@ -126,33 +138,31 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
             ->createQueryBuilder(self::class)
             ->bindLocal();
 
+        $date = new DateTimeImmutable()->sub(DateInterval::createFromDateString($this->days.' days'));
+
         $dbal
-            ->select('analytics.invariable AS invariable')
-            ->addSelect('analytics.average AS average')
-            ->addSelect('analytics.average * :minimum - stock.quantity AS needed_amount')
-            ->from(WbOrderAnalyitcs::class, 'analytics')
-            ->where('analytics.average IS NOT NULL AND analytics.average > 0')
-            ->setParameter(
-                'minimum',
-                self::DAYS_MINIMUM,
-                ParameterType::INTEGER
-            );
+            ->select('wb_order.invariable AS invariable')
+            ->addSelect(sprintf('%s AS days', $this->days))
+            ->addSelect("COUNT(wb_order.*) AS orders_count")
+            ->addSelect('COUNT(wb_order.*) - stock.quantity AS needed_amount')
+            ->from(WbOrder::class, 'wb_order')
+            ->where('wb_order.date > :date')
+            ->setParameter('date', $date, Types::DATETIME_IMMUTABLE);
 
         $dbal
             ->addSelect('stock.quantity AS quantity')
             ->join(
-                'analytics',
+                'wb_order',
                 WbStock::class,
                 'stock',
-                "stock.invariable = analytics.invariable "
-            )
-            ->andWhere('stock.quantity IS NOT NULL AND (stock.quantity / analytics.average) BETWEEN 0 AND :minimum');
+                "stock.invariable = wb_order.invariable"
+            );
 
         $dbal->join(
-            'analytics',
+            'wb_order',
             ProductInvariable::class,
             'product_invariable',
-            "analytics.invariable = product_invariable.id"
+            "wb_order.invariable = product_invariable.id"
         );
 
         $dbal
@@ -199,6 +209,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
         $dbal
             ->addSelect("product_offer.value as product_offer_value")
             ->addSelect("product_offer.id AS product_offer_id")
+            ->addSelect('product_offer.postfix as product_offer_postfix')
             ->leftJoin(
                 'product_invariable',
                 ProductOffer::class,
@@ -206,10 +217,21 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'product_offer.event = product.event AND product_offer.const = product_invariable.offer'
             );
 
+        /* Получаем тип торгового предложения */
+        $dbal
+            ->addSelect('category_offer.reference AS product_offer_reference')
+            ->leftJoin(
+                'product_offer',
+                CategoryProductOffers::class,
+                'category_offer',
+                'category_offer.id = product_offer.category_offer'
+            );
+
         /** VARIATION */
         $dbal
             ->addSelect("product_variation.value as product_variation_value")
             ->addSelect("product_variation.id AS product_variation_id")
+            ->addSelect('product_variation.postfix as product_variation_postfix')
             ->leftJoin(
                 'product_offer',
                 ProductVariation::class,
@@ -217,15 +239,36 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'product_variation.offer = product_offer.id AND product_variation.const = product_invariable.variation'
             );
 
+        /** Получаем тип множественного варианта */
+        $dbal
+            ->addSelect('category_variation.reference as product_variation_reference')
+            ->leftJoin(
+                'product_variation',
+                CategoryProductVariation::class,
+                'category_variation',
+                'category_variation.id = product_variation.category_variation'
+            );
+
         /** MODIFICATION */
         $dbal
             ->addSelect("product_modification.value as product_modification_value")
             ->addSelect("product_modification.id AS product_modification_id")
+            ->addSelect('product_modification.postfix as product_modification_postfix')
             ->leftJoin(
                 'product_variation',
                 ProductModification::class,
                 'product_modification',
                 'product_modification.variation = product_variation.id AND product_modification.const = product_invariable.modification'
+            );
+
+        /* Получаем тип модификации множественного варианта */
+        $dbal
+            ->addSelect('category_offer_modification.reference as product_modification_reference')
+            ->leftJoin(
+                'product_modification',
+                CategoryProductModification::class,
+                'category_offer_modification',
+                'category_offer_modification.id = product_modification.category_modification'
             );
 
         /** Фото */
@@ -355,10 +398,10 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
             );
 
         $dbal->leftJoin(
-            'analytics',
+            'wb_order',
             OrderProduct::class,
             'orders_product',
-            'orders_product.product = analytics.invariable'
+            'orders_product.product = wb_order.invariable'
         );
 
         $dbal
@@ -479,7 +522,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
             $dbalExist->setMaxResults(1);
 
             $dbal->addSelect('(SELECT ('.$dbalExist->getSQL().')) AS exist_manufacture');
-            $dbal->addOrderBy('exist_manufacture', 'DESC');
+            $dbal->orderBy('exist_manufacture', 'DESC');
 
         }
         else
@@ -487,7 +530,9 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
             $dbal->addSelect('FALSE AS exist_manufacture');
         }
 
-        $dbal->orderBy('needed_amount', 'DESC');
+        $dbal->having('COUNT(wb_order.*) - stock.quantity > 0');
+
+        $dbal->addOrderBy('needed_amount', 'DESC');
 
         if($this->search && $this->search->getQuery())
         {

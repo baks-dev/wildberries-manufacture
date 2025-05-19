@@ -21,7 +21,7 @@
  *  THE SOFTWARE.
  */
 
-declare(ticks=1);
+declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Commands;
 

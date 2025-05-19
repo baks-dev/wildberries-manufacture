@@ -29,9 +29,10 @@ use BaksDev\Products\Product\Repository\CurrentProductByArticle\CurrentProductDT
 use BaksDev\Products\Product\Repository\CurrentProductByArticle\ProductConstByBarcodeInterface;
 use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
 use BaksDev\Wildberries\Manufacture\Repository\OrdersDataUpdate\WbOrdersDataUpdateInterface;
-use Doctrine\ORM\EntityManagerInterface;
+use BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New\WbOrderNewDTO;
+use BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New\WbOrderNewHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Сохраняем данные о последних заказах WB
@@ -42,8 +43,8 @@ final readonly class UpdateWbOrdersDispatcher
     public function __construct(
         private ProductConstByBarcodeInterface $ProductConstByBarcodeRepository,
         private WbOrdersDataUpdateInterface $WbOrdersDataUpdateRepository,
-        private ValidatorInterface $validator,
-        private EntityManagerInterface $entityManager,
+        private WbOrderNewHandler $WbOrderNewHandler,
+        private LoggerInterface $logger,
     ) {}
 
     public function __invoke(UpdateWbOrdersMessage $message): void
@@ -69,19 +70,24 @@ final readonly class UpdateWbOrdersDispatcher
         $invariable = $product->getInvariable();
         $date = $message->getDate();
 
-        $WbOrder = new WbOrder()
-            ->setId($id)
-            ->setInvariable($invariable)
-            ->setDate($date);
+        $dto = new WbOrderNewDTO()->setId($id)->setInvariable($invariable)->setDate($date);
 
-        $errors = $this->validator->validate($WbOrder);
+        $wbOrder = $this->WbOrderNewHandler->handle($dto);
 
-        if(count($errors) > 0)
-        {
+        if($wbOrder instanceof WbOrder) {
+            $this->logger->info(sprintf(
+                    '%s: Обновили заказы WB => %s',
+                    $barcode,
+                    $id)
+            );
+
             return;
         }
 
-        $this->entityManager->persist($WbOrder);
-        $this->entityManager->flush();
+        $this->logger->critical(sprintf(
+                '%s: Ошибка обновления заказа WB => %s: ',
+                $barcode,
+                $id
+            ) . $wbOrder);
     }
 }

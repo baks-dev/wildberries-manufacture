@@ -23,11 +23,27 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbAverageOrders;
+namespace BaksDev\Wildberries\Manufacture\Schedule\ClearWbOrders;
 
-use Symfony\Component\DependencyInjection\Attribute\Exclude;
+use BaksDev\Wildberries\Manufacture\Repository\DeleteAllOrders\DeleteAllOrdersInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Scheduler\Attribute\AsCronTask;
 
-#[Exclude]
-final readonly class GetWbAverageOrdersMessage
+/**
+ * Подчищаем данные о старых заказах старше определенной даты
+ */
+#[AsCronTask("0 0 * * *")]
+final readonly class ClearWbOrdersDispatcher
 {
+    public function __construct(
+        private DeleteAllOrdersInterface $DeleteAllOrdersRepository,
+        private LoggerInterface $logger,
+    ) {}
+
+    public function __invoke(): void
+    {
+        $this->DeleteAllOrdersRepository->delete();
+
+        $this->logger->info('Удаление старых заказов успешно завершено');
+    }
 }

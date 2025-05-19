@@ -23,41 +23,66 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Entity;
+namespace BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New;
 
-use BaksDev\Core\Entity\EntityState;
+use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use DateTimeImmutable;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'wb_orders_analytics')]
-final class WbOrderAnalyitcs extends EntityState
+final readonly class WbOrderNewDTO
 {
-    /** Идентификатор Invariable */
-    #[Assert\NotBlank]
-    #[ORM\Id]
-    #[Assert\Uuid]
-    #[ORM\Column(type: ProductInvariableUid::TYPE)]
+    private string $id;
+
     private ProductInvariableUid $invariable;
 
-    /** Среднее количество заказов данного товара в день */
-    #[Assert\NotBlank]
-    #[ORM\Column(type: Types::INTEGER)]
-    private int $average;
+    private DateTimeImmutable $date;
 
-    public function setInvariable(ProductInvariableUid $invariable): self
+    public function getId(): string
     {
+        return $this->id;
+    }
+
+    public function getDate(): DateTimeImmutable
+    {
+        return $this->date;
+    }
+
+    public function getInvariable(): ProductInvariableUid
+    {
+        return $this->invariable;
+    }
+
+    public function setId(string $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function setInvariable(ProductInvariableUid|ProductInvariable|string $invariable): self
+    {
+        if(empty($invariable) === true)
+        {
+            return $this;
+        }
+
+        if(is_string($invariable))
+        {
+            $invariable = new ProductInvariableUid($invariable);
+        }
+
+        if($invariable instanceof ProductInvariable)
+        {
+            $invariable = $invariable->getId();
+        }
+
         $this->invariable = $invariable;
 
         return $this;
     }
 
-    public function setAverage(int|float $average): self
+    public function setDate(DateTimeImmutable $date): self
     {
-        $this->average = (int) $average;
-
+        $this->date = $date;
         return $this;
     }
 }

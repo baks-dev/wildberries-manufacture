@@ -26,14 +26,20 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\Tests;
 
 use BaksDev\Delivery\Type\Id\DeliveryUid;
+use BaksDev\Products\Product\Type\Id\ProductUid;
+use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\AllWbOrdersAnalyticsInterface;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFboWildberries;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use BaksDev\Products\Product\Type\Event\ProductEventUid;
+use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
+use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 
 /**
  * @group wildberries-manufacture
- * @group wildberries-manufacture-rep
+ * @group wildberries-manufacture-repository
  */
 final class AllWbOrdersAnalyticsTest extends KernelTestCase
 {
@@ -53,43 +59,84 @@ final class AllWbOrdersAnalyticsTest extends KernelTestCase
             return;
         }
 
-        $array_keys = [
-            "invariable",
-            "average",
-            "product_trans_name",
-            "product_offer_value",
-            "product_variation_value",
-            "product_modification_value",
-            "product_image",
-            "product_image_ext",
-            "product_article",
-            "quantity",
-            "product_image_cdn",
-            "product_url",
-            "category_url",
-            "needed_amount",
-            "product_id",
-            "product_event",
-            "product_offer_id",
-            "product_offer_id",
-            "product_variation_id",
-            "product_modification_id",
-            "product_event_id",
-            "category_name",
-            "order_total",
-            "exist_manufacture",
-        ];
-
-        $current = current($data);
-
-        foreach($current as $key => $value)
+        foreach($data as $item)
         {
-            self::assertTrue(in_array($key, $array_keys), sprintf('Появился новый ключ %s', $key));
-        }
+            self::assertInstanceOf(ProductInvariableUid::class, $item->getInvariable());
+            self::assertIsInt($item->getAverage());
+            self::assertIsInt($item->getNeededAmount());
+            self::assertIsInt($item->getQuantity());
+            self::assertIsInt($item->recommended());
+            self::assertIsInt($item->getDays());
+            self::assertIsInt($item->getOrdersCount());
+            self::assertIsString($item->getProductTransName());
 
-        foreach($array_keys as $key)
-        {
-            self::assertTrue(array_key_exists($key, $current));
+            self::assertInstanceOf(ProductUid::class, $item->getProductId());
+            self::assertInstanceOf(ProductEventUid::class, $item->getProductEvent());
+            self::assertIsString($item->getProductUrl());
+            self::assertIsString($item->getProductName());
+            self::assertIsString($item->getProductArticle());
+
+            self::assertTrue($item->getCategoryUrl() === null || is_string($item->getCategoryUrl()));
+            self::assertTrue($item->getCategoryName() === null || is_string($item->getCategoryName()));
+            self::assertTrue($item->getOrderTotal() === null || is_string($item->getOrderTotal()));
+            self::assertTrue($item->isExistManufacture() === false || is_string($item->isExistManufacture()));
+
+            self::assertTrue(
+                $item->getProductOfferValue() === null ||
+                is_string($item->getProductOfferValue())
+            );
+            self::assertTrue(
+                $item->getProductOfferId() === null ||
+                $item->getProductOfferId() instanceof ProductOfferUid
+            );
+            self::assertTrue(
+                $item->getProductOfferReference() === null ||
+                is_string($item->getProductOfferReference())
+            );
+            self::assertTrue(
+                $item->getProductOfferPostfix() === null ||
+                is_string($item->getProductOfferPostfix())
+            );
+
+            self::assertTrue(
+                $item->getProductVariationValue() === null ||
+                is_string($item->getProductVariationValue())
+            );
+            self::assertTrue(
+                $item->getProductVariationId() === null ||
+                $item->getProductVariationId() instanceof ProductVariationUid
+            );
+            self::assertTrue(
+                $item->getProductVariationReference() === null ||
+                is_string($item->getProductVariationReference())
+            );
+            self::assertTrue(
+                $item->getProductVariationPostfix() === null ||
+                is_string($item->getProductVariationPostfix())
+            );
+
+            self::assertTrue(
+                $item->getProductModificationValue() === null ||
+                is_string($item->getProductModificationValue())
+            );
+            self::assertTrue(
+                $item->getProductModificationId() === null ||
+                $item->getProductModificationId() instanceof ProductModificationUid
+            );
+            self::assertTrue(
+                $item->getProductModificationReference() === null ||
+                is_string($item->getProductModificationReference())
+            );
+            self::assertTrue(
+                $item->getProductModificationPostfix() === null ||
+                is_string($item->getProductModificationPostfix())
+            );
+
+            self::assertTrue($item->getProductImage() === null || is_string($item->getProductImage()));
+            self::assertTrue($item->getProductImageExt() === null || is_string($item->getProductImageExt()));
+            self::assertTrue($item->getProductImageCdn() === null || is_bool($item->getProductImageCdn()));
+
+            break;
         }
     }
 }

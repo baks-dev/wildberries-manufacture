@@ -31,7 +31,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * @group wildberries-manufacture
- * @group wildberries-manufacture-rep
+ * @group wildberries-manufacture-repository
  */
 final class AllWbStocksBarcodesRepositoryTest extends KernelTestCase
 {

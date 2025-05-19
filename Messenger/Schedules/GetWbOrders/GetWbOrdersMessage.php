@@ -36,13 +36,25 @@ final readonly class GetWbOrdersMessage
      */
     private string $profile;
 
-    public function __construct(UserProfileUid|string $profile)
+    /**
+     * Кол-во дней, за которое планируется получить информацию
+     */
+    private ?int $days;
+
+    public function __construct(UserProfileUid|string $profile, ?int $days = null)
     {
         $this->profile = (string) $profile;
+
+        $this->days = $days;
     }
 
     public function getProfile(): UserProfileUid
     {
         return new UserProfileUid($this->profile);
+    }
+
+    public function getDays(): ?int
+    {
+        return $this->days;
     }
 }
