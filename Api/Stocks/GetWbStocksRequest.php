@@ -54,7 +54,7 @@ final class GetWbStocksRequest extends Wildberries
     private DateTimeImmutable|false $dateFrom = false;
 
     public function dateFrom(DateTimeImmutable $date): self
-    { /* todo точно ли не надо ничего прокидывать? */
+    {
         $this->dateFrom = $date;
 
         return $this;
