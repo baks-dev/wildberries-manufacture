@@ -29,7 +29,9 @@ use BaksDev\Users\User\Tests\TestUserAccount;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/** @group wildberries-manufacture */
+/** @group wildberries-manufacture
+ *  @group wildberries-manufacture-controller
+ * */
 #[When(env: 'test')]
 final class FboControllerTest extends WebTestCase
 {

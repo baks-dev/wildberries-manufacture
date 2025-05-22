@@ -76,7 +76,7 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
             ->bindLocal();
 
         $dbal
-            ->addSelect('wb_stocks.quantity AS quantity')
+            ->select('wb_stocks.quantity AS quantity')
             ->from(WbStock::class, 'wb_stocks');
 
         $dbal->join(
@@ -126,7 +126,7 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
             ');
 
 
-        $dbal->select('
+        $dbal->addSelect('
             CASE
                 WHEN modification.barcode IS NOT NULL
                 THEN modification.barcode

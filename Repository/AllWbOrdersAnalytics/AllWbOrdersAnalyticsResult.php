@@ -38,9 +38,10 @@ final readonly class AllWbOrdersAnalyticsResult
 {
     public function __construct(
         private string $invariable, // " => "0195f0c4-4f99-713b-8f79-d0101f455c51"
-        private int $average, // " => 3
         private int $needed_amount, //" => 42
         private int $quantity, //" => 0
+        private int $days, // => 30
+        private int $orders_count, // => 10
 
         private string $product_id, //" => "0195f0c4-4f14-70b1-b7e8-0e46bf299b88"
         private string $product_event, //" => "0195f0c4-51ac-749f-a9fa-3aebea522fdb"
@@ -51,12 +52,18 @@ final readonly class AllWbOrdersAnalyticsResult
 
         private ?string $product_offer_value, //" => "000000"
         private ?string $product_offer_id, //" => "0195f0c4-51ae-7cda-b6eb-507983f63324"
+        private ?string $product_offer_reference,
+        private ?string $product_offer_postfix,
 
         private ?string $product_variation_value, //" => "XL"
         private ?string $product_variation_id, //" => "0195f0c4-51b0-775d-bf34-6f7f6fed7cb7"
+        private ?string $product_variation_reference,
+        private ?string $product_variation_postfix,
 
         private ?string $product_modification_value, //" => null
         private ?string $product_modification_id, //" => null
+        private ?string $product_modification_reference,
+        private ?string $product_modification_postfix,
 
         private ?string $product_image, //" => "/upload/product_offer_images/7b4b268344fc3a8404556e5bdf35f469"
         private ?string $product_image_ext, //" => "webp"
@@ -65,7 +72,7 @@ final readonly class AllWbOrdersAnalyticsResult
         private ?string $category_url, //" => "futbolki"
         private ?string $category_name, //" => "Футболки"
 
-        private ?string $order_total, //" => null
+        private ?int $order_total, //" => null
         private string|bool|null $exist_manufacture, //" => false
 
     ) {}
@@ -78,9 +85,9 @@ final readonly class AllWbOrdersAnalyticsResult
         return new ProductInvariableUid($this->invariable);
     }
 
-    public function getAverage(): int
+    public function average(): float
     {
-        return $this->average;
+        return $this->orders_count / $this->days;
     }
 
     public function getNeededAmount(): int
@@ -95,12 +102,12 @@ final readonly class AllWbOrdersAnalyticsResult
 
     public function recommended(): int
     {
-        return $this->average * 14 - $this->quantity;
+        return $this->orders_count - $this->quantity;
     }
 
-    public function days(): int
+    public function getDays(): int
     {
-        return (int) round(($this->quantity / $this->average));
+        return $this->days;
     }
 
     public function getCategoryUrl(): ?string
@@ -113,16 +120,15 @@ final readonly class AllWbOrdersAnalyticsResult
         return $this->category_name;
     }
 
-    public function getOrderTotal(): ?string
+    public function getOrderTotal(): ?int
     {
-        return $this->order_total;
+        return (int)$this->order_total;
     }
 
     public function isExistManufacture(): bool|string
     {
         return $this->exist_manufacture ?: false;
     }
-
 
     public function getProductId(): ProductUid
     {
@@ -159,6 +165,31 @@ final readonly class AllWbOrdersAnalyticsResult
         return $this->product_offer_id ? new ProductOfferUid($this->product_offer_id) : null;
     }
 
+    public function getOrdersCount(): int
+    {
+        return $this->orders_count;
+    }
+
+    public function getProductTransName(): string
+    {
+        return $this->product_trans_name;
+    }
+
+    public function getProductOfferReference(): ?string
+    {
+        return $this->product_offer_reference;
+    }
+
+    public function getProductVariationReference(): ?string
+    {
+        return $this->product_variation_reference;
+    }
+
+    public function getProductModificationReference(): ?string
+    {
+        return $this->product_modification_reference;
+    }
+
     public function getProductVariationValue(): ?string
     {
         return $this->product_variation_value;
@@ -179,7 +210,6 @@ final readonly class AllWbOrdersAnalyticsResult
         return $this->product_modification_id ? new ProductModificationUid($this->product_modification_id) : null;
     }
 
-
     public function getProductImage(): ?string
     {
         return $this->product_image;
@@ -195,4 +225,18 @@ final readonly class AllWbOrdersAnalyticsResult
         return $this->product_image_cdn === true;
     }
 
+    public function getProductOfferPostfix(): ?string
+    {
+        return $this->product_offer_postfix;
+    }
+
+    public function getProductVariationPostfix(): ?string
+    {
+        return $this->product_variation_postfix;
+    }
+
+    public function getProductModificationPostfix(): ?string
+    {
+        return $this->product_modification_postfix;
+    }
 }

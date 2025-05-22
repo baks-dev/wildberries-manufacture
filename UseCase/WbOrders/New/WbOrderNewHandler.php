@@ -23,30 +23,31 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Repository\OrdersAnalyticsDataUpdate;
+namespace BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New;
 
-use BaksDev\Core\Doctrine\ORMQueryBuilder;
-use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
-use BaksDev\Wildberries\Manufacture\Entity\WbOrderAnalyitcs;
+use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
+use BaksDev\Core\Entity\AbstractHandler;
 
-final readonly class WbOrdersAnalyticsUpdateRepository implements WbOrdersAnalyticsDataUpdateInterface
+
+final class WbOrderNewHandler extends AbstractHandler
 {
-    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
-
-    public function find(ProductInvariableUid $invariable): WbOrderAnalyitcs|false
+    public function handle(WbOrderNewDTO $dto): WbOrder|string
     {
-        $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
+        $WbOrder = new WbOrder()
+            ->setId($dto->getId())
+            ->setInvariable($dto->getInvariable())
+            ->setDate($dto->getDate());
 
-        $orm
-            ->select('wb_order_analytics')
-            ->from(WbOrderAnalyitcs::class, 'wb_order_analytics')
-            ->where('wb_order_analytics.invariable = :invariable')
-            ->setParameter(
-                key: 'invariable',
-                value: $invariable,
-                type: ProductInvariableUid::TYPE
-            );
+        $this->validatorCollection->add($WbOrder);
 
-        return $orm->getOneOrNullResult() ?: false;
+        /** Валидация всех объектов */
+        if ($this->validatorCollection->isInvalid()) {
+            return $this->validatorCollection->getErrorUniqid();
+        }
+
+        $this->persist($WbOrder);
+        $this->flush();
+
+        return $WbOrder;
     }
 }

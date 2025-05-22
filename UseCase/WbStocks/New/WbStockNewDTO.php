@@ -23,12 +23,52 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Repository\OrdersAnalyticsDataUpdate;
+namespace BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New;
 
+use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
-use BaksDev\Wildberries\Manufacture\Entity\WbOrderAnalyitcs;
 
-interface WbOrdersAnalyticsDataUpdateInterface
+final readonly class WbStockNewDTO
 {
-    public function find(ProductInvariableUid $invariable): WbOrderAnalyitcs|false;
+    private ProductInvariableUid $invariable;
+
+    private int $quantity;
+
+    public function getInvariable(): ProductInvariableUid
+    {
+        return $this->invariable;
+    }
+
+    public function setInvariable(ProductInvariableUid|ProductInvariable|string $invariable): self
+    {
+        if(empty($invariable) === true)
+        {
+            return $this;
+        }
+
+        if(is_string($invariable))
+        {
+            $invariable = new ProductInvariableUid($invariable);
+        }
+
+        if($invariable instanceof ProductInvariable)
+        {
+            $invariable = $invariable->getId();
+        }
+
+        $this->invariable = $invariable;
+
+        return $this;
+    }
+
+    public function getQuantity(): int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(int $quantity): self
+    {
+        $this->quantity = $quantity;
+        return $this;
+    }
 }

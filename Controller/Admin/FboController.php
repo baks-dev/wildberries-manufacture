@@ -30,10 +30,8 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
-use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartResult;
-use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
 use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
@@ -42,6 +40,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 
 #[AsController]
 #[RoleSecurity('ROLE_WB_MANUFACTURE_FBO')]
@@ -57,6 +56,7 @@ final class FboController extends AbstractController
         OpenManufacturePartInterface $openManufacturePart,
         TokenUserGenerator $tokenUserGenerator,
         int $page = 0,
+        #[MapQueryParameter] int $days = 30,
     ): Response
     {
         $search = new SearchDTO();
@@ -75,7 +75,6 @@ final class FboController extends AbstractController
         $opens = $openManufacturePart
             ->forFixed($this->getCurrentProfileUid())
             ->find();
-        //->fetchOpenManufacturePartAssociative();
 
         /**
          * Фильтр продукции
@@ -102,6 +101,7 @@ final class FboController extends AbstractController
          * и др., сортируя в порядке убывания количества продукта, необходимого для пополнения
          */
         $WbOrdersAnalytics = $allWbOrdersAnalyticsRepository
+            ->days($days)
             ->search($search)
             ->filter($filter)
             ->findPaginator($opens ? $opens->getComplete() : false);

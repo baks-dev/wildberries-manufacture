@@ -29,7 +29,7 @@
                 </div>
 
                 <div>
-                    Остатка: {{ item.days }} дн.
+                    Остатка: {{ (item.quantity / item.average)|round(0, 'floor') }} дн.
                 </div>
             </div>
 
@@ -50,7 +50,7 @@
                                 data-bs-delay='{"show":600,"hide":100}'
                                 title='Среднесуточный показатель'
                         >
-                            {{ item.average }}
+                            {{ item.average|round(0, 'ceil') }}
                         </button>
 
                         <button type="submit" class="btn btn-success btn-sm py-0"
@@ -99,6 +99,23 @@
                     >
                         {{ item.productName|capitalize }}
                     </a>
+                    <div class="text-muted fw-bolder">
+
+                        {# Значение множественного варианта ТП #}
+                        {{ item.productVariationValue|call_twig_func(item.productVariationReference~'_render') ~
+                        item.productModificationValue|call_twig_func(item.productModificationReference~'_render') }}
+
+                        {# Значение торгового предложения #}
+                        {{ item.productOfferValue|call_twig_func(item.productOfferReference~'_render') }}
+
+                        {# Постфикс торгового предложения #}
+                        {{ item.productOfferPostfix }}
+                        {# Постфикс множественного варианта #}
+                        {{ item.productVariationPostfix }}
+                        {# Постфикс модификации #}
+                        {{ item.productModificationPostfix }}
+
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center small">

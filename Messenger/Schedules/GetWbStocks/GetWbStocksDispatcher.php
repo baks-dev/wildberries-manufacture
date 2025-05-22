@@ -25,15 +25,12 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbStocks;
 
-use BaksDev\Core\Deduplicator\Deduplicator;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Wildberries\Manufacture\Api\Stocks\GetWbStocksRequest;
 use BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks\UpdateWbStocksMessage;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -43,19 +40,19 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class GetWbStocksDispatcher
 {
     public function __construct(
-        #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
         private GetWbStocksRequest $request,
         private MessageDispatchInterface $messageDispatch,
-        private Deduplicator $deduplicator,
     ) {}
 
     public function __invoke(GetWbStocksMessage $message): void
     {
         $profile = $message->getProfile();
 
+        $period = $message->getDays() === null ? '30 days' : $message->getDays().' days';
+
         $dateFrom = new DateTimeImmutable()
             ->setTimezone(new DateTimeZone('GMT'))
-            ->sub(DateInterval::createFromDateString('30 days'))
+            ->sub(DateInterval::createFromDateString($period))
             ->sub(DateInterval::createFromDateString('1 minute'));
 
         $responses = $this->request
@@ -91,8 +88,7 @@ final readonly class GetWbStocksDispatcher
         foreach($barcodes as $barcode => $quantity)
         {
             /** Обновляем остаток товара */
-            echo $info = sprintf('%s: Обновляем остаток товара FBO => %s', $barcode, $quantity).PHP_EOL;
-            $this->logger->info($info);
+            echo sprintf('%s: Обновляем остаток товара FBO => %s', $barcode, $quantity).PHP_EOL;
 
             $UpdateWbStocksMessage = new UpdateWbStocksMessage(
                 profile: $profile,

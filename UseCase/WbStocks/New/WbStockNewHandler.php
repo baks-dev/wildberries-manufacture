@@ -23,24 +23,37 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbAverageOrders;
+namespace BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New;
 
-use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
+use BaksDev\Core\Entity\AbstractHandler;
+use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 
-final readonly class UpdateWbAverageOrdersMessage
+final class WbStockNewHandler extends AbstractHandler
 {
-    public function __construct(
-        private string $invariable,
-        private int $count,
-    ) {}
-
-    public function getInvariable(): ProductInvariableUid
+    public function handle(WbStockNewDTO $dto): WbStock|string
     {
-        return new ProductInvariableUid($this->invariable);
-    }
+        $invariable = $dto->getInvariable();
 
-    public function getCount(): int
-    {
-        return $this->count;
+        $wbStock = self::getRepository(WbStock::class)->findBy(['invariable' => $invariable]);
+
+        /** @var WbStock $wbStock */
+        if(false === ($wbStock instanceof WbStock))
+        {
+            $wbStock = new WbStock()->setInvariable($invariable);
+        }
+
+        $wbStock->setQuantity($dto->getQuantity());
+
+        $this->validatorCollection->add($wbStock);
+
+        /** Валидация всех объектов */
+        if ($this->validatorCollection->isInvalid()) {
+            return $this->validatorCollection->getErrorUniqid();
+        }
+
+        $this->persist($wbStock);
+        $this->flush();
+
+        return $wbStock;
     }
 }
