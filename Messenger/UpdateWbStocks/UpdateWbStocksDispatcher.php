@@ -31,6 +31,7 @@ use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 use BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New\WbStockNewDTO;
 use BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New\WbStockNewHandler;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -40,9 +41,9 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class UpdateWbStocksDispatcher
 {
     public function __construct(
+        #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
         private ProductConstByBarcodeInterface $ProductConstByBarcodeRepository,
         private WbStockNewHandler $WbStockNewHandler,
-        private LoggerInterface $logger,
     ) {}
 
     public function __invoke(UpdateWbStocksMessage $message): void

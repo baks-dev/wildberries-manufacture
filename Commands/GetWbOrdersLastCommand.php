@@ -29,6 +29,7 @@ use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbOrders\GetWbOrdersMessage;
 use BaksDev\Wildberries\Repository\AllProfileToken\AllProfileTokenInterface;
+use RuntimeException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -42,7 +43,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 #[AsCommand(
     name: 'baks:wildberries-manufacture:orders-last',
-    description: 'Добавляет данные о последних заказах на WB'
+    description: 'Получает данные о последних заказах на WB'
 )]
 final class GetWbOrdersLastCommand extends Command
 {
@@ -105,7 +106,7 @@ final class GetWbOrdersLastCommand extends Command
         // Устанавливаем валидатор для проверки, что введено число
         $question->setValidator(function ($answer) {
             if ($answer !== (string)(int)$answer || $answer <= 0) {
-                throw new \RuntimeException('Пожалуйста, введите корректное целое число.');
+                throw new RuntimeException('Пожалуйста, введите корректное целое число.');
             }
             return (int)$answer;
         });

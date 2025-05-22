@@ -31,8 +31,9 @@ use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
 use BaksDev\Wildberries\Manufacture\Repository\OrdersDataUpdate\WbOrdersDataUpdateInterface;
 use BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New\WbOrderNewDTO;
 use BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New\WbOrderNewHandler;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Сохраняем данные о последних заказах WB
@@ -41,10 +42,10 @@ use Psr\Log\LoggerInterface;
 final readonly class UpdateWbOrdersDispatcher
 {
     public function __construct(
+        #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
         private ProductConstByBarcodeInterface $ProductConstByBarcodeRepository,
         private WbOrdersDataUpdateInterface $WbOrdersDataUpdateRepository,
         private WbOrderNewHandler $WbOrderNewHandler,
-        private LoggerInterface $logger,
     ) {}
 
     public function __invoke(UpdateWbOrdersMessage $message): void
@@ -74,11 +75,12 @@ final readonly class UpdateWbOrdersDispatcher
 
         $wbOrder = $this->WbOrderNewHandler->handle($dto);
 
-        if($wbOrder instanceof WbOrder) {
+        if($wbOrder instanceof WbOrder)
+        {
             $this->logger->info(sprintf(
                     '%s: Обновили заказы WB => %s',
                     $barcode,
-                    $id)
+                $id),
             );
 
             return;
@@ -87,7 +89,7 @@ final readonly class UpdateWbOrdersDispatcher
         $this->logger->critical(sprintf(
                 '%s: Ошибка обновления заказа WB => %s: ',
                 $barcode,
-                $id
-            ) . $wbOrder);
+                $id,
+            ).$wbOrder);
     }
 }

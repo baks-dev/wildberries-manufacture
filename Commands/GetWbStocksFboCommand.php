@@ -41,7 +41,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 #[AsCommand(
     name: 'baks:wildberries-manufacture:stocks-fbo',
-    description: 'Обновляет данные по остатку на складах WB (FBO)'
+    description: 'Получает данные по остатку на складах WB (FBO)'
 )]
 final class GetWbStocksFboCommand extends Command
 {

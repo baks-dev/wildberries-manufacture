@@ -48,6 +48,9 @@ final class PutWbFbsStocksRequest extends Wildberries
      */
     public function update(array $stocks): bool
     {
+        /* TODO: временно заблокировано !!! */
+        return true;
+
         /** Проверка, чтобы в тестовом окружении не изменялись данные */
         if(false === $this->isExecuteEnvironment())
         {
