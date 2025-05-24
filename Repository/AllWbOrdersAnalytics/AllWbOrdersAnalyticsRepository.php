@@ -61,11 +61,11 @@ use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Wildberries\Manufacture\Entity\WbStock;
-use Doctrine\DBAL\ArrayParameterType;
 use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
-use DateTimeImmutable;
+use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 use DateInterval;
+use DateTimeImmutable;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
 
 final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterface
@@ -530,7 +530,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
             $dbal->addSelect('FALSE AS exist_manufacture');
         }
 
-        $dbal->having('COUNT(wb_order.*) - stock.quantity > 0');
+        //$dbal->having('COUNT(wb_order.*) - stock.quantity > 0');
 
         $dbal->addOrderBy('needed_amount', 'DESC');
 
