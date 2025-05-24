@@ -84,13 +84,14 @@
 
         <div class="border border-light rounded-4 p-3 p-3">
 
-            <div class="d-flex justify-content-between">
+
+            <div class="d-flex justify-content-between mb-3">
                 {% include Template('@core:/_includes/'~baks_settings.device~'/search.html.twig') %}
 
                 <div class="d-flex align-items-center gap-3">
-                    <span>Количество дней:</span>
+                    <span class="text-nowrap">Количество дней:</span>
                     <div class="w-100 d-flex align-items-center justify-content-end gap-3">
-                        <a href="{{ path('wildberries-manufacture:admin.fbo', {days: 1}) }}"
+                        <a href="{{ path('wildberries-manufacture:admin.fbo', { days: 1}) }}"
                            class="btn btn-light"
                            role="tooltip"
                            data-bs-toggle="tooltip"
@@ -99,7 +100,7 @@
                         >
                             1
                         </a>
-                        <a href="{{ path('wildberries-manufacture:admin.fbo', {days: 7}) }}"
+                        <a href="{{ path('wildberries-manufacture:admin.fbo', { days: 7}) }}"
                            class="btn btn-light"
                            role="tooltip"
                            data-bs-toggle="tooltip"
@@ -108,7 +109,7 @@
                         >
                             7
                         </a>
-                        <a href="{{ path('wildberries-manufacture:admin.fbo', {days: 14}) }}"
+                        <a href="{{ path('wildberries-manufacture:admin.fbo', { days: 14}) }}"
                            class="btn btn-light"
                            role="tooltip"
                            data-bs-toggle="tooltip"
@@ -117,7 +118,7 @@
                         >
                             14
                         </a>
-                        <a href="{{ path('wildberries-manufacture:admin.fbo', {days: 30}) }}"
+                        <a href="{{ path('wildberries-manufacture:admin.fbo', { days: 30}) }}"
                            class="btn btn-light"
                            role="tooltip"
                            data-bs-toggle="tooltip"
@@ -137,6 +138,7 @@
                 </div>
 
             </div>
+
 
             <div class="row cards-box-body mt-3">
 
@@ -165,6 +167,7 @@
             </div>
 
         </div>
+
         {% include Template('_includes/'~baks_settings.device~'/pagination.html.twig') with { 'pagination' : query } %}
 
     </section>

@@ -43,22 +43,26 @@
 
                     <div class="btn-group p-0" role="group">
 
-                        <button type="submit" class="btn btn-danger btn-sm py-0"
+                        {% set average = item.average|round(0, 'ceil') %}
+
+                        <button type="submit"
+                                class="btn {{ average > item.quantity ? 'btn-danger' : 'btn-secondary' }}  btn-sm py-0"
                                 role="tooltip"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
                                 data-bs-delay='{"show":600,"hide":100}'
                                 title='Среднесуточный показатель'
                         >
-                            {{ item.average|round(0, 'ceil') }}
+                            {{ average }}
                         </button>
 
-                        <button type="submit" class="btn btn-success btn-sm py-0"
+                        <button type="submit"
+                                class="btn {{ item.quantity ? 'btn-success' : 'btn-secondary' }} btn-sm py-0"
                                 role="tooltip"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="bottom"
                                 data-bs-delay='{"show":600,"hide":100}'
-                                title='Количество на складе'
+                                title='Количество на складе Wildberries'
                         >
                             {{ item.quantity }}
                         </button>
@@ -134,7 +138,13 @@
 
                 <div class="d-flex justify-content-between align-items-center small">
 
-                    Рекомендация: {{ item.recommended }} шт.
+                    {% if item.recommended > 0 %}
+                        Рекомендация: {{ item.recommended }} шт.
+                    {% else %}
+                        <span class="text-danger">Не требуется</span>
+                    {% endif %}
+
+
 
                     {% if is_granted('ROLE_MANUFACTURE_PART_ADD') or  is_granted('ROLE_ADMIN') %}
 
