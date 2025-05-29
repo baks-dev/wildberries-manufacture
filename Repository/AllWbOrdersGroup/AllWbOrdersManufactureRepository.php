@@ -582,7 +582,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         if($this->search && $this->search->getQuery())
         {
             $dbal
-                ->createSearchQueryBuilder($this->search)
+                ->createSearchQueryBuilder($this->search, true)
                 ->addSearchLike('product_modification.article')
                 ->addSearchLike('product_variation.article')
                 ->addSearchLike('product_offer.article')

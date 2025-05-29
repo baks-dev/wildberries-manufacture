@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks;
 
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Products\Product\Repository\CurrentProductByArticle\CurrentProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductByArticle\ProductConstByBarcodeInterface;
 use BaksDev\Wildberries\Manufacture\Entity\WbStock;
@@ -44,10 +45,23 @@ final readonly class UpdateWbStocksDispatcher
         #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
         private ProductConstByBarcodeInterface $ProductConstByBarcodeRepository,
         private WbStockNewHandler $WbStockNewHandler,
+        private DeduplicatorInterface $deduplicator
     ) {}
 
     public function __invoke(UpdateWbStocksMessage $message): void
     {
+        $Deduplicator = $this->deduplicator
+            ->namespace('module-name')
+            ->expiresAfter('1 minutes')
+            ->deduplication([$message->getBarcode(), self::class]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
+
+        $Deduplicator->save();
+
         $CurrentProductDTO = $this->ProductConstByBarcodeRepository
             ->find($message->getBarcode());
 
@@ -66,19 +80,17 @@ final readonly class UpdateWbStocksDispatcher
 
         $wbStock = $this->WbStockNewHandler->handle($dto);
 
-        if($wbStock instanceof WbStock) {
+        if($wbStock instanceof WbStock)
+        {
             $this->logger->info(sprintf(
-                    '%s: Обновили остаток товара FBO => %s',
-                    $barcode,
-                    $quantity)
+                '%s: Обновили остаток товара FBO => %s',
+                $barcode,
+                $quantity),
             );
 
             return;
         }
 
-        $this->logger->critical(sprintf(
-                '%s: Ошибка обновления остатка товара FBO: ',
-                $barcode,
-            ) . $wbStock);
+        $this->logger->critical(sprintf('%s: Ошибка обновления остатка товара', $wbStock), [$barcode]);
     }
 }
