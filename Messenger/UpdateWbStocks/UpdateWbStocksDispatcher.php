@@ -51,8 +51,8 @@ final readonly class UpdateWbStocksDispatcher
     public function __invoke(UpdateWbStocksMessage $message): void
     {
         $Deduplicator = $this->deduplicator
-            ->namespace('module-name')
-            ->expiresAfter('1 minutes')
+            ->namespace('wildberries-manufacture')
+            ->expiresAfter('1 hour')
             ->deduplication([$message->getBarcode(), self::class]);
 
         if($Deduplicator->isExecuted())
