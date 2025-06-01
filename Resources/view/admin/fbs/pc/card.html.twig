@@ -15,7 +15,7 @@
 {# {% set product_offers = item.product_offers|json_decode %} #}
 {% set product_offers = [] %}
 
-{% set dedline = date(item.order_data)|date_modify("+24 hours") %}
+{% set dedline = date(item.order_data) %}
 {% set difference = dedline.diff(date("now")) %}
 {% set hour = difference.d * 24 + difference.h %}
 
@@ -133,7 +133,7 @@
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="bottom"
                                     data-bs-delay='{"show":600,"hide":100}'
-                                    title='Количество аналогичных карточек'
+                                    title='Количество аналогичных заказов'
                             >
                                 <small>{{ item.analog }}</small>
                             </button>
@@ -157,7 +157,7 @@
 
                     <div class="btn-group p-0" role="group">
 
-                        {% if item.stock_available is not empty and item.stock_available > 0 %}
+                        {# {% if item.stock_available is not empty and item.stock_available > 0 %}
                             <a href="{{ path('products-stocks:admin.total.index') }}"
                                class="btn btn-success btn-sm small"
                                target="_blank"
@@ -169,7 +169,7 @@
                             >
                                 {{ item.stock_available }}
                             </a>
-                        {% endif %}
+                        {% endif %} #}
 
                     </div>
                 </form>
