@@ -15,7 +15,7 @@
 {# {% set product_offers = item.product_offers|json_decode %} #}
 {% set product_offers = [] %}
 
-{% set dedline = date(item.order_data) %}
+{% set dedline = date(item.order_data)|date_modify("+12 hours") %}
 {% set difference = dedline.diff(date("now")) %}
 {% set hour = difference.d * 24 + difference.h %}
 
