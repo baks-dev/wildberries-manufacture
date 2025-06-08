@@ -141,7 +141,7 @@ final readonly class AddOrdersPackageByPartCompleted
                     transport: 'wildberries-manufacture-low',
                 );
 
-            $this->logger->warning('wildberries-manufacture: Открытой поставки поставки Wildberries не найдено. Пробуем через 5 секунд ...');
+            $this->logger->warning('Открытой поставки поставки Wildberries не найдено. Пробуем через 5 секунд ...');
 
             return false;
         }
