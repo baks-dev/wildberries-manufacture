@@ -51,7 +51,6 @@ final readonly class NewSupplyByPartCompletedDispatcher
 {
     public function __construct(
         #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
-        private ManufacturePartEventInterface $ManufacturePartEventRepository,
         private ManufacturePartCurrentEventInterface $ManufacturePartCurrentEvent,
         private ExistOpenSupplyProfileInterface $ExistOpenSupplyProfile,
         private WbSupplyNewHandler $WbSupplyNewHandler,
@@ -94,7 +93,6 @@ final readonly class NewSupplyByPartCompletedDispatcher
         {
             return;
         }
-
 
         $ManufacturePartInvariable = $this->ManufacturePartInvariableRepository->forPart($message->getId())->find();
 
