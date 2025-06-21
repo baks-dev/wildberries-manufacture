@@ -33,6 +33,7 @@ use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartResult;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
+use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufactureSelectionPartProductsForm;
 use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
@@ -79,7 +80,7 @@ final class FbsController extends AbstractController
         /**
          * Фильтр продукции
          */
-        $filter = new ProductFilterDTO();
+        $filter = new ProductFilterDTO()->hiddenMaterials();
 
         if($opens instanceof OpenManufacturePartResult)
         {
@@ -115,6 +116,7 @@ final class FbsController extends AbstractController
                 'current_profile' => $this->getCurrentProfileUid(),
                 'filter' => $filterForm->createView(),
                 'token' => $tokenUserGenerator->generate($this->getUsr()),
+                'add_selected_product_form_name' => $this->createForm(type: ManufactureSelectionPartProductsForm::class)->getName(),
             ]
         );
     }

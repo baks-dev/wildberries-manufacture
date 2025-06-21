@@ -148,6 +148,51 @@
 
         </div>
 
+        {% if query.data %}
+
+            <div class="position-absolute mt-2 pt-1 small">
+                <strong class="">Множественный выбор:</strong>
+            </div>
+
+            <div class="to-production-actions d-flex gap-2 sticky-bottom ps-5 pb-3 pt-2" style="margin-left: 130px;">
+
+                <button
+                        class="btn btn-sm btn-outline-primary text-nowrap mb-2"
+                        role="tooltip"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="bottom"
+                        data-bs-delay='{"show":600,"hide":100}'
+                        title="Выбрать все"
+                        id="select-all-to-production"
+                >
+                    Выбрать все
+                </button>
+
+                <a
+                        class="btn btn-sm btn-danger opacity-75 text-nowrap mb-2 d-none"
+                        role="tooltip"
+                        data-bs-placement="bottom"
+                        data-bs-delay='{"show":600,"hide":100}'
+                        title="Добавить выбранные"
+                        id="add-all-to-production"
+
+                        data-bs-toggle="modal"
+                        data-bs-target="#modal"
+
+                        data-post-class="add-all-to-production"
+
+                        data-method="post"
+                        data-collection-form="product_form_data"
+
+                        href="/admin/manufacture/part/selected-product/add"
+
+                >
+                    Добавить выбранные
+                </a>
+
+            </div>
+        {% endif %}
+
         {% include Template('_includes/'~baks_settings.device~'/pagination.html.twig') with { 'pagination' : query } %}
 
     </section>
