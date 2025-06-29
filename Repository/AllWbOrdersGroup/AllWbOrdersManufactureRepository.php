@@ -572,7 +572,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                         
                             CASE 
                                 WHEN product_offer.const IS NOT NULL THEN stock.offer = product_offer.const
-                                ELSE stock.offer = product_offer.const IS NULL
+                                ELSE stock.offer IS NULL
                             END
                                 
                         AND 
@@ -586,7 +586,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                         
                             CASE
                                 WHEN product_modification.const IS NOT NULL THEN stock.modification = product_modification.const
-                                ELSE stock.modification = product_modification.const IS NULL
+                                ELSE stock.modification IS NULL
                             END
                             
                         AND (stock.total - stock.reserve) > 0
