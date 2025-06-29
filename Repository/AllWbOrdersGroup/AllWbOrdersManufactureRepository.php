@@ -509,8 +509,28 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 
 
             $dbalExist->andWhere('exist_product.product = order_product.product');
-            $dbalExist->andWhere('(order_product.offer IS NULL OR exist_product.offer = order_product.offer)');
-            $dbalExist->andWhere('(order_product.variation IS NULL OR exist_product.variation = order_product.variation)');
+
+            // $dbalExist->andWhere('(order_product.offer IS NULL OR exist_product.offer = order_product.offer)');
+            $dbalExist->andWhere('(CASE 
+                WHEN order_product.offer IS NOT NULL 
+                THEN exist_product.offer = order_product.offer
+                ELSE exist_product.offer IS NULL
+            END)');
+
+
+            // $dbalExist->andWhere('(order_product.variation IS NULL OR exist_product.variation = order_product.variation)');
+            $dbalExist->andWhere('(CASE 
+                WHEN order_product.variation IS NOT NULL 
+                THEN exist_product.variation = order_product.variation
+                ELSE exist_product.variation IS NULL
+            END)');
+
+            // $dbalExist->andWhere('(order_product.variation IS NULL OR exist_product.variation = order_product.variation)');
+            $dbalExist->andWhere('(CASE 
+                WHEN order_product.modification IS NOT NULL 
+                THEN exist_product.modification = order_product.modification
+                ELSE exist_product.modification IS NULL
+            END)');
 
 
             /**
