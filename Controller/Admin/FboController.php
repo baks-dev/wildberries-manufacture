@@ -39,8 +39,8 @@ use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\AllWbOrdersA
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[AsController]
 #[RoleSecurity('ROLE_WB_MANUFACTURE_FBO')]
@@ -79,7 +79,7 @@ final class FboController extends AbstractController
         /**
          * Фильтр продукции
          */
-        $filter = new ProductFilterDTO();
+        $filter = new ProductFilterDTO()->hiddenMaterials();
 
         if($opens instanceof OpenManufacturePartResult)
         {
