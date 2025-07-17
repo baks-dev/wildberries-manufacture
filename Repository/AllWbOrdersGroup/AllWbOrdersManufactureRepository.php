@@ -124,7 +124,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 
         $dbal
             ->from(OrderInvariable::class, 'invariable')
-            ->where('invariable.profile = :profile')
+            ->where('invariable.profile = :profile OR invariable.profile IS NULL')
             ->setParameter(
                 'profile',
                 $this->profile ?: $this->UserProfileTokenStorage->getProfile(),
@@ -240,7 +240,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                     ProductCategory::class,
                     'product_category',
                     '
-                    product_category.event = product_info.event AND
+                    product_category.event = product_event.id AND
                     product_category.category = :category AND
                     product_category.root = true
                 ')
@@ -249,7 +249,6 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                     value: $this->filter->getCategory(),
                     type: CategoryProductUid::TYPE,
                 );
-
         }
 
 
@@ -572,6 +571,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         {
             $dbal->addSelect('FALSE AS exist_manufacture');
         }
+
 
         $dbal->addOrderBy('order_data');
 
