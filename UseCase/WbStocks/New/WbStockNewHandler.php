@@ -34,12 +34,13 @@ final class WbStockNewHandler extends AbstractHandler
     {
         $invariable = $dto->getInvariable();
 
-        $wbStock = self::getRepository(WbStock::class)->findBy(['invariable' => $invariable]);
+        $wbStock = self::getRepository(WbStock::class)->findOneBy(['invariable' => $invariable]);
 
         /** @var WbStock $wbStock */
         if(false === ($wbStock instanceof WbStock))
         {
             $wbStock = new WbStock()->setInvariable($invariable);
+            $this->persist($wbStock);
         }
 
         $wbStock->setQuantity($dto->getQuantity());
@@ -51,7 +52,6 @@ final class WbStockNewHandler extends AbstractHandler
             return $this->validatorCollection->getErrorUniqid();
         }
 
-        $this->persist($wbStock);
         $this->flush();
 
         return $wbStock;
