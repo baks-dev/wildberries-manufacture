@@ -28,14 +28,15 @@ namespace BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbOrders;
 use BaksDev\Core\Deduplicator\Deduplicator;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Wildberries\Manufacture\Api\Orders\GetWbOrdersRequest;
+use BaksDev\Wildberries\Manufacture\BaksDevWildberriesManufactureBundle;
 use BaksDev\Wildberries\Manufacture\Messenger\UpdateWbOrders\UpdateWbOrdersMessage;
+use BaksDev\Wildberries\Manufacture\Schedule\WbNewOrders\RefreshWbOrdersSchedule;
+use DateTimeImmutable;
+use DateTimeZone;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use DateTimeZone;
-use BaksDev\Wildberries\Manufacture\Schedule\WbNewOrders\RefreshWbOrdersSchedule;
-use DateTimeImmutable;
 
 /**
  * Получаем данные о последних заказах WB и отправляем сообщения для дальнейшего сохранения в базу
@@ -74,14 +75,13 @@ final readonly class GetWbOrdersDispatcher
         }
 
         $Deduplicator = $this->deduplicator
-            ->namespace('wildberries-manufacture')
-            ->expiresAfter('1 hour');
+            ->namespace('wildberries-manufacture');
 
         foreach($responses as $response)
         {
             echo 'Заказ '.$response->getId().' (баркод: '.$response->getBarcode().')'.PHP_EOL;
 
-            $Deduplicator->deduplication([$response->getId(), self::class]);
+            $Deduplicator->deduplication([$response->getId(), BaksDevWildberriesManufactureBundle::class]);
 
             if($Deduplicator->isExecuted())
             {
@@ -95,8 +95,6 @@ final readonly class GetWbOrdersDispatcher
                     date: $response->getDate()),
                 transport: 'wildberries-manufacture-low',
             );
-
-            $Deduplicator->save();
         }
     }
 }

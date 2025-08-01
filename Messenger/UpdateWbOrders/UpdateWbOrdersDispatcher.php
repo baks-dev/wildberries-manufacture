@@ -25,8 +25,10 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbOrders;
 
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
 use BaksDev\Products\Product\Repository\CurrentProductByArticle\CurrentProductDTO;
 use BaksDev\Products\Product\Repository\CurrentProductByArticle\ProductConstByBarcodeInterface;
+use BaksDev\Wildberries\Manufacture\BaksDevWildberriesManufactureBundle;
 use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
 use BaksDev\Wildberries\Manufacture\Repository\OrdersDataUpdate\WbOrdersDataUpdateInterface;
 use BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New\WbOrderNewDTO;
@@ -46,10 +48,21 @@ final readonly class UpdateWbOrdersDispatcher
         private ProductConstByBarcodeInterface $ProductConstByBarcodeRepository,
         private WbOrdersDataUpdateInterface $WbOrdersDataUpdateRepository,
         private WbOrderNewHandler $WbOrderNewHandler,
+        private DeduplicatorInterface $deduplicator,
     ) {}
 
     public function __invoke(UpdateWbOrdersMessage $message): void
     {
+        $Deduplicator = $this->deduplicator
+            ->expiresAfter('1 day')
+            ->namespace('wildberries-manufacture')
+            ->deduplication([$message->getId(), BaksDevWildberriesManufactureBundle::class]);
+
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
+
         $barcode = $message->getBarcode();
 
         $product = $this->ProductConstByBarcodeRepository->find($barcode);
@@ -71,7 +84,10 @@ final readonly class UpdateWbOrdersDispatcher
         $invariable = $product->getInvariable();
         $date = $message->getDate();
 
-        $dto = new WbOrderNewDTO()->setId($id)->setInvariable($invariable)->setDate($date);
+        $dto = new WbOrderNewDTO()
+            ->setId($id)
+            ->setInvariable($invariable)
+            ->setDate($date);
 
         $wbOrder = $this->WbOrderNewHandler->handle($dto);
 
@@ -82,6 +98,9 @@ final readonly class UpdateWbOrdersDispatcher
                     $barcode,
                 $id),
             );
+
+            /** Сохраняем в дедубликатор идентификатор заказа */
+            $Deduplicator->save();
 
             return;
         }

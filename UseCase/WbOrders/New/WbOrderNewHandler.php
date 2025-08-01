@@ -25,14 +25,21 @@ declare(strict_types=1);
 
 namespace BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New;
 
-use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
 use BaksDev\Core\Entity\AbstractHandler;
+use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
 
 
 final class WbOrderNewHandler extends AbstractHandler
 {
     public function handle(WbOrderNewDTO $dto): WbOrder|string
     {
+        $WbOrder = $this->getRepository(WbOrder::class)->find($dto->getId());
+
+        if($WbOrder instanceof WbOrder)
+        {
+            return $WbOrder;
+        }
+
         $WbOrder = new WbOrder()
             ->setId($dto->getId())
             ->setInvariable($dto->getInvariable())
