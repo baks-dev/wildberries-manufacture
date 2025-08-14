@@ -155,15 +155,7 @@ final readonly class AllWbOrdersAnalyticsResult
         return $this->product_article;
     }
 
-    public function getProductOfferValue(): ?string
-    {
-        return $this->product_offer_value;
-    }
 
-    public function getProductOfferId(): ?ProductOfferUid
-    {
-        return $this->product_offer_id ? new ProductOfferUid($this->product_offer_id) : null;
-    }
 
     public function getOrdersCount(): int
     {
@@ -175,9 +167,26 @@ final readonly class AllWbOrdersAnalyticsResult
         return $this->product_trans_name;
     }
 
+
+    public function getProductOfferId(): ?ProductOfferUid
+    {
+        return $this->product_offer_id ? new ProductOfferUid($this->product_offer_id) : null;
+    }
+
+    public function getProductOfferValue(): ?string
+    {
+        return $this->product_offer_value;
+    }
+
     public function getProductOfferReference(): ?string
     {
         return $this->product_offer_reference;
+    }
+
+
+    public function getProductVariationId(): ?ProductVariationUid
+    {
+        return $this->product_variation_id ? new ProductVariationUid($this->product_variation_id) : null;
     }
 
     public function getProductVariationReference(): ?string
@@ -185,30 +194,28 @@ final readonly class AllWbOrdersAnalyticsResult
         return $this->product_variation_reference;
     }
 
-    public function getProductModificationReference(): ?string
-    {
-        return $this->product_modification_reference;
-    }
-
     public function getProductVariationValue(): ?string
     {
         return $this->product_variation_value;
     }
 
-    public function getProductVariationId(): ?ProductVariationUid
+
+    public function getProductModificationId(): ?ProductModificationUid
     {
-        return $this->product_variation_id ? new ProductVariationUid($this->product_variation_id) : null;
+        return $this->product_modification_id ? new ProductModificationUid($this->product_modification_id) : null;
     }
+
+    public function getProductModificationReference(): ?string
+    {
+        return $this->product_modification_reference;
+    }
+
 
     public function getProductModificationValue(): ?string
     {
         return $this->product_modification_value;
     }
 
-    public function getProductModificationId(): ?ProductModificationUid
-    {
-        return $this->product_modification_id ? new ProductModificationUid($this->product_modification_id) : null;
-    }
 
     public function getProductImage(): ?string
     {
