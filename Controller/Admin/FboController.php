@@ -32,6 +32,7 @@ use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartResult;
+use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufactureSelectionPartProductsForm;
 use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
@@ -113,6 +114,7 @@ final class FboController extends AbstractController
             'filter' => $filterForm->createView(),
             'token' => $tokenUserGenerator->generate($this->getUsr()),
             'current_profile' => $this->getCurrentProfileUid(),
+            'add_selected_product_form_name' => $this->createForm(type: ManufactureSelectionPartProductsForm::class)->getName(),
         ]);
     }
 }
