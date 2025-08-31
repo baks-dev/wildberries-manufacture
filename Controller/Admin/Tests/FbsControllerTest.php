@@ -21,10 +21,11 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Controller\Admin\Tests;
 
 use BaksDev\Users\User\Tests\TestUserAccount;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/** @group wildberries-manufacture */
+#[Group('wildberries-manufacture')]
 #[When(env: 'test')]
 final class FbsControllerTest extends WebTestCase
 {

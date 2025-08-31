@@ -31,13 +31,11 @@ use BaksDev\Wildberries\Type\Authorization\WbAuthorizationToken;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group wildberries-manufacture
- * @group wildberries-manufacture-api
- */
+#[Group('wildberries-manufacture')]
 #[When(env: 'test')]
 final class GetWbStocksRequestTest extends KernelTestCase
 {

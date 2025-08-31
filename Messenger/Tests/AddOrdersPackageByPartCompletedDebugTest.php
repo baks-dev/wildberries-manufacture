@@ -27,6 +27,7 @@ namespace BaksDev\Wildberries\Manufacture\Messenger\Tests;
 
 use BaksDev\Manufacture\Part\Messenger\ManufacturePartMessage;
 use BaksDev\Wildberries\Manufacture\Messenger\AddOrdersPackageByPartCompleted;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
@@ -35,10 +36,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-
-/**
- * @group wildberries-manufacture
- */
+#[Group('wildberries-manufacture')]
 #[When(env: 'test')]
 class AddOrdersPackageByPartCompletedDebugTest extends KernelTestCase
 {

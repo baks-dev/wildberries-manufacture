@@ -30,12 +30,12 @@ use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 use BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New\WbStockNewDTO;
 use BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New\WbStockNewHandler;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group wildberries-manufacture
- * @group wildberries-manufacture-use-case
- */
+#[Group('wildberries-manufacture')]
+#[When(env: 'test')]
 final class WbStockNewHandlerTest extends KernelTestCase
 {
     public static function setUpBeforeClass(): void

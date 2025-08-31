@@ -28,13 +28,11 @@ namespace BaksDev\Wildberries\Manufacture\Api\Warehouses\Tests;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Api\Warehouses\GetWbFbsWarehousesRequest;
 use BaksDev\Wildberries\Type\Authorization\WbAuthorizationToken;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group wildberries-manufacture
- * @group wildberries-manufacture-api
- */
+#[Group('wildberries-manufacture')]
 #[When(env: 'test')]
 final class GetWbFbsWarehousesRequestTest extends KernelTestCase
 {

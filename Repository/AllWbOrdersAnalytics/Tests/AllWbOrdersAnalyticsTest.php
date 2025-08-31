@@ -26,21 +26,21 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\Tests;
 
 use BaksDev\Delivery\Type\Id\DeliveryUid;
+use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Id\ProductUid;
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
-use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\AllWbOrdersAnalyticsInterface;
-use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFboWildberries;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\AllWbOrdersAnalyticsInterface;
+use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFboWildberries;
+use PHPUnit\Framework\Attributes\Group;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group wildberries-manufacture
- * @group wildberries-manufacture-repository
- */
+#[Group('wildberries-manufacture')]
+#[When(env: 'test')]
 final class AllWbOrdersAnalyticsTest extends KernelTestCase
 {
     public function testRepository()

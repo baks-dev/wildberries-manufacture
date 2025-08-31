@@ -27,16 +27,16 @@ namespace BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New\Tests;
 
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
 use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New\WbOrderNewDTO;
-use DateTimeImmutable;
 use BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New\WbOrderNewHandler;
+use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group wildberries-manufacture
- * @group wildberries-manufacture-use-case
- */
+#[Group('wildberries-manufacture')]
+#[When(env: 'test')]
 final class WbOrderNewHandlerTest extends KernelTestCase
 {
     public static function setUpBeforeClass(): void

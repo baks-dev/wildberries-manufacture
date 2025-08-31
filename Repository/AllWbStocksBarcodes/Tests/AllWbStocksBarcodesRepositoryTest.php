@@ -27,12 +27,12 @@ namespace BaksDev\Wildberries\Manufacture\Repository\Tests;
 
 use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesInterface;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group wildberries-manufacture
- * @group wildberries-manufacture-repository
- */
+#[Group('wildberries-manufacture')]
+#[When(env: 'test')]
 final class AllWbStocksBarcodesRepositoryTest extends KernelTestCase
 {
     public function testRepository()
