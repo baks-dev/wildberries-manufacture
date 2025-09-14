@@ -36,7 +36,7 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Обновляем в базе данные о запасах товара на складах WB
+ * Обновляем в базе данные информацию о запасах товара на складах WB
  */
 #[AsMessageHandler]
 final readonly class UpdateWbStocksDispatcher
