@@ -400,17 +400,17 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
         $dbal->leftJoin(
             'wb_order',
             OrderProduct::class,
-            'orders_product',
-            'orders_product.product = wb_order.invariable'
+            'order_product',
+            'order_product.product = wb_order.invariable',
         );
 
         $dbal
-            ->addSelect('SUM(orders_product_price.total) AS order_total')
+            ->addSelect('SUM(order_product_price.total) AS order_total')
             ->leftJoin(
-                'orders_product',
+                'order_product',
                 OrderPrice::class,
-                'orders_product_price',
-                'orders_product_price.product = orders_product.id'
+                'order_product_price',
+                'order_product_price.product = order_product.id',
             );
 
         /** Фильтры */
