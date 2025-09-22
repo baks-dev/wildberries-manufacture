@@ -139,8 +139,13 @@
                 {# Текстовый результат фильтра #}
                 {% include Template('@products-product/filter/'~baks_settings.device~'/filter_text.html.twig') %}
 
+                {% set total = 0 %}
+
                 {% for item in query.data %}
+
                     {{ include(_self|replace({ "content.html.twig": "card.html.twig" })) }}
+
+                    {% set total = item.order_total + total %}
 
                 {% else %}
 
@@ -208,7 +213,22 @@
             </div>
         {% endif %}
 
-        {% include Template('_includes/'~baks_settings.device~'/pagination.html.twig') with { 'pagination' : query } %}
+
+        <div class="d-flex position-sticky bg-body border-top gap-3" style="bottom: 0rem;">
+
+            <div class="mt-4">
+                <button type="button"
+                        class="btn btn-light btn-sm mb-2 text-decoration-none text-nowrap lh-normal fw-normal border-secondary px-3"
+                        data-bs-toggle="tooltip" data-bs-placement="bottom"
+                        data-bs-delay="{show :600, hide :100}"
+                        data-bs-original-title="Всего количество">
+                    <strong>{{ total }}</strong>&nbsp;<span>шт.</span>
+                </button>
+            </div>
+
+            {% include Template('_includes/'~baks_settings.device~'/pagination.html.twig') with { 'pagination' : query } %}
+
+        </div>
 
     </section>
 
