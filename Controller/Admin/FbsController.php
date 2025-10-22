@@ -30,13 +30,17 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Form\Search\SearchDTO;
 use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
+use BaksDev\Manufacture\Part\Application\BaksDevManufacturePartApplicationBundle;
+use BaksDev\Manufacture\Part\Application\Type\Id\ManufactureApplicationUid;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartInterface;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartResult;
+use BaksDev\Manufacture\Part\Repository\UserTableActionOffers\UserTableActionOffersInterface;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
 use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufactureSelectionPartProductsForm;
 use BaksDev\Products\Category\Type\Id\CategoryProductUid;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterForm;
+use BaksDev\Users\UsersTable\Type\Actions\Id\UsersTableActionsUid;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup\AllWbOrdersManufactureInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,6 +60,7 @@ final class FbsController extends AbstractController
         AllWbOrdersManufactureInterface $allWbOrdersGroup,
         OpenManufacturePartInterface $openManufacturePart,
         TokenUserGenerator $tokenUserGenerator,
+        UserTableActionOffersInterface $userTableActionOffers,
         int $page = 0,
     ): Response
     {
@@ -98,6 +103,27 @@ final class FbsController extends AbstractController
             ->handleRequest($request);
 
 
+        $show_products = true;
+        $hasManufacturePartApplicationSettings = false;
+
+        /** Проверить, установлен ли manufacture-part-application */
+        $hasManufacturePartApplication = class_exists(BaksDevManufacturePartApplicationBundle::class);
+
+        if($hasManufacturePartApplication)
+        {
+
+            /* Если main равен предустановленному значению */
+            if($opens && $opens->getActionsMain()->equals(ManufactureApplicationUid::ACTION_ID))
+            {
+                $show_products = false;
+            }
+
+            /* Получить настройки offer для action Произв-ной заявки */
+            $hasManufacturePartApplicationSettings = $userTableActionOffers
+                ->findActionOffersByMain(new UsersTableActionsUid(ManufactureApplicationUid::ACTION_ID));
+
+        }
+
         /**
          * Получаем список заказов
          */
@@ -117,6 +143,8 @@ final class FbsController extends AbstractController
                 'filter' => $filterForm->createView(),
                 'token' => $tokenUserGenerator->generate($this->getUsr()),
                 'add_selected_product_form_name' => $this->createForm(type: ManufactureSelectionPartProductsForm::class)->getName(),
+                'has_manufacture_part_application' => $hasManufacturePartApplication,
+                'manufacture_application_action_settings' => $hasManufacturePartApplicationSettings,
             ]
         );
     }
