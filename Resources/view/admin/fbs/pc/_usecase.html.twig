@@ -60,6 +60,21 @@ value="{{ item.event }}">
 
         {% endif %}
 
+        {# Переименовать #}
+        {% if is_granted('ROLE_PRODUCT_RENAME') or is_granted('ROLE_ADMIN') %}
+
+            <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
+                <a href="{{ path('products-product:admin.rename', { id: item.product }) }}"
+                   class="text-decoration-none text-dark w-100 modal-link disabled"
+                   data-bs-toggle="modal"
+                   data-bs-target="#modal"
+                   title="{{ 'btn.rename'|trans({}, 'core.btn') }}">
+                    {{ 'btn.rename'|trans({}, 'core.btn') }}
+                </a>
+            </li>
+
+        {% endif %}
+
 
 
         {# <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
