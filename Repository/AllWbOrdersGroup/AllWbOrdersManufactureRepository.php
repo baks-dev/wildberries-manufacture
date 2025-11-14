@@ -61,12 +61,14 @@ use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Image\ProductM
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\Photo\ProductPhoto;
+use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Entity\Trans\ProductTrans;
 use BaksDev\Products\Product\Forms\ProductFilter\Admin\ProductFilterDTO;
 use BaksDev\Products\Stocks\Entity\Total\ProductStockTotal;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileTokenStorage\UserProfileTokenStorageInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use BaksDev\Wildberries\Orders\Entity\Alarm\WbOrdersStatisticsAlarm;
 use BaksDev\Wildberries\Orders\Entity\WbOrdersStatistics;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryDbsWildberries;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
@@ -475,10 +477,87 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 		');
 
 
+        /** Сверх наличие на складе */
+
+        $dbal
+            ->addSelect('(SUM(stock.total) - SUM(stock.reserve)) AS stock_available')
+            ->leftJoin(
+                'product_modification',
+                ProductStockTotal::class,
+                'stock',
+                '
+                        stock.profile = invariable.profile AND
+                        stock.product = product_event.main 
+                        
+                        AND
+                        
+                            CASE 
+                                WHEN product_offer.const IS NOT NULL THEN stock.offer = product_offer.const
+                                ELSE stock.offer IS NULL
+                            END
+                                
+                        AND 
+                        
+                            CASE
+                                WHEN product_variation.const IS NOT NULL THEN stock.variation = product_variation.const
+                                ELSE stock.variation IS NULL
+                            END
+                            
+                        AND
+                        
+                            CASE
+                                WHEN product_modification.const IS NOT NULL THEN stock.modification = product_modification.const
+                                ELSE stock.modification IS NULL
+                            END
+                            
+                        AND (stock.total - stock.reserve) > 0
+            ');
+
+        $dbal
+            //->addSelect('product_invariable.id AS product_invariable')
+            ->leftJoin(
+                'product_modification',
+                ProductInvariable::class,
+                'product_invariable',
+                '
+                    product_invariable.product = product_event.main
+
+                    AND
+                        CASE
+                            WHEN product_offer.const IS NOT NULL
+                            THEN product_invariable.offer = product_offer.const
+                            ELSE product_invariable.offer IS NULL
+                        END
+
+                    AND
+                        CASE
+                            WHEN product_variation.const IS NOT NULL
+                            THEN product_invariable.variation = product_variation.const
+                            ELSE product_invariable.variation IS NULL
+                        END
+
+                    AND
+                        CASE
+                            WHEN product_modification.const IS NOT NULL
+                            THEN product_invariable.modification = product_modification.const
+                            ELSE product_invariable.modification IS NULL
+                        END
+
+            ');
+
+        $dbal
+            ->addSelect('wb_orders_statistics_alarm.value AS orders_alarm')
+            ->leftJoin(
+                'product_invariable',
+                WbOrdersStatisticsAlarm::class,
+                'wb_orders_statistics_alarm',
+                'wb_orders_statistics_alarm.invariable = product_invariable.id',
+            );
+
+        /**
+         * @note: Запрос Exist должен находится ниже GroupByExclude
+         */
         $dbal->allGroupByExclude();
-
-
-        /** ******************** */
 
         if($part)
         {
@@ -572,46 +651,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             $dbal->addSelect('FALSE AS exist_manufacture');
         }
 
-
         $dbal->addOrderBy('order_data');
-
-
-        /** Сверх наличие на складе */
-
-        $dbal
-            ->addSelect('(SUM(stock.total) - SUM(stock.reserve)) AS stock_available')
-            ->leftJoin(
-                'product_modification',
-                ProductStockTotal::class,
-                'stock',
-                '
-                        stock.profile = invariable.profile AND
-                        stock.product = product_event.main 
-                        
-                        AND
-                        
-                            CASE 
-                                WHEN product_offer.const IS NOT NULL THEN stock.offer = product_offer.const
-                                ELSE stock.offer IS NULL
-                            END
-                                
-                        AND 
-                        
-                            CASE
-                                WHEN product_variation.const IS NOT NULL THEN stock.variation = product_variation.const
-                                ELSE stock.variation IS NULL
-                            END
-                            
-                        AND
-                        
-                            CASE
-                                WHEN product_modification.const IS NOT NULL THEN stock.modification = product_modification.const
-                                ELSE stock.modification IS NULL
-                            END
-                            
-                        AND (stock.total - stock.reserve) > 0
-            ');
-
 
         if($this->search && $this->search->getQuery())
         {

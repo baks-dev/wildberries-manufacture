@@ -43,6 +43,10 @@ use BaksDev\Manufacture\Part\UseCase\Admin\NewEdit\Products\Orders\ManufacturePa
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
+use BaksDev\Products\Product\Entity\ProductInvariable;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
+use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
+use BaksDev\Wildberries\Orders\Messenger\Statistics\UpdateStatisticMessage;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
 use BaksDev\Wildberries\Package\Entity\Package\WbPackage;
 use BaksDev\Wildberries\Package\Repository\Package\ExistOrderPackage\ExistOrderPackageInterface;
@@ -63,7 +67,6 @@ final readonly class AddOrdersPackageByPartCompleted
 {
     public function __construct(
         #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
-        private ManufacturePartEventInterface $ManufacturePartEventRepository,
         private ManufacturePartCurrentEventInterface $ManufacturePartCurrentEvent,
         private ExistOpenSupplyProfileInterface $ExistOpenSupplyProfile,
         private MessageDispatchInterface $messageDispatch,
@@ -73,7 +76,8 @@ final readonly class AddOrdersPackageByPartCompleted
         private ExistOrderPackageInterface $ExistOrderPackage,
         private WbPackageHandler $WbPackageHandler,
         private CurrentOrderEventInterface $CurrentOrderEvent,
-        private ManufacturePartInvariableInterface $ManufacturePartInvariableRepository
+        private ManufacturePartInvariableInterface $ManufacturePartInvariableRepository,
+        private CurrentProductIdentifierByEventInterface $CurrentProductIdentifierByEventRepository
     ) {}
 
 
@@ -96,7 +100,7 @@ final readonly class AddOrdersPackageByPartCompleted
         {
             $this->logger->critical(
                 'manufacture-part: ManufacturePartEvent не определено',
-                [$message, self::class.':'.__LINE__]
+                [$message, self::class.':'.__LINE__],
             );
 
             return false;
@@ -112,7 +116,9 @@ final readonly class AddOrdersPackageByPartCompleted
             return false;
         }
 
-        $ManufacturePartInvariable = $this->ManufacturePartInvariableRepository->forPart($message->getId())->find();
+        $ManufacturePartInvariable = $this->ManufacturePartInvariableRepository
+            ->forPart($message->getId())
+            ->find();
 
         if(false === ($ManufacturePartInvariable instanceof ManufacturePartInvariable))
         {
@@ -131,6 +137,7 @@ final readonly class AddOrdersPackageByPartCompleted
         {
             /**
              * Пробуем добавить через интервал в ожидании открытия, если нет открытой поставки Wildberries
+             *
              * @see NewSupplyByPartCompletedDispatcher
              */
 
@@ -237,6 +244,7 @@ final readonly class AddOrdersPackageByPartCompleted
 
             /**
              * Сохраняем упаковку и приступаем к этапу отправки заказов по API
+             *
              * @see AddWildberriesSupplyOrdersHandler
              */
 
@@ -246,7 +254,7 @@ final readonly class AddOrdersPackageByPartCompleted
             {
                 $this->logger->critical(
                     sprintf('wildberries-manufacture: Ошибка %s при сохранении упаковки', $WbPackage),
-                    [$message, self::class.':'.__LINE__]
+                    [$message, self::class.':'.__LINE__],
                 );
 
                 return false;
@@ -254,7 +262,38 @@ final readonly class AddOrdersPackageByPartCompleted
 
             $this->logger->info(
                 'Добавили упаковку в поставку',
-                [$WbPackage, $WbSupplyUid, self::class.':'.__LINE__]
+                [$WbPackage, $WbSupplyUid, self::class.':'.__LINE__],
+            );
+
+            $CurrentProductIdentifierResult = $this->CurrentProductIdentifierByEventRepository
+                ->forEvent($ManufacturePartProductsDTO->getProduct())
+                ->forOffer($ManufacturePartProductsDTO->getOffer())
+                ->forVariation($ManufacturePartProductsDTO->getVariation())
+                ->forModification($ManufacturePartProductsDTO->getModification())
+                ->find();
+
+            if(false === $CurrentProductIdentifierResult->getProductInvariable() instanceof ProductInvariableUid)
+            {
+                $this->logger->critical(
+                    'wildberries-manufacture: Невозможно определить ProductInvariable продукта для пересчета статистических данных',
+                    [$message, self::class.':'.__LINE__, var_export($ManufacturePartProductsDTO, true)],
+                );
+
+                continue;
+            }
+
+            /**
+             * Отправляем сообщение для пересчета статистических данных
+             */
+            $this->messageDispatch->dispatch(
+                message: new UpdateStatisticMessage(
+                    invariable: $CurrentProductIdentifierResult->getProductInvariable(),
+                    event: $CurrentProductIdentifierResult->getEvent(),
+                    offer: $CurrentProductIdentifierResult->getOffer(),
+                    variation: $CurrentProductIdentifierResult->getVariation(),
+                    modification: $CurrentProductIdentifierResult->getModification(),
+                ),
+                transport: 'async',
             );
         }
 
