@@ -316,8 +316,26 @@
 
         <div class="d-flex align-items-center justify-content-between gap-1 mt-2">
 
-            <div class="w-100 text-center">
-                <strong class="h6">{{ item.order_total }}</strong> шт.
+            <div class="w-50 text-center d-flex gap-1">
+                <div>
+                    <strong class="h6">
+                        {{ item.order_total }}
+                    </strong> шт.
+                </div>
+
+                {% if item.orders_alarm %}
+                    &nbsp;
+
+                    <span class="badge text-bg-danger d-flex align-items-center pointer"
+                          role="tooltip"
+                          data-bs-toggle="tooltip"
+                          data-bs-placement="bottom"
+                          data-bs-delay='{"show":300,"hide":100}'
+                          title="Количество горячих заказов"
+                    >
+                        {{ item.orders_alarm }}
+                    </span>
+                {% endif %}
             </div>
 
 
