@@ -1,3 +1,4 @@
+
 {% set identifier = item.product %}
 
 {% if item.offer %}
@@ -51,8 +52,8 @@
                                         data-modification="{{ item.modification }}"
                                         data-total="{{ item.order_total }}"
 
-                                        title="{{ item.exist_manufacture ? 'Продукция на производстве' : 'Выбрать данный товар' }}"
-                                        {{ item.exist_manufacture ? 'disabled' }}
+                                        title="{{ item.number ? 'Продукция на производстве' : 'Выбрать данный товар' }}"
+                                        {{ item.number ? 'disabled' }}
                                 >
                             </div>
 
@@ -347,12 +348,12 @@
                             data-bs-toggle="tooltip"
                             data-bs-placement="bottom"
                             data-bs-delay='{"show":600,"hide":100}'
-                            title='{{ item.exist_manufacture ? 'Продукция на производстве '~ item.exist_manufacture : 'Добавить в партию производства' }}'
+                            title='{{ item.number ? 'Продукция на производстве '~ item.number : 'Добавить в партию производства' }}'
                     >
 
                             <button data-href="{{ path('manufacture-part:admin.selected-products.add') }}"
 
-                                    class="btn btn-sm {{ item.exist_manufacture ? 'btn-secondary' : 'btn-primary' }} modal-link disabled"
+                                    class="btn btn-sm {{ item.number ? 'btn-secondary' : 'btn-primary' }} modal-link disabled"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modal"
 
@@ -418,7 +419,7 @@
                         data-bs-toggle="tooltip"
                         data-bs-placement="bottom"
                         data-bs-delay='{"show":600,"hide":100}'
-                        title='{{ item.exist_manufacture ? 'Продукция на производстве' : 'Добавить производственную заявку' }}'
+                        title='{{ item.number ? 'Продукция на производстве' : 'Добавить производственную заявку' }}'
                 >
 
 
@@ -430,7 +431,7 @@
 
                                         <a href="{{ path('manufacture-part-application:admin.application.newedit.new') }}"
 
-                                           class="btn btn-sm {{ item.exist_manufacture ? 'btn-secondary' : 'btn-info' }} modal-link disabled"
+                                           class="btn btn-sm {{ item.number ? 'btn-secondary' : 'btn-info' }} modal-link disabled"
                                            data-bs-toggle="modal"
                                            data-bs-target="#modal"
                                            data-method="post"

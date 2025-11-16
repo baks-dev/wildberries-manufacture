@@ -33,6 +33,7 @@ use BaksDev\Delivery\Type\Id\DeliveryUid;
 use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
 use BaksDev\Manufacture\Part\Entity\Invariable\ManufacturePartInvariable;
 use BaksDev\Manufacture\Part\Entity\ManufacturePart;
+use BaksDev\Manufacture\Part\Entity\ManufactureProduct\ManufactureProductInvariable;
 use BaksDev\Manufacture\Part\Entity\Products\ManufacturePartProduct;
 use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusClosed;
@@ -554,96 +555,123 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'wb_orders_statistics_alarm.invariable = product_invariable.id',
             );
 
-        /**
-         * @note: Запрос Exist должен находится ниже GroupByExclude
-         */
-        $dbal->allGroupByExclude();
-
         if($part)
         {
+
             /** Только товары, которых нет в производстве */
 
-            $dbalExist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
-
-            $dbalExist->from(ManufacturePartProduct::class, 'exist_product');
-
-            $dbalExist
-                //->select('exist_part.number')
-                ->join(
-                    'exist_product',
-                    ManufacturePart::class,
-                    'exist_part',
-                    'exist_part.event = exist_product.event',
-                );
-
-            $dbalExist
-                ->select('exist_part_invariable.number')
+            $dbal
                 ->leftJoin(
-                    'exist_part',
-                    ManufacturePartInvariable::class,
-                    'exist_part_invariable',
-                    'exist_part_invariable.main = exist_part.id',
+                    'product_invariable',
+                    ManufactureProductInvariable::class,
+                    'manufacture_product_invariable',
+                    '
+                        manufacture_product_invariable.invariable = product_invariable.id
+                        AND manufacture_product_invariable.type = :part
+                    ',
+                )
+                ->setParameter(
+                    key: 'part',
+                    value: $part,
+                    type: DeliveryUid::TYPE,
                 );
 
-
-            $dbalExist->andWhere('exist_product.product = order_product.product');
-
-            // $dbalExist->andWhere('(order_product.offer IS NULL OR exist_product.offer = order_product.offer)');
-            $dbalExist->andWhere('(CASE 
-                WHEN order_product.offer IS NOT NULL 
-                THEN exist_product.offer = order_product.offer
-                ELSE exist_product.offer IS NULL
-            END)');
-
-
-            // $dbalExist->andWhere('(order_product.variation IS NULL OR exist_product.variation = order_product.variation)');
-            $dbalExist->andWhere('(CASE 
-                WHEN order_product.variation IS NOT NULL 
-                THEN exist_product.variation = order_product.variation
-                ELSE exist_product.variation IS NULL
-            END)');
-
-            // $dbalExist->andWhere('(order_product.variation IS NULL OR exist_product.variation = order_product.variation)');
-            $dbalExist->andWhere('(CASE 
-                WHEN order_product.modification IS NOT NULL 
-                THEN exist_product.modification = order_product.modification
-                ELSE exist_product.modification IS NULL
-            END)');
-
-
-            /**
-             * Только продукция в процессе производства
-             * Только продукция на указанный завершающий этап
-             */
-            $dbalExist
-                ->join('exist_part',
-                    ManufacturePartEvent::class,
-                    'exist_product_event',
+            $dbal
+                ->addSelect('manufacture_part_invariable.number')
+                ->leftJoin(
+                    'manufacture_product_invariable',
+                    ManufacturePartInvariable::class,
+                    'manufacture_part_invariable',
                     '
-                exist_product_event.id = exist_part.event AND
-                exist_product_event.complete = :complete AND
-                exist_product_event.status NOT IN (:status_part)
-            ');
+                        manufacture_part_invariable.main = manufacture_product_invariable.manufacture
+                    ',
+                );
 
-            $dbal->setParameter(
-                key: 'complete',
-                value: $part,
-                type: DeliveryUid::TYPE,
-            );
+            $dbal->addOrderBy('manufacture_part_invariable.number', 'DESC');
 
-            $dbal->setParameter(
-                key: 'status_part',
-                value: [
-                    ManufacturePartStatusClosed::STATUS,
-                    ManufacturePartStatusCompleted::STATUS,
-                ],
-                type: ArrayParameterType::STRING,
-            );
 
-            $dbalExist->setMaxResults(1);
-
-            $dbal->addSelect('(SELECT ('.$dbalExist->getSQL().')) AS exist_manufacture');
-            $dbal->addOrderBy('exist_manufacture', 'DESC');
+            //
+            //            $dbalExist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
+            //
+            //            $dbalExist->from(ManufacturePartProduct::class, 'exist_product');
+            //
+            //            $dbalExist
+            //                //->select('exist_part.number')
+            //                ->join(
+            //                    'exist_product',
+            //                    ManufacturePart::class,
+            //                    'exist_part',
+            //                    'exist_part.event = exist_product.event',
+            //                );
+            //
+            //            $dbalExist
+            //                ->select('exist_part_invariable.number')
+            //                ->leftJoin(
+            //                    'exist_part',
+            //                    ManufacturePartInvariable::class,
+            //                    'exist_part_invariable',
+            //                    'exist_part_invariable.main = exist_part.id',
+            //                );
+            //
+            //
+            //            $dbalExist->andWhere('exist_product.product = order_product.product');
+            //
+            //            // $dbalExist->andWhere('(order_product.offer IS NULL OR exist_product.offer = order_product.offer)');
+            //            $dbalExist->andWhere('(CASE
+            //                WHEN order_product.offer IS NOT NULL
+            //                THEN exist_product.offer = order_product.offer
+            //                ELSE exist_product.offer IS NULL
+            //            END)');
+            //
+            //
+            //            // $dbalExist->andWhere('(order_product.variation IS NULL OR exist_product.variation = order_product.variation)');
+            //            $dbalExist->andWhere('(CASE
+            //                WHEN order_product.variation IS NOT NULL
+            //                THEN exist_product.variation = order_product.variation
+            //                ELSE exist_product.variation IS NULL
+            //            END)');
+            //
+            //            // $dbalExist->andWhere('(order_product.variation IS NULL OR exist_product.variation = order_product.variation)');
+            //            $dbalExist->andWhere('(CASE
+            //                WHEN order_product.modification IS NOT NULL
+            //                THEN exist_product.modification = order_product.modification
+            //                ELSE exist_product.modification IS NULL
+            //            END)');
+            //
+            //
+            //            /**
+            //             * Только продукция в процессе производства
+            //             * Только продукция на указанный завершающий этап
+            //             */
+            //            $dbalExist
+            //                ->join('exist_part',
+            //                    ManufacturePartEvent::class,
+            //                    'exist_product_event',
+            //                    '
+            //                exist_product_event.id = exist_part.event AND
+            //                exist_product_event.complete = :complete AND
+            //                exist_product_event.status NOT IN (:status_part)
+            //            ');
+            //
+            //            $dbal->setParameter(
+            //                key: 'complete',
+            //                value: $part,
+            //                type: DeliveryUid::TYPE,
+            //            );
+            //
+            //            $dbal->setParameter(
+            //                key: 'status_part',
+            //                value: [
+            //                    ManufacturePartStatusClosed::STATUS,
+            //                    ManufacturePartStatusCompleted::STATUS,
+            //                ],
+            //                type: ArrayParameterType::STRING,
+            //            );
+            //
+            //            $dbalExist->setMaxResults(1);
+            //
+            //            $dbal->addSelect('(SELECT ('.$dbalExist->getSQL().')) AS exist_manufacture');
+            //            $dbal->addOrderBy('exist_manufacture', 'DESC');
 
         }
         else
@@ -651,7 +679,12 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             $dbal->addSelect('FALSE AS exist_manufacture');
         }
 
-        $dbal->addOrderBy('order_data');
+        /**
+         * @note: Запрос Exist должен находится ниже GroupByExclude
+         */
+        $dbal->allGroupByExclude();
+
+        //$dbal->addOrderBy('order_data');
 
         if($this->search && $this->search->getQuery())
         {
