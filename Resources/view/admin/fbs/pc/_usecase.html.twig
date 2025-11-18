@@ -1,9 +1,12 @@
 {# Пользовательское меню #}
 
-{% set random = random() %}
+{# @var item \BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersGroup\AllWbOrdersManufactureResult #}
+
+
+{% set random = item.invariable %}
 
 <button class="btn btn-link btn-sm p-0"
-        id="usecase-{{ random }}"
+        id="usecase-{{ item.invariable }}"
         data-bs-container="body"
         data-bs-toggle="popover"
         data-bs-placement="right"
@@ -44,10 +47,10 @@ value="{{ item.event }}">
 
 
                 <a href="{{ path('manufacture-part:admin.newedit.new', {
-                    product: item.product,
-                    offer: item.offer,
-                    variation: item.variation,
-                    modification: item.modification,
+                    product: item.productEvent,
+                    offer: item.productOfferId,
+                    variation: item.productVariationId,
+                    modification: item.productModificationId,
                 }) }}"
                    class="text-decoration-none text-dark w-100 modal-link disabled"
                    title="На страницу товара WB"
@@ -64,7 +67,7 @@ value="{{ item.event }}">
         {% if is_granted('ROLE_PRODUCT_RENAME') or is_granted('ROLE_ADMIN') %}
 
             <li class="list-group-item d-flex justify-content-between bg-transparent border-0 text-truncate rounded-5">
-                <a href="{{ path('products-product:admin.rename', { id: item.product }) }}"
+                <a href="{{ path('products-product:admin.rename', { id: item.productEvent }) }}"
                    class="text-decoration-none text-dark w-100 modal-link disabled"
                    data-bs-toggle="modal"
                    data-bs-target="#modal"

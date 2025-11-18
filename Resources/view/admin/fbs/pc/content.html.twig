@@ -82,7 +82,7 @@
         {% else %}
             <div class="alert alert-secondary d-flex justify-content-between align-items-center" role="alert">
                 <span>
-                    У Вас нет  открытых производственных партий
+                    У Вас нет открытых производственных партий
                 </span>
 
                 <a href="{{ path('manufacture-part:admin.newedit.new') }}"
@@ -140,12 +140,14 @@
                 {% include Template('@products-product/filter/'~baks_settings.device~'/filter_text.html.twig') %}
 
                 {% set total = 0 %}
+                {% set alarm = 0 %}
 
                 {% for item in query.data %}
 
                     {{ include(_self|replace({ "content.html.twig": "card.html.twig" })) }}
 
-                    {% set total = item.order_total + total %}
+                    {% set total = item.orderTotal + total %}
+                    {% set alarm = item.ordersAlarm + alarm %}
 
                 {% else %}
 
@@ -167,13 +169,33 @@
 
         </div>
 
-        {% if opens and query.data %}
+        <div class="d-flex position-sticky bg-body border-top gap-3" style="bottom: 0rem;">
 
-            <div class="position-absolute mt-2 pt-1 small">
-                <strong class="">Множественный выбор:</strong>
-            </div>
+            <div class="mt-4 d-flex align-items-start gap-1">
+                <button type="button"
+                        class="btn btn-light btn-sm mb-2 text-decoration-none text-nowrap lh-normal fw-normal border-secondary px-3 d-flex gap-1"
+                        data-bs-toggle="tooltip" data-bs-placement="bottom"
+                        data-bs-delay="{show :600, hide :100}"
+                        data-bs-original-title="Всего количество"
+                >
+                    <strong>{{ total }}</strong>
 
-            <div class="to-production-actions d-flex gap-2 sticky-bottom ps-5 pb-3 pt-2" style="margin-left: 180px;">
+                    <span>шт.</span>
+
+                    {% if alarm %}
+
+                    {% endif %}
+                    <span class="badge text-bg-danger d-flex align-items-center pointer"
+                          role="tooltip" data-bs-toggle="tooltip"
+                          data-bs-placement="bottom"
+                          data-bs-delay="{show :600, hide :100}"
+                          data-bs-original-title="Количество горячих заказов"
+                    >
+                        {{ alarm }}
+                    </span>
+
+                </button>
+
 
                 <button
                         class="btn btn-sm btn-outline-primary text-nowrap mb-2"
@@ -209,21 +231,6 @@
                 >
                     Добавить выбранные
                 </a>
-
-            </div>
-        {% endif %}
-
-
-        <div class="d-flex position-sticky bg-body border-top gap-3" style="bottom: 0rem;">
-
-            <div class="mt-4">
-                <button type="button"
-                        class="btn btn-light btn-sm mb-2 text-decoration-none text-nowrap lh-normal fw-normal border-secondary px-3"
-                        data-bs-toggle="tooltip" data-bs-placement="bottom"
-                        data-bs-delay="{show :600, hide :100}"
-                        data-bs-original-title="Всего количество">
-                    <strong>{{ total }}</strong>&nbsp;<span>шт.</span>
-                </button>
             </div>
 
             {% include Template('_includes/'~baks_settings.device~'/pagination.html.twig') with { 'pagination' : query } %}

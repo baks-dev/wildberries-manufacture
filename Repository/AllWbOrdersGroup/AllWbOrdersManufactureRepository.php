@@ -155,6 +155,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 OrderStatus::TYPE,
             );
 
+
         $dbal->leftJoin(
             'orders',
             OrderUser::class,
@@ -192,8 +193,24 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'order_product.event = orders.event',
             );
 
+        //$dbal
+        //->addSelect('order_product_price.total AS order_total')
+        //->addSelect('SUM(order_product_price.total) AS old_order_total')
+
+
         $dbal
-            ->addSelect('SUM(order_product_price.total) AS order_total')
+            ->addSelect("JSON_AGG ( 
+                        DISTINCT JSONB_BUILD_OBJECT (
+                            'number', invariable.number,
+                            'total', order_product_price.total
+                        ))
+            
+                        AS order_total",
+            )
+
+
+
+
             ->leftJoin(
                 'order_product',
                 OrderPrice::class,
@@ -216,22 +233,12 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         }
 
         $dbal
-            ->addSelect('wb_orders_statistics.analog')
-            ->addSelect('wb_orders_statistics.alarm')
-            ->leftJoin(
-                'product_event',
-                WbOrdersStatistics::class,
-                'wb_orders_statistics',
-                'wb_orders_statistics.product = product_event.main',
-            );
-
-        $dbal
             ->addSelect('product_info.article AS card_article')
             ->leftJoin(
                 'order_product',
                 ProductInfo::class,
                 'product_info',
-                'product_info.product = product_event.main AND product_info.profile = invariable.profile',
+                'product_info.product = product_event.main',
             );
 
 
@@ -271,6 +278,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 
 
         $dbal
+            ->addSelect('product_offer.const AS product_offer_const')
             ->addSelect('product_offer.value AS product_offer_value')
             ->addSelect('product_offer.postfix AS product_offer_postfix')
             ->leftJoin(
@@ -308,6 +316,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 
 
         $dbal
+            ->addSelect('product_variation.const AS product_variation_const')
             ->addSelect('product_variation.value AS product_variation_value')
             ->addSelect('product_variation.postfix AS product_variation_postfix')
             ->leftJoin(
@@ -346,6 +355,7 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
          */
 
         $dbal
+            ->addSelect('product_modification.const AS product_modification_const')
             ->addSelect('product_modification.value AS product_modification_value')
             ->addSelect('product_modification.postfix AS product_modification_postfix')
             ->leftJoin(
@@ -478,44 +488,51 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 		');
 
 
+
         /** Сверх наличие на складе */
 
         $dbal
-            ->addSelect('(SUM(stock.total) - SUM(stock.reserve)) AS stock_available')
-            ->leftJoin(
-                'product_modification',
-                ProductStockTotal::class,
-                'stock',
-                '
-                        stock.profile = invariable.profile AND
-                        stock.product = product_event.main 
-                        
-                        AND
-                        
-                            CASE 
-                                WHEN product_offer.const IS NOT NULL THEN stock.offer = product_offer.const
-                                ELSE stock.offer IS NULL
-                            END
-                                
-                        AND 
-                        
-                            CASE
-                                WHEN product_variation.const IS NOT NULL THEN stock.variation = product_variation.const
-                                ELSE stock.variation IS NULL
-                            END
-                            
-                        AND
-                        
-                            CASE
-                                WHEN product_modification.const IS NOT NULL THEN stock.modification = product_modification.const
-                                ELSE stock.modification IS NULL
-                            END
-                            
-                        AND (stock.total - stock.reserve) > 0
-            ');
+            ->addSelect('0 AS stock_available');
+
+        //        $dbal
+        //            ->addSelect('0 AS stock_available')
+        //            ->addSelect('(SUM(stock.total) - SUM(stock.reserve)) AS stock_available')
+        //            ->leftJoin(
+        //                'product_modification',
+        //                ProductStockTotal::class,
+        //                'stock',
+        //                '
+        //                        stock.profile = invariable.profile AND
+        //                        stock.product = product_event.main
+        //
+        //                        AND
+        //
+        //                            CASE
+        //                                WHEN product_offer.const IS NOT NULL THEN stock.offer = product_offer.const
+        //                                ELSE stock.offer IS NULL
+        //                            END
+        //
+        //                        AND
+        //
+        //                            CASE
+        //                                WHEN product_variation.const IS NOT NULL THEN stock.variation = product_variation.const
+        //                                ELSE stock.variation IS NULL
+        //                            END
+        //
+        //                        AND
+        //
+        //                            CASE
+        //                                WHEN product_modification.const IS NOT NULL THEN stock.modification = product_modification.const
+        //                                ELSE stock.modification IS NULL
+        //                            END
+        //
+        //                        AND (stock.total - stock.reserve) > 0
+        //            ');
+
+
 
         $dbal
-            //->addSelect('product_invariable.id AS product_invariable')
+            ->addSelect('product_invariable.id AS product_invariable')
             ->leftJoin(
                 'product_modification',
                 ProductInvariable::class,
@@ -547,144 +564,98 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
             ');
 
         $dbal
-            ->addSelect('wb_orders_statistics_alarm.value AS orders_alarm')
+            //->addSelect('wb_orders_statistics_alarm.value AS orders_alarm')
+            ->addSelect('0 AS orders_alarm')
+            //            ->leftJoin(
+            //                'product_invariable',
+            //                WbOrdersStatisticsAlarm::class,
+            //                'wb_orders_statistics_alarm',
+            //                'wb_orders_statistics_alarm.invariable = product_invariable.id',
+            //            )
+        ;
+
+        $dbal
+            ->addSelect('wb_orders_statistics.analog')
             ->leftJoin(
-                'product_invariable',
-                WbOrdersStatisticsAlarm::class,
-                'wb_orders_statistics_alarm',
-                'wb_orders_statistics_alarm.invariable = product_invariable.id',
+                'product_event',
+                WbOrdersStatistics::class,
+                'wb_orders_statistics',
+                'wb_orders_statistics.product = product_event.main',
             );
 
-        if($part)
-        {
 
-            /** Только товары, которых нет в производстве */
+        /** Статистика ALARM по всем OFFER */
 
-            $dbal
-                ->leftJoin(
-                    'product_invariable',
-                    ManufactureProductInvariable::class,
-                    'manufacture_product_invariable',
-                    '
+        $dbal
+            ->leftJoin(
+                'product_invariable',
+                ProductInvariable::class,
+                'product_invariable_stats',
+                'product_invariable_stats.product = product_invariable.product');
+
+
+        $dbal
+            ->addSelect("JSON_AGG ( 
+                        DISTINCT JSONB_BUILD_OBJECT (
+                            'invariable', wb_orders_statistics_alarms.invariable,
+                            'product', product_invariable_stats.product,
+                            'offer', product_invariable_stats.offer,
+                            'variation', product_invariable_stats.variation,
+                            'modification', product_invariable_stats.modification,
+                            'value', wb_orders_statistics_alarms.value
+                        )) FILTER (WHERE wb_orders_statistics_alarms.value  IS NOT NULL)
+            
+                        AS product_statistics",
+            )
+            ->leftJoin(
+                'product_invariable_stats',
+                WbOrdersStatisticsAlarm::class,
+                'wb_orders_statistics_alarms',
+                'wb_orders_statistics_alarms.invariable = product_invariable_stats.id AND wb_orders_statistics_alarms.value > 0',
+            );
+
+
+        /** Только товары, которых нет в производстве */
+
+        $dbal
+            ->leftJoin(
+                'product_invariable',
+                ManufactureProductInvariable::class,
+                'manufacture_product_invariable',
+                '
                         manufacture_product_invariable.invariable = product_invariable.id
-                        AND manufacture_product_invariable.type = :part
-                    ',
-                )
+                        
+                    '.($part instanceof DeliveryUid ? ' AND manufacture_product_invariable.type = :part ' : ''),
+            );
+
+        if($part instanceof DeliveryUid)
+        {
+            $dbal
                 ->setParameter(
                     key: 'part',
                     value: $part,
                     type: DeliveryUid::TYPE,
                 );
+        }
 
-            $dbal
-                ->addSelect('manufacture_part_invariable.number')
-                ->leftJoin(
-                    'manufacture_product_invariable',
-                    ManufacturePartInvariable::class,
-                    'manufacture_part_invariable',
-                    '
+        $dbal
+            ->addSelect('manufacture_part_invariable.number')
+            ->leftJoin(
+                'manufacture_product_invariable',
+                ManufacturePartInvariable::class,
+                'manufacture_part_invariable',
+                '
                         manufacture_part_invariable.main = manufacture_product_invariable.manufacture
                     ',
-                );
-
-            $dbal->addOrderBy('manufacture_part_invariable.number', 'DESC');
+            );
 
 
-            //
-            //            $dbalExist = $this->DBALQueryBuilder->createQueryBuilder(self::class);
-            //
-            //            $dbalExist->from(ManufacturePartProduct::class, 'exist_product');
-            //
-            //            $dbalExist
-            //                //->select('exist_part.number')
-            //                ->join(
-            //                    'exist_product',
-            //                    ManufacturePart::class,
-            //                    'exist_part',
-            //                    'exist_part.event = exist_product.event',
-            //                );
-            //
-            //            $dbalExist
-            //                ->select('exist_part_invariable.number')
-            //                ->leftJoin(
-            //                    'exist_part',
-            //                    ManufacturePartInvariable::class,
-            //                    'exist_part_invariable',
-            //                    'exist_part_invariable.main = exist_part.id',
-            //                );
-            //
-            //
-            //            $dbalExist->andWhere('exist_product.product = order_product.product');
-            //
-            //            // $dbalExist->andWhere('(order_product.offer IS NULL OR exist_product.offer = order_product.offer)');
-            //            $dbalExist->andWhere('(CASE
-            //                WHEN order_product.offer IS NOT NULL
-            //                THEN exist_product.offer = order_product.offer
-            //                ELSE exist_product.offer IS NULL
-            //            END)');
-            //
-            //
-            //            // $dbalExist->andWhere('(order_product.variation IS NULL OR exist_product.variation = order_product.variation)');
-            //            $dbalExist->andWhere('(CASE
-            //                WHEN order_product.variation IS NOT NULL
-            //                THEN exist_product.variation = order_product.variation
-            //                ELSE exist_product.variation IS NULL
-            //            END)');
-            //
-            //            // $dbalExist->andWhere('(order_product.variation IS NULL OR exist_product.variation = order_product.variation)');
-            //            $dbalExist->andWhere('(CASE
-            //                WHEN order_product.modification IS NOT NULL
-            //                THEN exist_product.modification = order_product.modification
-            //                ELSE exist_product.modification IS NULL
-            //            END)');
-            //
-            //
-            //            /**
-            //             * Только продукция в процессе производства
-            //             * Только продукция на указанный завершающий этап
-            //             */
-            //            $dbalExist
-            //                ->join('exist_part',
-            //                    ManufacturePartEvent::class,
-            //                    'exist_product_event',
-            //                    '
-            //                exist_product_event.id = exist_part.event AND
-            //                exist_product_event.complete = :complete AND
-            //                exist_product_event.status NOT IN (:status_part)
-            //            ');
-            //
-            //            $dbal->setParameter(
-            //                key: 'complete',
-            //                value: $part,
-            //                type: DeliveryUid::TYPE,
-            //            );
-            //
-            //            $dbal->setParameter(
-            //                key: 'status_part',
-            //                value: [
-            //                    ManufacturePartStatusClosed::STATUS,
-            //                    ManufacturePartStatusCompleted::STATUS,
-            //                ],
-            //                type: ArrayParameterType::STRING,
-            //            );
-            //
-            //            $dbalExist->setMaxResults(1);
-            //
-            //            $dbal->addSelect('(SELECT ('.$dbalExist->getSQL().')) AS exist_manufacture');
-            //            $dbal->addOrderBy('exist_manufacture', 'DESC');
 
-        }
-        else
-        {
-            $dbal->addSelect('FALSE AS exist_manufacture');
-        }
-
-        /**
-         * @note: Запрос Exist должен находится ниже GroupByExclude
-         */
         $dbal->allGroupByExclude();
 
-        //$dbal->addOrderBy('order_data');
+
+        $dbal->addOrderBy('manufacture_part_invariable.number', 'DESC');
+        $dbal->addOrderBy('order_data');
 
         if($this->search && $this->search->getQuery())
         {
@@ -697,6 +668,10 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 ->addSearchLike('product_trans.name');
         }
 
-        return $this->paginator->fetchAllAssociative($dbal);
+        //dd($dbal->fetchAllAssociative());
+        //$dbal->allGroupByExclude();
+        //dd($dbal->analyze());
+
+        return $this->paginator->fetchAllHydrate($dbal, AllWbOrdersManufactureResult::class);
     }
 }

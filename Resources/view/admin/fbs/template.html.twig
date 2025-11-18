@@ -88,6 +88,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/centrifugo/centrifuge.min.js?v={{ version }}" class='lazy'></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/centrifugo/socket.min.js?v={{ version }}" class='lazy'></script>
 <script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/js/print.min.js?v={{ version }}" class="lazy"></script>
+<script nonce='{{ csp_nonce() }}' async data-src="/assets/{{ version }}/wildberries-manufacture/script.min.js?v={{ version }}" class="lazy"></script>
 
 
 {# @var opens \BaksDev\Manufacture\Part\Repository\OpenManufacturePart\OpenManufacturePartResult #}
@@ -138,76 +139,7 @@ setTimeout(function SpgGHaQzun()
 
         }).subscribe();
 
-
-
 }, 100);
-
-
-
-/** Обработчики кнопок выбора товаров */
-var select_all_to_production = document.querySelector("#select-all-to-production");
-var add_all_to_production = document.querySelector("#add-all-to-production");
-
-/** Выбор из списка ответов */
-select_all_to_production?.addEventListener("click", function() {
-
-    // Выбрать все
-    select_all_to_production.classList.toggle("selected");
-
-    //const button_text = select_all_to_production.classList.contains("selected") ? "Снять выбор" : "Выбрать все";
-    //select_all_to_production.innerText = button_text;
-
-    if(select_all_to_production.classList.contains("selected"))
-        {
-            select_all_to_production.innerText = "Снять выбор";
-            select_all_to_production.classList.remove("btn-outline-primary");
-            select_all_to_production.classList.add("btn-primary");
-        }
-    else
-
-       {
-           select_all_to_production.innerText = "Выбрать все";
-           select_all_to_production.classList.add("btn-outline-primary");
-           select_all_to_production.classList.remove("btn-primary");
-       }
-
-
-    const products = document.querySelectorAll(".add-all-to-production");
-
-    // Выбрать все НЕ disabled (т.е. те, которые не на производстве)
-    products.forEach(checkbox => {if (!checkbox.disabled) { checkbox.checked = select_all_to_production.classList.contains("selected");} } );
-
-    const checkboxes = document.querySelectorAll(".add-all-to-production");
-    const atLeastOneChecked = Array.from(checkboxes).some(cb => cb.checked);
-
-    if (atLeastOneChecked) {
-        add_all_to_production.classList.remove("d-none");
-    }
-    else {
-        add_all_to_production.classList.add("d-none");
-    }
-
-});
-
-var checkboxs_all_to_production = document.querySelectorAll(".add-all-to-production");
-
-/** Скрыть или показать кнопку "Добавить выбранные" */
-for (checkbox_all_to_production of checkboxs_all_to_production) {
-
-    checkbox_all_to_production?.addEventListener("click", function() {
-
-        const checkboxes = document.querySelectorAll(".add-all-to-production");
-        const atLeastOneChecked = Array.from(checkboxes).some(cb => cb.checked);
-
-        if (atLeastOneChecked) {
-           add_all_to_production.classList.remove("d-none");
-        }
-        else {
-            add_all_to_production.classList.add("d-none");
-        }
-
-    });
-}
 
 
 </script>
