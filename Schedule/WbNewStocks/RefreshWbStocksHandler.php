@@ -29,7 +29,7 @@ use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbStocks\GetWbStocksMessage;
-use BaksDev\Wildberries\Repository\AllProfileToken\AllProfileTokenInterface;
+use BaksDev\Wildberries\Repository\AllProfileToken\AllProfileWildberriesTokenInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -43,7 +43,7 @@ final readonly class RefreshWbStocksHandler
     public function __construct(
         #[Target('wildberriesSupportLogger')] private LoggerInterface $logger,
         private MessageDispatchInterface $messageDispatch,
-        private AllProfileTokenInterface $allProfileTokens,
+        private AllProfileWildberriesTokenInterface $allProfileTokens,
     ) {}
 
     public function __invoke(RefreshWbStocksMessage $message): void

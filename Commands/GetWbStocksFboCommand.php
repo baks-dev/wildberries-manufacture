@@ -28,7 +28,7 @@ namespace BaksDev\Wildberries\Manufacture\Commands;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbStocks\GetWbStocksMessage;
-use BaksDev\Wildberries\Repository\AllProfileToken\AllProfileTokenInterface;
+use BaksDev\Wildberries\Repository\AllProfileToken\AllProfileWildberriesTokenInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -49,7 +49,7 @@ final class GetWbStocksFboCommand extends Command
 
     public function __construct(
         private readonly MessageDispatchInterface $messageDispatch,
-        private readonly AllProfileTokenInterface $allWbTokens,
+        private readonly AllProfileWildberriesTokenInterface $allWbTokens,
     )
     {
         parent::__construct();

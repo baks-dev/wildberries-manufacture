@@ -28,7 +28,7 @@ namespace BaksDev\Wildberries\Manufacture\Commands;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbOrders\GetWbOrdersMessage;
-use BaksDev\Wildberries\Repository\AllProfileToken\AllProfileTokenInterface;
+use BaksDev\Wildberries\Repository\AllProfileToken\AllProfileWildberriesTokenInterface;
 use RuntimeException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -51,7 +51,7 @@ final class GetWbOrdersLastCommand extends Command
 
     public function __construct(
         private readonly MessageDispatchInterface $messageDispatch,
-        private readonly AllProfileTokenInterface $allWbTokens,
+        private readonly AllProfileWildberriesTokenInterface $allWbTokens,
     )
     {
         parent::__construct();
