@@ -31,9 +31,13 @@ use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
 
 final class WbOrderNewHandler extends AbstractHandler
 {
-    public function handle(WbOrderNewDTO $dto): WbOrder|string
+    public function handle(WbOrderNewDTO $command): WbOrder|string
     {
-        $WbOrder = $this->getRepository(WbOrder::class)->find($dto->getId());
+        $this->setCommand($command);
+
+        $WbOrder = $this
+            ->getRepository(WbOrder::class)
+            ->find($command->getId());
 
         if($WbOrder instanceof WbOrder)
         {
@@ -41,14 +45,15 @@ final class WbOrderNewHandler extends AbstractHandler
         }
 
         $WbOrder = new WbOrder()
-            ->setId($dto->getId())
-            ->setInvariable($dto->getInvariable())
-            ->setDate($dto->getDate());
+            ->setId($command->getId())
+            ->setInvariable($command->getInvariable())
+            ->setDate($command->getDate());
 
         $this->validatorCollection->add($WbOrder);
 
         /** Валидация всех объектов */
-        if ($this->validatorCollection->isInvalid()) {
+        if($this->validatorCollection->isInvalid())
+        {
             return $this->validatorCollection->getErrorUniqid();
         }
 

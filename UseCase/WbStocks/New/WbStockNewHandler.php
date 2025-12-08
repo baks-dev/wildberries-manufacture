@@ -30,11 +30,15 @@ use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 
 final class WbStockNewHandler extends AbstractHandler
 {
-    public function handle(WbStockNewDTO $dto): WbStock|string
+    public function handle(WbStockNewDTO $command): WbStock|string
     {
-        $invariable = $dto->getInvariable();
+        $this->setCommand($command);
 
-        $wbStock = self::getRepository(WbStock::class)->findOneBy(['invariable' => $invariable]);
+        $invariable = $command->getInvariable();
+
+        $wbStock = $this
+            ->getRepository(WbStock::class)
+            ->findOneBy(['invariable' => $invariable]);
 
         /** @var WbStock $wbStock */
         if(false === ($wbStock instanceof WbStock))
@@ -43,12 +47,13 @@ final class WbStockNewHandler extends AbstractHandler
             $this->persist($wbStock);
         }
 
-        $wbStock->setQuantity($dto->getQuantity());
+        $wbStock->setQuantity($command->getQuantity());
 
         $this->validatorCollection->add($wbStock);
 
         /** Валидация всех объектов */
-        if ($this->validatorCollection->isInvalid()) {
+        if($this->validatorCollection->isInvalid())
+        {
             return $this->validatorCollection->getErrorUniqid();
         }
 
