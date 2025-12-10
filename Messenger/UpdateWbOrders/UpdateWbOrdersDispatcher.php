@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbOrders;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
-use BaksDev\Products\Product\Repository\CurrentProductByArticle\CurrentProductDTO;
+use BaksDev\Products\Product\Repository\CurrentProductByArticle\CurrentProductByBarcodeResult;
 use BaksDev\Products\Product\Repository\CurrentProductByArticle\ProductConstByBarcodeInterface;
 use BaksDev\Wildberries\Manufacture\BaksDevWildberriesManufactureBundle;
 use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
@@ -67,7 +67,7 @@ final readonly class UpdateWbOrdersDispatcher
 
         $product = $this->ProductConstByBarcodeRepository->find($barcode);
 
-        if(false === ($product instanceof CurrentProductDTO))
+        if(false === ($product instanceof CurrentProductByBarcodeResult))
         {
             return;
         }

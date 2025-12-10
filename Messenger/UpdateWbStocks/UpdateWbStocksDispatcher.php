@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks;
 
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
-use BaksDev\Products\Product\Repository\CurrentProductByArticle\CurrentProductDTO;
+use BaksDev\Products\Product\Repository\CurrentProductByArticle\CurrentProductByBarcodeResult;
 use BaksDev\Products\Product\Repository\CurrentProductByArticle\ProductConstByBarcodeInterface;
 use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 use BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New\WbStockNewDTO;
@@ -65,7 +65,7 @@ final readonly class UpdateWbStocksDispatcher
         $CurrentProductDTO = $this->ProductConstByBarcodeRepository
             ->find($message->getBarcode());
 
-        if(false === ($CurrentProductDTO instanceof CurrentProductDTO))
+        if(false === ($CurrentProductDTO instanceof CurrentProductByBarcodeResult))
         {
             return;
         }
