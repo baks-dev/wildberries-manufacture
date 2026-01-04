@@ -70,7 +70,7 @@ final class GetWbStocksRequest extends Wildberries
      * Максимум 1 запрос в минуту на один аккаунт продавца
      *
      * @see https://dev.wildberries.ru/openapi/reports/#tag/Osnovnye-otchyoty/paths/~1api~1v1~1supplier~1stocks/get
-     * @return Generator<int, WbStocksRequestDTO>|false
+     * @return Generator<WbStocksRequestDTO>|false
      */
     public function findAll(): Generator|false
     {

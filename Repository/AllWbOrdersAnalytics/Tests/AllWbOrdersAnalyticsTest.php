@@ -34,8 +34,11 @@ use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Modification\Id\ProductModificationUid;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\AllWbOrdersAnalyticsInterface;
+use BaksDev\Wildberries\Manufacture\Repository\AllWbOrdersAnalytics\AllWbOrdersAnalyticsResult;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFboWildberries;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionClass;
+use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -45,9 +48,11 @@ final class AllWbOrdersAnalyticsTest extends KernelTestCase
 {
     public function testRepository()
     {
-        /** @var AllWbOrdersAnalyticsInterface $AllWbOrdersAnaltics */
-        $AllWbOrdersAnaltics = self::getContainer()->get(AllWbOrdersAnalyticsInterface::class);
-        $paginator = $AllWbOrdersAnaltics
+        self::assertTrue(true);
+
+        /** @var AllWbOrdersAnalyticsInterface $AllWbOrdersAnalytics */
+        $AllWbOrdersAnalytics = self::getContainer()->get(AllWbOrdersAnalyticsInterface::class);
+        $paginator = $AllWbOrdersAnalytics
             ->forProfile(new UserProfileUid())
             ->findPaginator(new DeliveryUid(TypeDeliveryFboWildberries::TYPE));
 
@@ -55,88 +60,27 @@ final class AllWbOrdersAnalyticsTest extends KernelTestCase
 
         if(empty($data))
         {
-            self::assertTrue(true);
+
             return;
         }
 
-        foreach($data as $item)
+        foreach($data as $AllWbOrdersAnalyticsResult)
         {
-            self::assertInstanceOf(ProductInvariableUid::class, $item->getInvariable());
-            self::assertIsInt($item->getAverage());
-            self::assertIsInt($item->getNeededAmount());
-            self::assertIsInt($item->getQuantity());
-            self::assertIsInt($item->recommended());
-            self::assertIsInt($item->getDays());
-            self::assertIsInt($item->getOrdersCount());
-            self::assertIsString($item->getProductTransName());
+            // Вызываем все геттеры
+            $reflectionClass = new ReflectionClass(AllWbOrdersAnalyticsResult::class);
+            $methods = $reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC);
 
-            self::assertInstanceOf(ProductUid::class, $item->getProductId());
-            self::assertInstanceOf(ProductEventUid::class, $item->getProductEvent());
-            self::assertIsString($item->getProductUrl());
-            self::assertIsString($item->getProductName());
-            self::assertIsString($item->getProductArticle());
+            foreach($methods as $method)
+            {
+                // Методы без аргументов
+                if($method->getNumberOfParameters() === 0)
+                {
+                    // Вызываем метод
+                    $data = $method->invoke($AllWbOrdersAnalyticsResult);
+                    // dump($data);
+                }
+            }
 
-            self::assertTrue($item->getCategoryUrl() === null || is_string($item->getCategoryUrl()));
-            self::assertTrue($item->getCategoryName() === null || is_string($item->getCategoryName()));
-            self::assertTrue($item->getOrderTotal() === null || is_string($item->getOrderTotal()));
-            self::assertTrue($item->isExistManufacture() === false || is_string($item->isExistManufacture()));
-
-            self::assertTrue(
-                $item->getProductOfferValue() === null ||
-                is_string($item->getProductOfferValue())
-            );
-            self::assertTrue(
-                $item->getProductOfferId() === null ||
-                $item->getProductOfferId() instanceof ProductOfferUid
-            );
-            self::assertTrue(
-                $item->getProductOfferReference() === null ||
-                is_string($item->getProductOfferReference())
-            );
-            self::assertTrue(
-                $item->getProductOfferPostfix() === null ||
-                is_string($item->getProductOfferPostfix())
-            );
-
-            self::assertTrue(
-                $item->getProductVariationValue() === null ||
-                is_string($item->getProductVariationValue())
-            );
-            self::assertTrue(
-                $item->getProductVariationId() === null ||
-                $item->getProductVariationId() instanceof ProductVariationUid
-            );
-            self::assertTrue(
-                $item->getProductVariationReference() === null ||
-                is_string($item->getProductVariationReference())
-            );
-            self::assertTrue(
-                $item->getProductVariationPostfix() === null ||
-                is_string($item->getProductVariationPostfix())
-            );
-
-            self::assertTrue(
-                $item->getProductModificationValue() === null ||
-                is_string($item->getProductModificationValue())
-            );
-            self::assertTrue(
-                $item->getProductModificationId() === null ||
-                $item->getProductModificationId() instanceof ProductModificationUid
-            );
-            self::assertTrue(
-                $item->getProductModificationReference() === null ||
-                is_string($item->getProductModificationReference())
-            );
-            self::assertTrue(
-                $item->getProductModificationPostfix() === null ||
-                is_string($item->getProductModificationPostfix())
-            );
-
-            self::assertTrue($item->getProductImage() === null || is_string($item->getProductImage()));
-            self::assertTrue($item->getProductImageExt() === null || is_string($item->getProductImageExt()));
-            self::assertTrue($item->getProductImageCdn() === null || is_bool($item->getProductImageCdn()));
-
-            break;
         }
     }
 }

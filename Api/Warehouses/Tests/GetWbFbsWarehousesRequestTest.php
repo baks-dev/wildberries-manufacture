@@ -36,11 +36,11 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class GetWbFbsWarehousesRequestTest extends KernelTestCase
 {
-    private static WbAuthorizationToken $authorization;
+    private static WbAuthorizationToken $Authorization;
 
     public static function setUpBeforeClass(): void
     {
-        self::$authorization = new WbAuthorizationToken(
+        self::$Authorization = new WbAuthorizationToken(
             new UserProfileUid(),
             $_SERVER['TEST_WILDBERRIES_TOKEN'],
         );
@@ -50,7 +50,7 @@ final class GetWbFbsWarehousesRequestTest extends KernelTestCase
     {
         /** @var GetWbFbsWarehousesRequest $request */
         $request = self::getContainer()->get(GetWbFbsWarehousesRequest::class);
-        $request->TokenHttpClient(self::$authorization);
+        $request->TokenHttpClient(self::$Authorization);
 
         $content = $request->findAll();
 

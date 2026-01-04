@@ -40,11 +40,11 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class GetWbOrdersRequestTest extends KernelTestCase
 {
-    private static WbAuthorizationToken $authorization;
+    private static WbAuthorizationToken $Authorization;
 
     public static function setUpBeforeClass(): void
     {
-        self::$authorization = new WbAuthorizationToken(
+        self::$Authorization = new WbAuthorizationToken(
             new UserProfileUid(),
             $_SERVER['TEST_WILDBERRIES_TOKEN'],
         );
@@ -54,7 +54,7 @@ final class GetWbOrdersRequestTest extends KernelTestCase
     {
         /** @var GetWbOrdersRequest $request */
         $request = self::getContainer()->get(GetWbOrdersRequest::class);
-        $request->TokenHttpClient(self::$authorization);
+        $request->TokenHttpClient(self::$Authorization);
 
         $dateFrom = new DateTimeImmutable()
             ->setTimezone(new DateTimeZone('GMT'))

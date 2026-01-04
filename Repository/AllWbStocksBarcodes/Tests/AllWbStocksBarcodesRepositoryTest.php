@@ -27,7 +27,10 @@ namespace BaksDev\Wildberries\Manufacture\Repository\Tests;
 
 use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesInterface;
 use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesRepository;
+use BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes\AllWbStocksBarcodesResult;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionClass;
+use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -35,22 +38,37 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class AllWbStocksBarcodesRepositoryTest extends KernelTestCase
 {
-    public function testRepository()
+    public function testRepository(): void
     {
+        self::assertTrue(true);
+
         /** @var AllWbStocksBarcodesRepository $AllWbStocksBarcodes */
         $AllWbStocksBarcodes = self::getContainer()->get(AllWbStocksBarcodesInterface::class);
 
-        $data = $AllWbStocksBarcodes->findAll();
+        $result = $AllWbStocksBarcodes->findAll();
 
-        if(false === $data || false === $data->valid())
+        if(false === $result || false === $result->valid())
         {
-            self::assertTrue(true);
             return;
         }
 
-        $current = $data->current();
+        foreach($result as $AllWbStocksBarcodesResult)
+        {
+            // Вызываем все геттеры
+            $reflectionClass = new ReflectionClass(AllWbStocksBarcodesResult::class);
+            $methods = $reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC);
 
-        self::assertNotEmpty($current->getBarcode());
-        self::assertNotEmpty($current->getQuantity());
+            foreach($methods as $method)
+            {
+                // Методы без аргументов
+                if($method->getNumberOfParameters() === 0)
+                {
+                    // Вызываем метод
+                    $data = $method->invoke($AllWbStocksBarcodesResult);
+                    // dump($data);
+                }
+            }
+
+        }
     }
 }

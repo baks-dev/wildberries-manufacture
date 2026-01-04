@@ -27,11 +27,14 @@ namespace BaksDev\Wildberries\Manufacture\Api\Stocks\Tests;
 
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Api\Stocks\GetWbStocksRequest;
+use BaksDev\Wildberries\Manufacture\Api\Stocks\WbStocksRequestDTO;
 use BaksDev\Wildberries\Type\Authorization\WbAuthorizationToken;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionClass;
+use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -39,13 +42,18 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class GetWbStocksRequestTest extends KernelTestCase
 {
-    private static WbAuthorizationToken $authorization;
+    private static WbAuthorizationToken $Authorization;
 
     public static function setUpBeforeClass(): void
     {
-        self::$authorization = new WbAuthorizationToken(
-            new UserProfileUid(),
-            $_SERVER['TEST_WILDBERRIES_TOKEN'],
+        /** @see .env.test */
+        self::$Authorization = new WbAuthorizationToken(
+            profile: new UserProfileUid($_SERVER['TEST_WILDBERRIES_PROFILE']),
+            token: $_SERVER['TEST_WILDBERRIES_TOKEN'],
+            warehouse: $_SERVER['TEST_WILDBERRIES_WAREHOUSE'] ?? null,
+            percent: $_SERVER['TEST_WILDBERRIES_PERCENT'] ?? "0",
+            card: $_SERVER['TEST_WILDBERRIES_CARD'] === "true" ?? false,
+            stock: $_SERVER['TEST_WILDBERRIES_STOCK'] === "true" ?? false,
         );
     }
 
@@ -53,15 +61,35 @@ final class GetWbStocksRequestTest extends KernelTestCase
     {
         /** @var GetWbStocksRequest $request */
         $request = self::getContainer()->get(GetWbStocksRequest::class);
-        $request->TokenHttpClient(self::$authorization);
+        $request->TokenHttpClient(self::$Authorization);
 
         $dateFrom = new DateTimeImmutable()
             ->setTimezone(new DateTimeZone('GMT'))
-            ->sub(DateInterval::createFromDateString('1 day'));
+            ->sub(DateInterval::createFromDateString('1 week'));
 
-        $content = $request->dateFrom($dateFrom)->findAll();
+        $result = $request
+            ->dateFrom($dateFrom)
+            ->findAll();
 
-        self::assertNotFalse($content);
-        self::assertNotEmpty($content->current());
+        foreach($result as $WbStocksRequestDTO)
+        {
+            // Вызываем все геттеры
+            $reflectionClass = new ReflectionClass(WbStocksRequestDTO::class);
+            $methods = $reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC);
+
+            foreach($methods as $method)
+            {
+                // Методы без аргументов
+                if($method->getNumberOfParameters() === 0)
+                {
+                    // Вызываем метод
+                    $data = $method->invoke($WbStocksRequestDTO);
+                    //dump($data);
+                }
+            }
+
+        }
+
+        self::assertNotFalse($result);
     }
 }

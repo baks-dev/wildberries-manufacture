@@ -67,7 +67,8 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
 
     /**
      * Метод возвращает штрихкод и его остаток на складах Wildberries
-     * @return Generator<int, AllWbStocksBarcodesResult>|false
+     *
+     * @return Generator<AllWbStocksBarcodesResult>|false
      */
     public function findAll(): Generator|false
     {
