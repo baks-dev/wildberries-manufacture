@@ -384,8 +384,10 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'category',
                 CategoryProductInfo::class,
                 'category_info',
-                'category_info.event = category.event AND category_info.active = true'
-            );
+                '
+                    category_info.event = category.event 
+                    AND category_info.active IS TRUE
+                ');
 
 
         $dbal
