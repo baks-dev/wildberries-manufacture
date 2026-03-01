@@ -40,7 +40,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * Сохраняем данные о последних заказах WB
  */
-#[AsMessageHandler]
+#[AsMessageHandler(priority: 0)]
 final readonly class UpdateWbOrdersDispatcher
 {
     public function __construct(

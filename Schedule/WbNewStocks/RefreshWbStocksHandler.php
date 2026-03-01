@@ -37,7 +37,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * Инициируем получение и обновление данных об остатках на складах WB
  */
-#[AsMessageHandler]
+#[AsMessageHandler(priority: 0)]
 final readonly class RefreshWbStocksHandler
 {
     public function __construct(

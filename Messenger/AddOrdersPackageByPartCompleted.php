@@ -56,12 +56,14 @@ use BaksDev\Wildberries\Package\UseCase\Package\Pack\Orders\WbPackageOrderDTO;
 use BaksDev\Wildberries\Package\UseCase\Package\Pack\WbPackageDTO;
 use BaksDev\Wildberries\Package\UseCase\Package\Pack\WbPackageHandler;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Метод добавляет заказы Wildberries в открытую поставку при выполненной производственной парии Wildberries Fbs
  */
+#[Autoconfigure(public: true)]
 #[AsMessageHandler(priority: 10)]
 final readonly class AddOrdersPackageByPartCompleted
 {

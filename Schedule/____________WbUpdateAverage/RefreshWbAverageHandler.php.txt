@@ -33,7 +33,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * Инициируем вычисление среднего количества заказов на WB в день
  */
-#[AsMessageHandler]
+#[AsMessageHandler(priority: 0)]
 final readonly class RefreshWbAverageHandler
 {
     public function __construct(

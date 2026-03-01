@@ -32,7 +32,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
+#[AsMessageHandler(priority: 0)]
 final readonly class ResetWbFbsStocksDispatcher
 {
     /** Минимальное количество на складе, при котором обнулять остаток FBS */

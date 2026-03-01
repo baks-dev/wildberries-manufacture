@@ -36,7 +36,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * Получаем данные о запасах на складах WB и отправляем сообщения для дальнейшего сохранения в базу
  */
-#[AsMessageHandler]
+#[AsMessageHandler(priority: 0)]
 final readonly class GetWbStocksDispatcher
 {
     public function __construct(

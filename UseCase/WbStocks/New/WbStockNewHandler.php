@@ -27,7 +27,9 @@ namespace BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New;
 
 use BaksDev\Core\Entity\AbstractHandler;
 use BaksDev\Wildberries\Manufacture\Entity\WbStock;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
+#[Autoconfigure(public: true)]
 final class WbStockNewHandler extends AbstractHandler
 {
     public function handle(WbStockNewDTO $command): WbStock|string

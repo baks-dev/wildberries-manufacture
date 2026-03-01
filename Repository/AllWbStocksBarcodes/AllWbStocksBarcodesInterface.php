@@ -28,7 +28,9 @@ namespace BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes;
 use BaksDev\Users\Profile\UserProfile\Entity\UserProfile;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Generator;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
+#[Autoconfigure(public: true)]
 interface AllWbStocksBarcodesInterface
 {
     public function forProfile(UserProfile|UserProfileUid|string $profile): static;

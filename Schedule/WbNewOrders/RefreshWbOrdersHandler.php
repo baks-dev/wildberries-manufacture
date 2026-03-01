@@ -37,7 +37,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * Инициируем получение и сохранение данных о новых последних заказах на WB
  */
-#[AsMessageHandler]
+#[AsMessageHandler(priority: 0)]
 final readonly class RefreshWbOrdersHandler
 {
     public function __construct(
