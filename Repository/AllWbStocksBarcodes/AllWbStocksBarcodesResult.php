@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -31,13 +32,39 @@ use Symfony\Component\DependencyInjection\Attribute\Exclude;
 final readonly class AllWbStocksBarcodesResult
 {
     public function __construct(
-        private string $barcode,
+        private ?string $barcode,
+        private ?string $barcodes,
         private int $quantity,
     ) {}
 
-    public function getBarcode(): string
+    public function getBarcode(): ?string
     {
-        return $this->barcode;
+        return true === empty($this->barcode) ? null : $this->barcode;
+    }
+
+    /**
+     * @return array<int, string>|null
+     */
+    public function getBarcodes(): array|null
+    {
+        if(is_null($this->barcodes))
+        {
+            return null;
+        }
+
+        if(false === json_validate($this->barcodes))
+        {
+            return null;
+        }
+
+        $barcodes = json_decode($this->barcodes, true, 512, JSON_THROW_ON_ERROR);
+
+        if(true === empty(current($barcodes)))
+        {
+            return null;
+        }
+
+        return $barcodes;
     }
 
     public function getQuantity(): int
