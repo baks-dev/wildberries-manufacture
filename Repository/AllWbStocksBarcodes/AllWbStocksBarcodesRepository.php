@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -27,7 +28,10 @@ namespace BaksDev\Wildberries\Manufacture\Repository\AllWbStocksBarcodes;
 
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Products\Product\Entity\Info\ProductInfo;
+use BaksDev\Products\Product\Entity\Offers\Barcode\ProductOfferBarcode;
 use BaksDev\Products\Product\Entity\Offers\ProductOffer;
+use BaksDev\Products\Product\Entity\Offers\Variation\Barcode\ProductVariationBarcode;
+use BaksDev\Products\Product\Entity\Offers\Variation\Modification\Barcode\ProductModificationBarcode;
 use BaksDev\Products\Product\Entity\Offers\Variation\Modification\ProductModification;
 use BaksDev\Products\Product\Entity\Offers\Variation\ProductVariation;
 use BaksDev\Products\Product\Entity\ProductInvariable;
@@ -102,47 +106,119 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
             );
         }
 
+        /**
+         * Offer
+         */
+
         $dbal->leftJoin(
             'invariable',
-            ProductOffer::class, 'offer',
+            ProductOffer::class,
+            'offer',
             '
                 (invariable.offer IS NULL AND offer.const IS NULL) OR
                 (invariable.offer IS NOT NULL AND offer.const = invariable.offer)
             ');
 
+        /** Offer Barcode */
+
+        $dbal
+            ->leftJoin(
+                'offer',
+                ProductOfferBarcode::class,
+                'product_offer_barcode',
+                'product_offer_barcode.offer = offer.id'
+            );
+
+        /**
+         * Variation
+         */
+
         $dbal->leftJoin(
             'invariable',
-            ProductVariation::class, 'variation',
+            ProductVariation::class,
+            'variation',
             '
                 (invariable.variation IS NULL AND variation.const IS NULL) OR
                 (invariable.variation IS NOT NULL AND variation.const = invariable.variation)
             ');
 
+        /** Variation Barcode */
+
+        $dbal
+            ->leftJoin(
+                'variation',
+                ProductVariationBarcode::class,
+                'product_variation_barcode',
+                'product_variation_barcode.variation = variation.id'
+            );
+
+        /**
+         * Modification
+         */
+
         $dbal->leftJoin(
             'invariable',
-            ProductModification::class, 'modification',
+            ProductModification::class,
+            'modification',
             '
                 (invariable.modification IS NULL AND modification.const IS NULL) OR
                 (invariable.modification IS NOT NULL AND modification.const = invariable.modification)
             ');
 
+        /** Modification Barcode */
+
+        $dbal
+            ->leftJoin(
+                'modification',
+                ProductModificationBarcode::class,
+                'product_modification_barcode',
+                'product_modification_barcode.modification = modification.id'
+            );
+
+        /** Штрихкоды продукта */
+
+        $dbal->addSelect(
+            "
+            JSON_AGG
+                    (DISTINCT
+         			CASE
+         			    WHEN product_modification_barcode.value IS NOT NULL
+                        THEN product_modification_barcode.value
+                        
+                        WHEN product_variation_barcode.value IS NOT NULL
+                        THEN product_variation_barcode.value
+                        
+                        WHEN product_offer_barcode.value IS NOT NULL
+                        THEN product_offer_barcode.value
+                        
+                        WHEN product_info.barcode IS NOT NULL
+                        THEN product_info.barcode
+                        
+                        ELSE NULL
+                    END
+                    )
+                    AS barcodes"
+        );
 
         $dbal->addSelect('
             CASE
-                WHEN modification.barcode IS NOT NULL
-                THEN modification.barcode
+                WHEN modification.barcode_old IS NOT NULL
+                THEN modification.barcode_old
                 
-                WHEN variation.barcode IS NOT NULL
-                THEN variation.barcode
+                WHEN variation.barcode_old IS NOT NULL
+                THEN variation.barcode_old
                 
-                WHEN offer.barcode IS NOT NULL
-                THEN offer.barcode
+                WHEN offer.barcode_old IS NOT NULL
+                THEN offer.barcode_old
                            
                 WHEN product_info.barcode IS NOT NULL
                 THEN product_info.barcode
 
+                ELSE NULL
+
             END AS barcode');
 
+        $dbal->allGroupByExclude();
 
         return $dbal->fetchAllHydrate(AllWbStocksBarcodesResult::class);
     }
