@@ -39,6 +39,7 @@ use BaksDev\Manufacture\Part\Type\Complete\ManufacturePartComplete;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusClosed;
 use BaksDev\Manufacture\Part\Type\Status\ManufacturePartStatus\ManufacturePartStatusCompleted;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
+use BaksDev\Orders\Order\Entity\Event\Posting\OrderPosting;
 use BaksDev\Orders\Order\Entity\Invariable\OrderInvariable;
 use BaksDev\Orders\Order\Entity\Order;
 use BaksDev\Orders\Order\Entity\Products\OrderProduct;
@@ -197,20 +198,23 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         //->addSelect('order_product_price.total AS order_total')
         //->addSelect('SUM(order_product_price.total) AS old_order_total')
 
-
         $dbal
             ->addSelect("JSON_AGG ( 
                         DISTINCT JSONB_BUILD_OBJECT (
-                            'number', invariable.number,
+                            'number', orders_posting.value,
                             'total', order_product_price.total
                         ))
             
                         AS order_total",
             )
+            ->leftJoin(
+                "orders",
+                OrderPosting::class,
+                "orders_posting",
+                "orders_posting.main = orders.id",
+            );
 
-
-
-
+        $dbal
             ->leftJoin(
                 'order_product',
                 OrderPrice::class,
@@ -488,7 +492,6 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
 		');
 
 
-
         /** Сверх наличие на складе */
 
         $dbal
@@ -528,7 +531,6 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
         //
         //                        AND (stock.total - stock.reserve) > 0
         //            ');
-
 
 
         $dbal
@@ -648,7 +650,6 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                         manufacture_part_invariable.main = manufacture_product_invariable.manufacture
                     ',
             );
-
 
 
         $dbal->allGroupByExclude();

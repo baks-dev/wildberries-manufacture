@@ -41,6 +41,8 @@ final class AllWbStocksBarcodesRepositoryTest extends KernelTestCase
 {
     public function testRepository(): void
     {
+        self::assertTrue(true);
+
         /** @var AllWbStocksBarcodesRepository $AllWbStocksBarcodes */
         $AllWbStocksBarcodes = self::getContainer()->get(AllWbStocksBarcodesInterface::class);
 
@@ -48,7 +50,6 @@ final class AllWbStocksBarcodesRepositoryTest extends KernelTestCase
 
         if(false === $result || false === $result->valid())
         {
-            self::assertTrue(true);
             echo sprintf('%s результат репозитория не протестирован  %s %s', PHP_EOL, self::class, PHP_EOL);
             return;
         }
