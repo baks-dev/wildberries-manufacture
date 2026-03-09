@@ -33,7 +33,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'wb_stock')]
-final class WbStock extends EntityState
+class WbStock extends EntityState
 {
     /** Идентификатор Invariable */
     #[Assert\NotBlank]

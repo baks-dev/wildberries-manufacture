@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'wb_order')]
-final class WbOrder extends EntityState
+class WbOrder extends EntityState
 {
     /** Уникальный идентификатор заказа */
     #[Assert\NotBlank]
