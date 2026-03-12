@@ -289,8 +289,10 @@ final class AllWbOrdersManufactureRepository implements AllWbOrdersManufactureIn
                 'product_event',
                 ProductOffer::class,
                 'product_offer',
-                'product_offer.id = order_product.offer AND product_offer.event = product_event.id',
+                //'product_offer.id = order_product.offer AND product_offer.event = product_event.id',
+                'product_offer.id = order_product.offer',
             );
+
 
         if($this->filter?->getOffer())
         {

@@ -36,11 +36,13 @@ use DateTimeZone;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Получаем данные о последних заказах WB и отправляем сообщения для дальнейшего сохранения в базу
  */
+#[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 0)]
 final readonly class GetWbOrdersDispatcher
 {

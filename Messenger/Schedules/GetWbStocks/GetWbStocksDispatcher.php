@@ -31,11 +31,13 @@ use BaksDev\Wildberries\Manufacture\Messenger\UpdateWbStocks\UpdateWbStocksMessa
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Получаем данные о запасах на складах WB и отправляем сообщения для дальнейшего сохранения в базу
  */
+#[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 0)]
 final readonly class GetWbStocksDispatcher
 {

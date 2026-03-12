@@ -32,12 +32,14 @@ use BaksDev\Wildberries\Manufacture\Entity\WbStock;
 use BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New\WbStockNewDTO;
 use BaksDev\Wildberries\Manufacture\UseCase\WbStocks\New\WbStockNewHandler;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Обновляем в базе данные информацию о запасах товара на складах WB
  */
+#[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 0)]
 final readonly class UpdateWbStocksDispatcher
 {

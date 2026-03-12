@@ -34,12 +34,14 @@ use BaksDev\Wildberries\Manufacture\Repository\OrdersDataUpdate\WbOrdersDataUpda
 use BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New\WbOrderNewDTO;
 use BaksDev\Wildberries\Manufacture\UseCase\WbOrders\New\WbOrderNewHandler;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Сохраняем данные о последних заказах WB
  */
+#[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 0)]
 final readonly class UpdateWbOrdersDispatcher
 {

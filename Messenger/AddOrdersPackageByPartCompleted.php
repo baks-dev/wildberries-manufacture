@@ -45,6 +45,7 @@ use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
 use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
+use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
 use BaksDev\Wildberries\Orders\Messenger\Statistics\UpdateStatisticMessage;
 use BaksDev\Wildberries\Orders\Type\DeliveryType\TypeDeliveryFbsWildberries;
@@ -63,7 +64,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * Метод добавляет заказы Wildberries в открытую поставку при выполненной производственной парии Wildberries Fbs
  */
-#[Autoconfigure(public: true)]
+#[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 10)]
 final readonly class AddOrdersPackageByPartCompleted
 {
@@ -274,7 +275,10 @@ final readonly class AddOrdersPackageByPartCompleted
                 ->forModification($ManufacturePartProductsDTO->getModification())
                 ->find();
 
-            if(false === $CurrentProductIdentifierResult->getProductInvariable() instanceof ProductInvariableUid)
+            if(
+                false === $CurrentProductIdentifierResult instanceof CurrentProductIdentifierResult
+                || false === $CurrentProductIdentifierResult->getProductInvariable() instanceof ProductInvariableUid
+            )
             {
                 $this->logger->critical(
                     'wildberries-manufacture: Невозможно определить ProductInvariable продукта для пересчета статистических данных',

@@ -35,7 +35,7 @@ use Generator;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Contracts\Cache\ItemInterface;
 
-#[Autoconfigure(public: true)]
+// #[Autoconfigure(public: true)]
 final class GetWbOrdersRequest extends Wildberries
 {
     /*

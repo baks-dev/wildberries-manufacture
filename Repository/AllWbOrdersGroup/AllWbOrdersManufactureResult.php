@@ -396,7 +396,7 @@ final class AllWbOrdersManufactureResult
         return $this->number ?: false;
     }
 
-    public function getInvariable(): string
+    public function getInvariable(): ?string
     {
         return $this->product_invariable;
     }

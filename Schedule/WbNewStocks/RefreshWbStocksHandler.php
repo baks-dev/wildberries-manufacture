@@ -31,12 +31,14 @@ use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbStocks\GetWbStocksMessage;
 use BaksDev\Wildberries\Repository\AllProfileToken\AllProfileWildberriesTokenInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Инициируем получение и обновление данных об остатках на складах WB
  */
+#[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 0)]
 final readonly class RefreshWbStocksHandler
 {

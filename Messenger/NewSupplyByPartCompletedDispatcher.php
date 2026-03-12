@@ -40,12 +40,14 @@ use BaksDev\Wildberries\Package\Repository\Supply\ExistOpenSupplyProfile\ExistOp
 use BaksDev\Wildberries\Package\UseCase\Supply\New\WbSupplyNewDTO;
 use BaksDev\Wildberries\Package\UseCase\Supply\New\WbSupplyNewHandler;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Открывает новую поставку если завершающий этап производства Wildberries FBS
  */
+#[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 80)]
 final readonly class NewSupplyByPartCompletedDispatcher
 {

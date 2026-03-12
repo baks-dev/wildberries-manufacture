@@ -29,7 +29,7 @@ use BaksDev\Core\Entity\AbstractHandler;
 use BaksDev\Wildberries\Manufacture\Entity\WbOrder;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
-#[Autoconfigure(public: true)]
+// #[Autoconfigure(public: true)]
 final class WbOrderNewHandler extends AbstractHandler
 {
     public function handle(WbOrderNewDTO $command): WbOrder|string
