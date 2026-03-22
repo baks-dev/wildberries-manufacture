@@ -33,6 +33,7 @@ interface DeleteAllOrdersInterface
 
     /**
      * Метод очищает устаревшие данные (по умолчанию старше 14 дней)
+     *
      * @see self::INTERVAL
      */
     public function delete(): int;

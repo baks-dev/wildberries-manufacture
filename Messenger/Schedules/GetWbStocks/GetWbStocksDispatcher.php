@@ -95,13 +95,13 @@ final readonly class GetWbStocksDispatcher
             $UpdateWbStocksMessage = new UpdateWbStocksMessage(
                 profile: $profile,
                 barcode: (string) $barcode,
-                quantity: $quantity
+                quantity: $quantity,
             );
 
             /** @see UpdateWbStocksDispatcher */
             $this->messageDispatch->dispatch(
                 message: $UpdateWbStocksMessage,
-                transport: 'wildberries-manufacture-low'
+                transport: 'wildberries-manufacture-low',
             );
         }
     }

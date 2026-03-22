@@ -53,7 +53,7 @@ class AddOrdersPackageByPartCompletedDebugTest extends KernelTestCase
 
         $ManufacturePartMessage = new ManufacturePartMessage(
             '0194ed4a-cd92-7a22-9b9e-2ae8f8ac2ced',
-            '0194ed5c-78a3-7c76-ba72-1859fc9de613'
+            '0194ed5c-78a3-7c76-ba72-1859fc9de613',
         );
 
         $dispatch = $AddOrdersPackageByPartCompleted($ManufacturePartMessage);

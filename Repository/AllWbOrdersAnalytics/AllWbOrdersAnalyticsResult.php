@@ -122,7 +122,7 @@ final readonly class AllWbOrdersAnalyticsResult
 
     public function getOrderTotal(): ?int
     {
-        return (int)$this->order_total;
+        return (int) $this->order_total;
     }
 
     public function isExistManufacture(): bool|string
@@ -154,7 +154,6 @@ final readonly class AllWbOrdersAnalyticsResult
     {
         return $this->product_article;
     }
-
 
 
     public function getOrdersCount(): int

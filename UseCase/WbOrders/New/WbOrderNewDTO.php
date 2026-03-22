@@ -37,25 +37,20 @@ final readonly class WbOrderNewDTO
 
     private DateTimeImmutable $date;
 
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
     public function getDate(): DateTimeImmutable
     {
         return $this->date;
     }
 
+    public function setDate(DateTimeImmutable $date): self
+    {
+        $this->date = $date;
+        return $this;
+    }
+
     public function getInvariable(): ProductInvariableUid
     {
         return $this->invariable;
-    }
-
-    public function setId(string $id): self
-    {
-        $this->id = $id;
-        return $this;
     }
 
     public function setInvariable(ProductInvariableUid|ProductInvariable|string $invariable): self
@@ -80,9 +75,14 @@ final readonly class WbOrderNewDTO
         return $this;
     }
 
-    public function setDate(DateTimeImmutable $date): self
+    public function getId(): string
     {
-        $this->date = $date;
+        return $this->id;
+    }
+
+    public function setId(string $id): self
+    {
+        $this->id = $id;
         return $this;
     }
 }

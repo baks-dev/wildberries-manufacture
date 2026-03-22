@@ -85,7 +85,7 @@ final class GetWbStocksFboCommand extends Command
         $question = new ChoiceQuestion(
             'Профиль пользователя (Ctrl+C чтобы выйти)',
             $questions,
-            '0'
+            '0',
         );
 
         $key = $helper->ask($input, $output, $question);
@@ -141,7 +141,7 @@ final class GetWbStocksFboCommand extends Command
 
         $this->messageDispatch->dispatch(
             message: new GetWbStocksMessage($profile),
-            transport: $async === true ? $profile.'-low' : null
+            transport: $async === true ? $profile.'-low' : null,
         );
     }
 }

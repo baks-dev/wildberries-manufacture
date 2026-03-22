@@ -30,7 +30,7 @@ return static function(TwigConfig $twig) {
 
     $twig->path(
         BaksDevWildberriesManufactureBundle::PATH.implode(DIRECTORY_SEPARATOR, ['Resources', 'view', '']), // .'Resources/view',
-        'wildberries-manufacture'
+        'wildberries-manufacture',
     );
 
 };

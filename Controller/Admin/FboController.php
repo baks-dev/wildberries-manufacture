@@ -66,7 +66,7 @@ final class FboController extends AbstractController
             ->createForm(
                 type: SearchForm::class,
                 data: $search,
-                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.fbo')]
+                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.fbo')],
             )
             ->handleRequest($request);
 
@@ -93,7 +93,7 @@ final class FboController extends AbstractController
             ->createForm(
                 type: ProductFilterForm::class,
                 data: $filter,
-                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.fbo')]
+                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.fbo')],
             )
             ->handleRequest($request);
 

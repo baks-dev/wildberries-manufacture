@@ -74,8 +74,10 @@ final class GetWbOrdersRequest extends Wildberries
      *
      * Информация о заказе хранится 90 дней с момента оформления.
      *
-     * Для одного ответа на запрос с flag=0 или без flag в системе установлено условное ограничение 80000 строк. Поэтому, чтобы получить все заказы, может потребоваться более, чем один запрос. Во втором и далее запросе в параметре dateFrom используйте полное значение поля lastChangeDate из последней строки ответа на предыдущий запрос.
-     * Если в ответе отдаётся пустой массив [], все заказы уже выгружены.
+     * Для одного ответа на запрос с flag=0 или без flag в системе установлено условное ограничение 80000 строк.
+     * Поэтому, чтобы получить все заказы, может потребоваться более, чем один запрос. Во втором и далее запросе в
+     * параметре dateFrom используйте полное значение поля lastChangeDate из последней строки ответа на предыдущий
+     * запрос. Если в ответе отдаётся пустой массив [], все заказы уже выгружены.
      *
      * @see https://dev.wildberries.ru/ru/openapi/reports/#tag/Osnovnye-otchyoty/paths/~1api~1v1~1supplier~1orders/get
      * @return Generator<int, WbOrdersRequestDTO>|false
@@ -120,8 +122,8 @@ final class GetWbOrdersRequest extends Wildberries
                             "query" => [
                                 "dateFrom" => $this->dateFrom->format(DateTimeInterface::ATOM),
                                 "flag" => (int) $this->flag,
-                            ]
-                        ]
+                            ],
+                        ],
                     );
 
                 /** Если попадаем на блокировку - включаем ожидание */
@@ -138,7 +140,7 @@ final class GetWbOrdersRequest extends Wildberries
                         sprintf('wildberries-manufacture: Ошибка получения заказов'),
                         [
                             self::class.':'.__LINE__,
-                            $content
+                            $content,
                         ]);
 
                     return false;

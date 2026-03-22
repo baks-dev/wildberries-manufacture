@@ -76,7 +76,7 @@ final  class WbStocksDataUpdateRepository implements WbStocksDataUpdateInterface
             ->setParameter(
                 'invariable',
                 $this->invariable,
-                ProductInvariableUid::TYPE
+                ProductInvariableUid::TYPE,
             );
 
         return $orm->getOneOrNullResult() ?: false;

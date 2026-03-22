@@ -56,6 +56,7 @@ final class DeleteAllOrdersRepository implements DeleteAllOrdersInterface
 
     /**
      * Метод очищает устаревшие данные (по умолчанию старше 30 дней)
+     *
      * @see self::INTERVAL
      */
     public function delete(): int
@@ -70,7 +71,7 @@ final class DeleteAllOrdersRepository implements DeleteAllOrdersInterface
             ->setParameter(
                 key: 'interval',
                 value: $interval,
-                type: Types::DATE_IMMUTABLE
+                type: Types::DATE_IMMUTABLE,
             );
 
         return $dbal->executeStatement();

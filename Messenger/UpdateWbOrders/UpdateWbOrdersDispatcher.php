@@ -96,8 +96,8 @@ final readonly class UpdateWbOrdersDispatcher
         if($wbOrder instanceof WbOrder)
         {
             $this->logger->info(sprintf(
-                    '%s: Обновили заказы WB => %s',
-                    $barcode,
+                '%s: Обновили заказы WB => %s',
+                $barcode,
                 $id),
             );
 

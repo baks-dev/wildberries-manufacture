@@ -125,7 +125,7 @@ final readonly class NewSupplyByPartCompletedDispatcher
         {
             $this->logger->critical(
                 'wildberries-manufacture: Ошибка при открытии новой поставки при завершающем этапе производства Wildberries FBS',
-                [$WbSupply, self::class.':'.__LINE__]
+                [$WbSupply, self::class.':'.__LINE__],
             );
 
             return;

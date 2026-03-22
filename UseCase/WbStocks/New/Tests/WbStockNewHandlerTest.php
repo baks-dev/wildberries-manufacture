@@ -63,7 +63,7 @@ final class WbStockNewHandlerTest extends KernelTestCase
         $WbStockNewDTO = new WbStockNewDTO();
 
         $WbStockNewDTO->setInvariable(ProductInvariableUid::TEST);
-        self::assertSame(ProductInvariableUid::TEST, (string)$WbStockNewDTO->getInvariable());
+        self::assertSame(ProductInvariableUid::TEST, (string) $WbStockNewDTO->getInvariable());
 
         $WbStockNewDTO->setQuantity(1);
         self::assertSame(1, $WbStockNewDTO->getQuantity());

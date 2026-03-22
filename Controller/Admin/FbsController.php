@@ -70,7 +70,7 @@ final class FbsController extends AbstractController
             ->createForm(
                 type: SearchForm::class,
                 data: $search,
-                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.fbs'),]
+                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.fbs'),],
             )
             ->handleRequest($request);
 
@@ -98,7 +98,7 @@ final class FbsController extends AbstractController
             ->createForm(
                 type: ProductFilterForm::class,
                 data: $filter,
-                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.fbs')]
+                options: ['action' => $this->generateUrl('wildberries-manufacture:admin.fbs')],
             )
             ->handleRequest($request);
 
@@ -145,7 +145,7 @@ final class FbsController extends AbstractController
                 'add_selected_product_form_name' => $this->createForm(type: ManufactureSelectionPartProductsForm::class)->getName(),
                 'has_manufacture_part_application' => $hasManufacturePartApplication,
                 'manufacture_application_action_settings' => $hasManufacturePartApplicationSettings,
-            ]
+            ],
         );
     }
 }

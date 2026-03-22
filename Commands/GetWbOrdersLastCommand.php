@@ -87,7 +87,7 @@ final class GetWbOrdersLastCommand extends Command
         $question = new ChoiceQuestion(
             'Профиль пользователя (Ctrl+C чтобы выйти)',
             $questions,
-            '0'
+            '0',
         );
 
         $key = $helper->ask($input, $output, $question);
@@ -104,11 +104,12 @@ final class GetWbOrdersLastCommand extends Command
         $question = new Question('За сколько дней необходимо обновить информацию? ');
 
         // Устанавливаем валидатор для проверки, что введено число
-        $question->setValidator(function ($answer) {
-            if ($answer !== (string)(int)$answer || $answer <= 0) {
+        $question->setValidator(function($answer) {
+            if($answer !== (string) (int) $answer || $answer <= 0)
+            {
                 throw new RuntimeException('Пожалуйста, введите корректное целое число.');
             }
-            return (int)$answer;
+            return (int) $answer;
         });
 
         $days = $helper->ask($input, $output, $question);
@@ -154,7 +155,7 @@ final class GetWbOrdersLastCommand extends Command
         $this->io->note(sprintf('Обновляем профиль %s', $profile->getAttr()));
         $this->messageDispatch->dispatch(
             message: new GetWbOrdersMessage($profile, $days),
-            transport: $async === true ? $profile.'-low' : null
+            transport: $async === true ? $profile.'-low' : null,
         );
     }
 }

@@ -87,13 +87,13 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
         $dbal->join(
             'wb_stocks',
             ProductInvariable::class, 'invariable',
-            'wb_stocks.invariable = invariable.id'
+            'wb_stocks.invariable = invariable.id',
         );
 
         $dbal->join(
             'invariable',
             ProductInfo::class, 'product_info',
-            'product_info.product = invariable.product'
+            'product_info.product = invariable.product',
         );
 
         if($this->profile)
@@ -102,7 +102,7 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
             $dbal->setParameter(
                 key: 'profile',
                 value: $this->profile,
-                type: UserProfileUid::TYPE
+                type: UserProfileUid::TYPE,
             );
         }
 
@@ -126,7 +126,7 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
                 'offer',
                 ProductOfferBarcode::class,
                 'product_offer_barcode',
-                'product_offer_barcode.offer = offer.id'
+                'product_offer_barcode.offer = offer.id',
             );
 
         /**
@@ -149,7 +149,7 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
                 'variation',
                 ProductVariationBarcode::class,
                 'product_variation_barcode',
-                'product_variation_barcode.variation = variation.id'
+                'product_variation_barcode.variation = variation.id',
             );
 
         /**
@@ -172,7 +172,7 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
                 'modification',
                 ProductModificationBarcode::class,
                 'product_modification_barcode',
-                'product_modification_barcode.modification = modification.id'
+                'product_modification_barcode.modification = modification.id',
             );
 
         /** Штрихкоды продукта */
@@ -197,7 +197,7 @@ final class AllWbStocksBarcodesRepository implements AllWbStocksBarcodesInterfac
                         ELSE NULL
                     END
                     )
-                    AS barcodes"
+                    AS barcodes",
         );
 
         $dbal->addSelect('

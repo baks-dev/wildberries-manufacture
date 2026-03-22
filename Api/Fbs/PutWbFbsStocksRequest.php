@@ -66,8 +66,8 @@ final class PutWbFbsStocksRequest extends Wildberries
                 options: [
                     "json" => [
                         "stocks" => $stocks,
-                    ]
-                ]
+                    ],
+                ],
             );
 
         if($response->getStatusCode() !== 204)
@@ -78,7 +78,7 @@ final class PutWbFbsStocksRequest extends Wildberries
                 sprintf('wildberries-manufacture: Ошибка обновления остатков FBS'),
                 [
                     self::class.':'.__LINE__,
-                    $content
+                    $content,
                 ]);
 
             return false;

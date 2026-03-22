@@ -155,14 +155,14 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'wb_order',
                 WbStock::class,
                 'stock',
-                "stock.invariable = wb_order.invariable"
+                "stock.invariable = wb_order.invariable",
             );
 
         $dbal->join(
             'wb_order',
             ProductInvariable::class,
             'product_invariable',
-            "wb_order.invariable = product_invariable.id"
+            "wb_order.invariable = product_invariable.id",
         );
 
         $dbal
@@ -172,7 +172,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'product_invariable',
                 Product::class,
                 'product',
-                "product.id = product_invariable.product"
+                "product.id = product_invariable.product",
             );
 
         $dbal
@@ -186,12 +186,12 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 (
                     product_info.profile IS NULL OR 
                     product_info.profile = :profile
-                )'
+                )',
             )
             ->setParameter(
                 key: 'profile',
                 value: $this->profile ?: $this->UserProfileTokenStorage->getProfile(),
-                type: UserProfileUid::TYPE
+                type: UserProfileUid::TYPE,
 
             );
 
@@ -202,7 +202,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'product',
                 ProductTrans::class,
                 'product_trans',
-                'product_trans.event = product.event AND product_trans.local = :local'
+                'product_trans.event = product.event AND product_trans.local = :local',
             );
 
         /** OFFER */
@@ -214,7 +214,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'product_invariable',
                 ProductOffer::class,
                 'product_offer',
-                'product_offer.event = product.event AND product_offer.const = product_invariable.offer'
+                'product_offer.event = product.event AND product_offer.const = product_invariable.offer',
             );
 
         /* Получаем тип торгового предложения */
@@ -224,7 +224,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'product_offer',
                 CategoryProductOffers::class,
                 'category_offer',
-                'category_offer.id = product_offer.category_offer'
+                'category_offer.id = product_offer.category_offer',
             );
 
         /** VARIATION */
@@ -236,7 +236,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'product_offer',
                 ProductVariation::class,
                 'product_variation',
-                'product_variation.offer = product_offer.id AND product_variation.const = product_invariable.variation'
+                'product_variation.offer = product_offer.id AND product_variation.const = product_invariable.variation',
             );
 
         /** Получаем тип множественного варианта */
@@ -246,7 +246,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'product_variation',
                 CategoryProductVariation::class,
                 'category_variation',
-                'category_variation.id = product_variation.category_variation'
+                'category_variation.id = product_variation.category_variation',
             );
 
         /** MODIFICATION */
@@ -258,7 +258,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'product_variation',
                 ProductModification::class,
                 'product_modification',
-                'product_modification.variation = product_variation.id AND product_modification.const = product_invariable.modification'
+                'product_modification.variation = product_variation.id AND product_modification.const = product_invariable.modification',
             );
 
         /* Получаем тип модификации множественного варианта */
@@ -268,7 +268,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'product_modification',
                 CategoryProductModification::class,
                 'category_offer_modification',
-                'category_offer_modification.id = product_modification.category_modification'
+                'category_offer_modification.id = product_modification.category_modification',
             );
 
         /** Фото */
@@ -277,28 +277,28 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
             'product',
             ProductPhoto::class,
             'product_photo',
-            'product_photo.event = product.event AND product_photo.root = TRUE'
+            'product_photo.event = product.event AND product_photo.root = TRUE',
         );
 
         $dbal->leftJoin(
             'product_offer',
             ProductOfferImage::class,
             'product_offer_images',
-            'product_offer_images.offer = product_offer.id AND product_offer_images.root = TRUE'
+            'product_offer_images.offer = product_offer.id AND product_offer_images.root = TRUE',
         );
 
         $dbal->leftJoin(
             'product_variation',
             ProductVariationImage::class,
             'product_variation_images',
-            'product_variation_images.variation = product_variation.id AND product_variation_images.root = TRUE'
+            'product_variation_images.variation = product_variation.id AND product_variation_images.root = TRUE',
         );
 
         $dbal->leftJoin(
             'product_modification',
             ProductModificationImage::class,
             'product_modification_images',
-            'product_modification_images.modification = product_modification.id AND product_modification_images.root = TRUE'
+            'product_modification_images.modification = product_modification.id AND product_modification_images.root = TRUE',
         );
 
         $dbal->addSelect(
@@ -319,7 +319,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
 			   
 			   ELSE NULL
 			END AS product_image
-		"
+		",
         );
 
         /** Расширение */
@@ -369,7 +369,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
             'product',
             ProductCategory::class,
             'product_category',
-            'product_category.event = product.event'
+            'product_category.event = product.event',
         );
 
         $dbal->leftJoin(
@@ -396,7 +396,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'category',
                 CategoryProductTrans::class,
                 'category_trans',
-                'category_trans.event = category.event AND category_trans.local = :local'
+                'category_trans.event = category.event AND category_trans.local = :local',
             );
 
         $dbal->leftJoin(
@@ -427,12 +427,12 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 ->andWhere(
                     'product_category.event = product_info.event AND
                     product_category.category = :category AND
-                    product_category.root = true'
+                    product_category.root = true',
                 )
                 ->setParameter(
                     key: 'category',
                     value: $this->filter->getCategory(),
-                    type: CategoryProductUid::TYPE
+                    type: CategoryProductUid::TYPE,
                 );
         }
 
@@ -474,7 +474,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                 'exist_product',
                 ManufacturePart::class,
                 'exist_part',
-                'exist_part.event = exist_product.event'
+                'exist_part.event = exist_product.event',
             );
 
             $dbalExist
@@ -483,7 +483,7 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                     'exist_part',
                     ManufacturePartInvariable::class,
                     'exist_part_invariable',
-                    'exist_part_invariable.main = exist_part.id'
+                    'exist_part_invariable.main = exist_part.id',
                 );
 
 
@@ -511,14 +511,14 @@ final class AllWbOrdersAnalyticsRepository implements AllWbOrdersAnalyticsInterf
                     'status_part',
                     [
                         ManufacturePartStatusClosed::STATUS,
-                        ManufacturePartStatusCompleted::STATUS
+                        ManufacturePartStatusCompleted::STATUS,
                     ],
-                    ArrayParameterType::STRING
+                    ArrayParameterType::STRING,
                 )
                 ->setParameter(
                     key: 'complete',
                     value: $part,
-                    type: DeliveryUid::TYPE
+                    type: DeliveryUid::TYPE,
                 );
 
             $dbalExist->setMaxResults(1);

@@ -40,6 +40,7 @@ final readonly class RefreshWbOrdersSchedule implements ScheduleInterface
 
     /**
      * Интервал повтора
+     *
      * @see https://www.php.net/manual/en/dateinterval.createfromdatestring.php
      */
     public function getInterval(): DateInterval

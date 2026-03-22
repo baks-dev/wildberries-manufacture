@@ -160,6 +160,34 @@ final class AllWbOrdersManufactureResult
         return implode('-', $parts);
     }
 
+    public function getVariationArticle(): string
+    {
+        if(empty($this->modification))
+        {
+            return $this->product_article;
+        }
+
+        $parts = explode('-', $this->getModificationArticle());
+
+        array_pop($parts);
+
+        return implode('-', $parts); // Вывод: FSWOMEN-0983-02
+    }
+
+    public function getModificationArticle(): string
+    {
+        if(empty($this->modification))
+        {
+            return $this->product_article;
+        }
+
+        $parts = explode('-', $this->product_article);
+
+        array_pop($parts);
+
+        return implode('-', $parts); // Вывод: FSWOMEN-0983-02
+    }
+
     /**
      * ProductVariation
      */
@@ -184,21 +212,6 @@ final class AllWbOrdersManufactureResult
         return $this->product_variation_reference;
     }
 
-    public function getVariationArticle(): string
-    {
-        if(empty($this->modification))
-        {
-            return $this->product_article;
-        }
-
-        $parts = explode('-', $this->getModificationArticle());
-
-        array_pop($parts);
-
-        return implode('-', $parts); // Вывод: FSWOMEN-0983-02
-    }
-
-
     /**
      * ProductModification
      */
@@ -222,21 +235,6 @@ final class AllWbOrdersManufactureResult
     {
         return $this->product_modification_reference;
     }
-
-    public function getModificationArticle(): string
-    {
-        if(empty($this->modification))
-        {
-            return $this->product_article;
-        }
-
-        $parts = explode('-', $this->product_article);
-
-        array_pop($parts);
-
-        return implode('-', $parts); // Вывод: FSWOMEN-0983-02
-    }
-
 
     /**
      * ProductImage

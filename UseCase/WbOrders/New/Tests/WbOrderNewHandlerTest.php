@@ -67,7 +67,7 @@ final class WbOrderNewHandlerTest extends KernelTestCase
         self::assertSame('test', $WbOrderNewDTO->getId());
 
         $WbOrderNewDTO->setInvariable(ProductInvariableUid::TEST);
-        self::assertSame(ProductInvariableUid::TEST, (string)$WbOrderNewDTO->getInvariable());
+        self::assertSame(ProductInvariableUid::TEST, (string) $WbOrderNewDTO->getInvariable());
 
         $date = new DateTimeImmutable();
         $WbOrderNewDTO->setDate($date);

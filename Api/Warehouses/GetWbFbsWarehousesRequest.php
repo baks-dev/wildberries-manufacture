@@ -55,7 +55,7 @@ final class GetWbFbsWarehousesRequest extends Wildberries
                 sprintf('wildberries-manufacture: Ошибка обновления остатков FBS'),
                 [
                     self::class.':'.__LINE__,
-                    $content
+                    $content,
                 ]);
 
             return false;
