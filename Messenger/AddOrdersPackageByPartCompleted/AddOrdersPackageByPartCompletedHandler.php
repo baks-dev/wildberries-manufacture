@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2025.  Baks.dev <admin@baks.dev>
+ *  Copyright 2026.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
 
 declare(strict_types=1);
 
-namespace BaksDev\Wildberries\Manufacture\Messenger;
+namespace BaksDev\Wildberries\Manufacture\Messenger\AddOrdersPackageByPartCompleted;
 
 
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
@@ -62,11 +62,12 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Метод добавляет заказы Wildberries в открытую поставку при выполненной производственной парии Wildberries Fbs
+ * Метод добавляет заказы Wildberries в открытую системную поставку при выполненной производственной парии Wildberries
+ * Fbs
  */
 #[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 10)]
-final readonly class AddOrdersPackageByPartCompleted
+final readonly class AddOrdersPackageByPartCompletedHandler
 {
     public function __construct(
         #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
@@ -111,6 +112,11 @@ final readonly class AddOrdersPackageByPartCompleted
 
         if(false === $ManufacturePartEvent->equalsManufacturePartStatus(ManufacturePartStatusCompleted::class))
         {
+            $this->logger->error(
+                'manufacture-part: Статус производственной партии не является COMPLETED «Укомплектована»',
+                [var_export($message, true), self::class.':'.__LINE__],
+            );
+
             return false;
         }
 
@@ -164,109 +170,38 @@ final readonly class AddOrdersPackageByPartCompleted
 
 
         /**
-         * Добавляем все заказы Wildberries DBS со статусом «На упаковке» в открытую системную поставку
+         * Добавляем все заказы Wildberries со статусом «На упаковке» в открытую системную поставку
          */
+
+        $WbSupplyUid = $this
+            ->OpenWbSupplyIdentifier
+            ->forProfile($UserProfileUid)
+            ->find();
 
         /** @var ManufacturePartProductsDTO $ManufacturePartProductsDTO */
         foreach($ManufacturePartDTO->getProduct() as $ManufacturePartProductsDTO)
         {
-            $WbSupplyUid = $this
-                ->OpenWbSupplyIdentifier
-                ->forProfile($UserProfileUid)
-                ->find();
+            $AddOrdersPackageByPartCompletedMessage = new AddOrdersPackageByPartCompletedMessage
+            (
+                profile: $UserProfileUid,
+                supply: $WbSupplyUid,
+                sort: $ManufacturePartProductsDTO->getSort(),
+            );
 
-            /** Создаем упаковку на заказы одного продукта */
-            $WbPackageDTO = new WbPackageDTO($UserProfileUid)
-                ->setPackageSupply($WbSupplyUid);
-
-            $defaultSort = time();
-
-            /** @var ManufacturePartProductOrderDTO $ManufacturePartProductOrderDTO */
             foreach($ManufacturePartProductsDTO->getOrd() as $ManufacturePartProductOrderDTO)
             {
-
-                /** Применяем сортировку по умолчанию, если не присвоена ранее (свойство readonly) */
-                $ManufacturePartProductsDTO->setSort($defaultSort);
-
-                $OrderEvent = $this->CurrentOrderEvent
-                    ->forOrder($ManufacturePartProductOrderDTO->getOrd())
-                    ->find();
-
-                if(false === ($OrderEvent instanceof OrderEvent))
-                {
-                    continue;
-                }
-
-                if(false === $OrderEvent->isStatusEquals(OrderStatusPackage::class))
-                {
-                    continue;
-                }
-
-                if(false === $OrderEvent->isDeliveryTypeEquals(TypeDeliveryFbsWildberries::TYPE))
-                {
-                    continue;
-                }
-
-                /**
-                 * Не добавляем заказ в упаковку, если он уже в поставке
-                 */
-                if($this->ExistOrderPackage->forOrder($OrderEvent->getMain())->isExist())
-                {
-                    continue;
-                }
-
-                $DeduplicatorOrder = $this->deduplicator
-                    ->deduplication([$OrderEvent->getMain(), self::class]);
-
-                if($Deduplicator->isExecuted())
-                {
-                    continue;
-                }
-
-                /* Скрываем у всех заказ */
-                $this->CentrifugoPublish
-                    ->addData(['identifier' => $OrderEvent->getMain()]) // ID заказа
-                    ->addData(['profile' => false])
-                    ->send('remove');
-
-                /** Добавляем заказ в упаковку */
-                $WbPackageOrderDTO = new WbPackageOrderDTO()
-                    ->setId($OrderEvent->getMain())
-                    ->setSort($ManufacturePartProductsDTO->getSort());
-
-                $WbPackageDTO->addOrd($WbPackageOrderDTO);
-
-                $DeduplicatorOrder->save();
+                $AddOrdersPackageByPartCompletedMessage->addOrder($ManufacturePartProductOrderDTO->getOrd());
             }
 
-            /** Если упаковка пуста - приступаем к следующему продукту */
-            if($WbPackageDTO->getOrd()->isEmpty())
-            {
-                continue;
-            }
+            $this->messageDispatch->dispatch(
+                message: $AddOrdersPackageByPartCompletedMessage,
+                transport: 'orders-order-low',
+            );
+
 
             /**
-             * Сохраняем упаковку и приступаем к этапу отправки заказов по API
-             *
-             * @see AddWildberriesSupplyOrdersHandler
+             * Отправляем сообщение для пересчета статистических данных
              */
-
-            $WbPackage = $this->WbPackageHandler->handle($WbPackageDTO);
-
-            if(false === ($WbPackage instanceof WbPackage))
-            {
-                $this->logger->critical(
-                    sprintf('wildberries-manufacture: Ошибка %s при сохранении упаковки', $WbPackage),
-                    [$message, self::class.':'.__LINE__],
-                );
-
-                return false;
-            }
-
-            $this->logger->info(
-                'Добавили упаковку в поставку',
-                [$WbPackage, $WbSupplyUid, self::class.':'.__LINE__],
-            );
 
             $CurrentProductIdentifierResult = $this->CurrentProductIdentifierByEventRepository
                 ->forEvent($ManufacturePartProductsDTO->getProduct())
@@ -288,9 +223,6 @@ final readonly class AddOrdersPackageByPartCompleted
                 continue;
             }
 
-            /**
-             * Отправляем сообщение для пересчета статистических данных
-             */
             $this->messageDispatch->dispatch(
                 message: new UpdateStatisticMessage(
                     invariable: $CurrentProductIdentifierResult->getProductInvariable(),
@@ -299,7 +231,8 @@ final readonly class AddOrdersPackageByPartCompleted
                     variation: $CurrentProductIdentifierResult->getVariation(),
                     modification: $CurrentProductIdentifierResult->getModification(),
                 ),
-                transport: 'async',
+                stamps: [new MessageDelay('5 seconds')],
+                transport: 'orders-order-low',
             );
         }
 
