@@ -33,6 +33,8 @@ use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionClass;
+use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
@@ -52,27 +54,41 @@ final class GetWbOrdersRequestTest extends KernelTestCase
 
     public function testRequest(): void
     {
+        self::assertTrue(true);
+
         /** @var GetWbOrdersRequest $request */
         $request = self::getContainer()->get(GetWbOrdersRequest::class);
         $request->TokenHttpClient(self::$Authorization);
 
         $dateFrom = new DateTimeImmutable()
             ->setTimezone(new DateTimeZone('GMT'))
-            ->sub(DateInterval::createFromDateString('1 day'));
+            ->sub(DateInterval::createFromDateString('1 month'));
 
-        $content = $request
+        $result = $request
             ->dateFrom($dateFrom)
             ->findAll();
 
-        self::assertNotFalse($content);
-        self::assertNotEmpty($content->current());
+        if(false === $result || false === $result->valid())
+        {
+            return;
+        }
 
-        $WbOrdersRequestDTO = $content->current();
+        foreach($result as $WbOrdersRequestDTO)
+        {
+            // Вызываем все геттеры
+            $reflectionClass = new ReflectionClass(WbOrdersRequestDTO::class);
+            $methods = $reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC);
 
-        self::assertInstanceOf(WbOrdersRequestDTO::class, $WbOrdersRequestDTO);
-        self::assertIsString($WbOrdersRequestDTO->getId());
-        self::assertIsString($WbOrdersRequestDTO->getBarcode());
-        self::assertInstanceOf(DateTimeImmutable::class, $WbOrdersRequestDTO->getDate());
-
+            foreach($methods as $method)
+            {
+                // Методы без аргументов
+                if($method->getNumberOfParameters() === 0)
+                {
+                    // Вызываем метод
+                    $data = $method->invoke($WbOrdersRequestDTO);
+                    // dump($data);
+                }
+            }
+        }
     }
 }

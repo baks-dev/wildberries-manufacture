@@ -28,6 +28,7 @@ namespace BaksDev\Wildberries\Manufacture\Messenger\AddOrdersPackageByPartComple
 
 use BaksDev\Centrifugo\Server\Publish\CentrifugoPublishInterface;
 use BaksDev\Core\Deduplicator\DeduplicatorInterface;
+use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Manufacture\Part\UseCase\Admin\NewEdit\Products\ManufacturePartProductsDTO;
 use BaksDev\Manufacture\Part\UseCase\Admin\NewEdit\Products\Orders\ManufacturePartProductOrderDTO;
@@ -49,6 +50,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+/**
+ * Метод добавляет заказы Wildberries в открытую системную поставку
+ * при выполненной производственной парии Wildberries Fbs
+ */
 #[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 0)]
 final class AddOrdersPackageByPartCompletedDispatcher
@@ -61,6 +66,7 @@ final class AddOrdersPackageByPartCompletedDispatcher
         private CurrentOrderEventInterface $CurrentOrderEvent,
         private ExistOrderPackageInterface $ExistOrderPackage,
         private WbPackageHandler $WbPackageHandler,
+        private MessageDispatchInterface $messageDispatch
     ) {}
 
     public function __invoke(AddOrdersPackageByPartCompletedMessage $message): void
@@ -80,9 +86,18 @@ final class AddOrdersPackageByPartCompletedDispatcher
                 continue;
             }
 
+            /**
+             * Если имеется заказ без упаковки - пробуем позже
+             */
             if(false === $OrderEvent->isStatusEquals(OrderStatusPackage::class))
             {
-                continue;
+                $this->messageDispatch->dispatch(
+                    message: $message,
+                    stamps: [new MessageDelay('5 seconds')],
+                    transport: 'orders-order-low',
+                );
+
+                return;
             }
 
             if(false === $OrderEvent->isDeliveryTypeEquals(TypeDeliveryFbsWildberries::TYPE))

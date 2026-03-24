@@ -62,8 +62,8 @@ use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Метод добавляет заказы Wildberries в открытую системную поставку при выполненной производственной парии Wildberries
- * Fbs
+ * Метод добавляет заказы Wildberries в открытую системную поставку
+ * при выполненной производственной парии Wildberries Fbs
  */
 #[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 10)]
@@ -75,11 +75,7 @@ final readonly class AddOrdersPackageByPartCompletedHandler
         private ExistOpenSupplyProfileInterface $ExistOpenSupplyProfile,
         private MessageDispatchInterface $messageDispatch,
         private DeduplicatorInterface $deduplicator,
-        private CentrifugoPublishInterface $CentrifugoPublish,
         private OpenWbSupplyIdentifierInterface $OpenWbSupplyIdentifier,
-        private ExistOrderPackageInterface $ExistOrderPackage,
-        private WbPackageHandler $WbPackageHandler,
-        private CurrentOrderEventInterface $CurrentOrderEvent,
         private ManufacturePartInvariableInterface $ManufacturePartInvariableRepository,
         private CurrentProductIdentifierByEventInterface $CurrentProductIdentifierByEventRepository
     ) {}
@@ -195,6 +191,7 @@ final readonly class AddOrdersPackageByPartCompletedHandler
 
             $this->messageDispatch->dispatch(
                 message: $AddOrdersPackageByPartCompletedMessage,
+                stamps: [new MessageDelay(sprintf('%s seconds', $ManufacturePartProductsDTO->getTotal()))],
                 transport: 'orders-order-low',
             );
 
@@ -231,7 +228,7 @@ final readonly class AddOrdersPackageByPartCompletedHandler
                     variation: $CurrentProductIdentifierResult->getVariation(),
                     modification: $CurrentProductIdentifierResult->getModification(),
                 ),
-                stamps: [new MessageDelay('5 seconds')],
+                stamps: [new MessageDelay(sprintf('%s seconds', $ManufacturePartProductsDTO->getTotal()))],
                 transport: 'orders-order-low',
             );
         }
