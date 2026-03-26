@@ -43,6 +43,7 @@ use BaksDev\Manufacture\Part\UseCase\Admin\NewEdit\Products\Orders\ManufacturePa
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
+use BaksDev\Ozon\Package\Type\Supply\Id\OzonSupplyUid;
 use BaksDev\Products\Product\Entity\ProductInvariable;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
@@ -53,6 +54,7 @@ use BaksDev\Wildberries\Package\Entity\Package\WbPackage;
 use BaksDev\Wildberries\Package\Repository\Package\ExistOrderPackage\ExistOrderPackageInterface;
 use BaksDev\Wildberries\Package\Repository\Supply\ExistOpenSupplyProfile\ExistOpenSupplyProfileInterface;
 use BaksDev\Wildberries\Package\Repository\Supply\OpenWbSupplyIdentifier\OpenWbSupplyIdentifierInterface;
+use BaksDev\Wildberries\Package\Type\Supply\Id\WbSupplyUid;
 use BaksDev\Wildberries\Package\UseCase\Package\Pack\Orders\WbPackageOrderDTO;
 use BaksDev\Wildberries\Package\UseCase\Package\Pack\WbPackageDTO;
 use BaksDev\Wildberries\Package\UseCase\Package\Pack\WbPackageHandler;
@@ -174,9 +176,41 @@ final readonly class AddOrdersPackageByPartCompletedHandler
             ->forProfile($UserProfileUid)
             ->find();
 
+        if(false === ($WbSupplyUid instanceof WbSupplyUid))
+        {
+            $this->logger->warning(
+                'wildberries-manufacture: Открытая поставка Wildberries не найдена. Пробуем через время ',
+                [$message, self::class.':'.__LINE__],
+            );
+
+            $this->messageDispatch->dispatch(
+                message: $message,
+                stamps: [new MessageDelay('15 seconds')],
+                transport: 'wildberries-manufacture',
+            );
+
+            return false;
+        }
+
+
         /** @var ManufacturePartProductsDTO $ManufacturePartProductsDTO */
         foreach($ManufacturePartDTO->getProduct() as $ManufacturePartProductsDTO)
         {
+            /** Если коллекция заказов, закрепленных за продуктом из производственной партии пустая - пропускаем */
+            if(true === $ManufacturePartProductsDTO->getOrd()->isEmpty())
+            {
+                $this->logger->critical(
+                    'wildberries-manufacture: заказы в производственной партии не найдены',
+                    [ManufacturePartProductsDTO::class, self::class.':'.__LINE__],
+                );
+
+                continue;
+            }
+
+            /**
+             * Добавляем заказ в открытую системную поставку
+             */
+
             $AddOrdersPackageByPartCompletedMessage = new AddOrdersPackageByPartCompletedMessage
             (
                 profile: $UserProfileUid,

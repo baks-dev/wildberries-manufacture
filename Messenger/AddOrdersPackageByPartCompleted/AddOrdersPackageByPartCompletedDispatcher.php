@@ -34,7 +34,9 @@ use BaksDev\Manufacture\Part\UseCase\Admin\NewEdit\Products\ManufacturePartProdu
 use BaksDev\Manufacture\Part\UseCase\Admin\NewEdit\Products\Orders\ManufacturePartProductOrderDTO;
 use BaksDev\Orders\Order\Entity\Event\OrderEvent;
 use BaksDev\Orders\Order\Repository\CurrentOrderEvent\CurrentOrderEventInterface;
+use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusCompleted;
 use BaksDev\Orders\Order\Type\Status\OrderStatus\Collection\OrderStatusPackage;
+use BaksDev\Ozon\Orders\Type\DeliveryType\TypeDeliveryFbsOzon;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierByEventInterface;
 use BaksDev\Products\Product\Repository\CurrentProductIdentifier\CurrentProductIdentifierResult;
 use BaksDev\Products\Product\Type\Invariable\ProductInvariableUid;
@@ -58,13 +60,11 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler(priority: 0)]
 final class AddOrdersPackageByPartCompletedDispatcher
 {
-
     public function __construct(
         #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
-        private DeduplicatorInterface $deduplicator,
         private CentrifugoPublishInterface $CentrifugoPublish,
-        private CurrentOrderEventInterface $CurrentOrderEvent,
-        private ExistOrderPackageInterface $ExistOrderPackage,
+        private CurrentOrderEventInterface $CurrentOrderEventRepository,
+        private ExistOrderPackageInterface $ExistOrderPackageRepository,
         private WbPackageHandler $WbPackageHandler,
         private MessageDispatchInterface $messageDispatch
     ) {}
@@ -77,18 +77,33 @@ final class AddOrdersPackageByPartCompletedDispatcher
 
         foreach($message->getOrders() as $order)
         {
-            $OrderEvent = $this->CurrentOrderEvent
+            $OrderEvent = $this->CurrentOrderEventRepository
                 ->forOrder($order)
                 ->find();
 
             if(false === ($OrderEvent instanceof OrderEvent))
             {
+                $this->logger->critical(
+                    'ozon-manufacture: не найдено активное событие заказа',
+                    [self::class.':'.__LINE__, $order],
+                );
+
                 continue;
             }
 
-            /**
-             * Если имеется заказ без упаковки - пробуем позже
-             */
+            /** Пропускаем, если тип заказа не Wildberries FBS */
+            if(false === $OrderEvent->isDeliveryTypeEquals(TypeDeliveryFbsWildberries::TYPE))
+            {
+                continue;
+            }
+
+            /** Пропускаем, если заказ уже укомплектован */
+            if(false === $OrderEvent->isStatusEquals(OrderStatusCompleted::class))
+            {
+                continue;
+            }
+
+            /** Пропускаем и пробуем позже, если заказ не на упаковке */
             if(false === $OrderEvent->isStatusEquals(OrderStatusPackage::class))
             {
                 $this->messageDispatch->dispatch(
@@ -100,23 +115,8 @@ final class AddOrdersPackageByPartCompletedDispatcher
                 return;
             }
 
-            if(false === $OrderEvent->isDeliveryTypeEquals(TypeDeliveryFbsWildberries::TYPE))
-            {
-                continue;
-            }
-
-            /**
-             * Не добавляем заказ в упаковку, если он уже в поставке
-             */
-            if($this->ExistOrderPackage->forOrder($OrderEvent->getMain())->isExist())
-            {
-                continue;
-            }
-
-            $DeduplicatorOrder = $this->deduplicator
-                ->deduplication([$OrderEvent->getMain(), self::class]);
-
-            if($DeduplicatorOrder->isExecuted())
+            /** Не добавляем заказ в упаковку, если он уже в поставке */
+            if(true === $this->ExistOrderPackageRepository->forOrder($OrderEvent->getMain())->isExist())
             {
                 continue;
             }
@@ -133,8 +133,6 @@ final class AddOrdersPackageByPartCompletedDispatcher
                 ->setSort($message->getSort());
 
             $WbPackageDTO->addOrd($WbPackageOrderDTO);
-
-            $DeduplicatorOrder->save();
         }
 
 
@@ -146,7 +144,6 @@ final class AddOrdersPackageByPartCompletedDispatcher
 
         /**
          * Сохраняем упаковку и приступаем к этапу отправки заказов по API
-         *
          * @see AddWildberriesSupplyOrdersHandler
          */
 
