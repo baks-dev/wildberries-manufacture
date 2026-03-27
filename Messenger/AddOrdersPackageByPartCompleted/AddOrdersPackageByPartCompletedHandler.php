@@ -108,10 +108,14 @@ final readonly class AddOrdersPackageByPartCompletedHandler
             return false;
         }
 
+
         if(false === $ManufacturePartEvent->equalsManufacturePartStatus(ManufacturePartStatusCompleted::class))
         {
             $this->logger->error(
-                'manufacture-part: Статус производственной партии не является COMPLETED «Укомплектована»',
+                sprintf(
+                    '%s: Статус производственной партии не является COMPLETED «Укомплектована»',
+                    $ManufacturePartEvent->getInvariable()->getNumber(),
+                ),
                 [var_export($message, true), self::class.':'.__LINE__],
             );
 
