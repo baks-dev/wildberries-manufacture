@@ -94,12 +94,22 @@ final class AddOrdersPackageByPartCompletedDispatcher
             /** Пропускаем, если тип заказа не Wildberries FBS */
             if(false === $OrderEvent->isDeliveryTypeEquals(TypeDeliveryFbsWildberries::TYPE))
             {
+                $this->logger->error(
+                    sprintf('%s: Заказ не является Wildberries FBS', $OrderEvent->getPostingNumber()),
+                    [self::class.':'.__LINE__, $order],
+                );
+
                 continue;
             }
 
             /** Пропускаем, если заказ уже укомплектован */
-            if(false === $OrderEvent->isStatusEquals(OrderStatusCompleted::class))
+            if(true === $OrderEvent->isStatusEquals(OrderStatusCompleted::class))
             {
+                $this->logger->error(
+                    sprintf('%s: Заказ заказ уже укомплектован и не подходит для упаковки', $OrderEvent->getPostingNumber()),
+                    [self::class.':'.__LINE__, $order],
+                );
+
                 continue;
             }
 
@@ -144,6 +154,7 @@ final class AddOrdersPackageByPartCompletedDispatcher
 
         /**
          * Сохраняем упаковку и приступаем к этапу отправки заказов по API
+         *
          * @see AddWildberriesSupplyOrdersHandler
          */
 

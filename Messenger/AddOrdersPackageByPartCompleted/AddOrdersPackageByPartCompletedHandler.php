@@ -108,7 +108,6 @@ final readonly class AddOrdersPackageByPartCompletedHandler
             return false;
         }
 
-
         if(false === $ManufacturePartEvent->equalsManufacturePartStatus(ManufacturePartStatusCompleted::class))
         {
             $this->logger->error(
@@ -122,25 +121,29 @@ final readonly class AddOrdersPackageByPartCompletedHandler
             return false;
         }
 
-        if(false === $ManufacturePartEvent->equalsManufacturePartComplete(TypeDeliveryFbsWildberries::class))
+        if(false === $ManufacturePartEvent->equalsManufacturePartComplete(TypeDeliveryFbsWildberries::TYPE))
         {
+            $this->logger->error(
+                sprintf(
+                    '%s: Производственная партия не является Wildberries FBS (%s)',
+                    $ManufacturePartEvent->getInvariable()->getNumber(),
+                    TypeDeliveryFbsWildberries::TYPE,
+                ),
+                [var_export($message, true), self::class.':'.__LINE__],
+            );
+
+            $Deduplicator->save();
+
             return false;
+
         }
 
-        $ManufacturePartInvariable = $this->ManufacturePartInvariableRepository
-            ->forPart($message->getId())
-            ->find();
-
-        if(false === ($ManufacturePartInvariable instanceof ManufacturePartInvariable))
-        {
-            return false;
-        }
-
+        $UserProfileUid = $ManufacturePartEvent->getInvariable()->getProfile();
 
         /** Проверяем, что имеется открытая поставка со статусом OPEN (отправлено на API получен номер) */
 
         $ExistOpenSupply = $this->ExistOpenSupplyProfile
-            ->forProfile($ManufacturePartInvariable->getProfile())
+            ->forProfile($UserProfileUid)
             ->isExistOpenSupply();
 
 
@@ -163,13 +166,6 @@ final readonly class AddOrdersPackageByPartCompletedHandler
 
             return false;
         }
-
-
-        $ManufacturePartDTO = new ManufacturePartDTO();
-        $ManufacturePartEvent->getDto($ManufacturePartDTO);
-
-        $UserProfileUid = $ManufacturePartInvariable->getProfile();
-
 
         /**
          * Добавляем все заказы Wildberries со статусом «На упаковке» в открытую системную поставку
@@ -196,9 +192,20 @@ final readonly class AddOrdersPackageByPartCompletedHandler
             return false;
         }
 
+        $this->logger->info(
+            sprintf(
+                'Добавляем партию %s в открытую поставку',
+                $ManufacturePartEvent->getInvariable()->getNumber(),
+            ),
+            [var_export($message, true), self::class.':'.__LINE__],
+        );
+
+
+        $ManufacturePartDTO = new ManufacturePartDTO();
+        $ManufacturePartEvent->getDto($ManufacturePartDTO);
 
         /** @var ManufacturePartProductsDTO $ManufacturePartProductsDTO */
-        foreach($ManufacturePartDTO->getProduct() as $ManufacturePartProductsDTO)
+        foreach($ManufacturePartDTO->getProduct() as $key => $ManufacturePartProductsDTO)
         {
             /** Если коллекция заказов, закрепленных за продуктом из производственной партии пустая - пропускаем */
             if(true === $ManufacturePartProductsDTO->getOrd()->isEmpty())
@@ -210,6 +217,8 @@ final readonly class AddOrdersPackageByPartCompletedHandler
 
                 continue;
             }
+
+            $key++;
 
             /**
              * Добавляем заказ в открытую системную поставку
@@ -229,7 +238,7 @@ final readonly class AddOrdersPackageByPartCompletedHandler
 
             $this->messageDispatch->dispatch(
                 message: $AddOrdersPackageByPartCompletedMessage,
-                stamps: [new MessageDelay(sprintf('%s seconds', $ManufacturePartProductsDTO->getTotal()))],
+                stamps: [new MessageDelay(sprintf('%s seconds', $ManufacturePartProductsDTO->getTotal() * $key))],
                 transport: 'orders-order-low',
             );
 
