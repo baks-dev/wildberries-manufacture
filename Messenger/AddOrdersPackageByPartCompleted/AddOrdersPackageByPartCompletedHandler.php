@@ -224,8 +224,7 @@ final readonly class AddOrdersPackageByPartCompletedHandler
              * Добавляем заказ в открытую системную поставку
              */
 
-            $AddOrdersPackageByPartCompletedMessage = new AddOrdersPackageByPartCompletedMessage
-            (
+            $AddOrdersPackageByPartCompletedMessage = new AddOrdersPackageByPartCompletedMessage(
                 profile: $UserProfileUid,
                 supply: $WbSupplyUid,
                 sort: $ManufacturePartProductsDTO->getSort(),
