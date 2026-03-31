@@ -235,9 +235,12 @@ final readonly class AddOrdersPackageByPartCompletedHandler
                 $AddOrdersPackageByPartCompletedMessage->addOrder($ManufacturePartProductOrderDTO->getOrd());
             }
 
+
+            $delayKey = $ManufacturePartProductsDTO->getTotal() * $key;
+
             $this->messageDispatch->dispatch(
                 message: $AddOrdersPackageByPartCompletedMessage,
-                stamps: [new MessageDelay(sprintf('%s seconds', $ManufacturePartProductsDTO->getTotal() * $key))],
+                stamps: [new MessageDelay(sprintf('%s seconds', $delayKey))],
                 transport: 'orders-order-low',
             );
 
@@ -274,7 +277,7 @@ final readonly class AddOrdersPackageByPartCompletedHandler
                     variation: $CurrentProductIdentifierResult->getVariation(),
                     modification: $CurrentProductIdentifierResult->getModification(),
                 ),
-                stamps: [new MessageDelay(sprintf('%s seconds', $ManufacturePartProductsDTO->getTotal()))],
+                stamps: [new MessageDelay(sprintf('%s seconds', $delayKey))],
                 transport: 'orders-order-low',
             );
         }
