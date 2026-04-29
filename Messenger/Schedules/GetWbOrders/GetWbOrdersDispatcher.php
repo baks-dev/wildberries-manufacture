@@ -26,6 +26,8 @@ declare(strict_types=1);
 namespace BaksDev\Wildberries\Manufacture\Messenger\Schedules\GetWbOrders;
 
 use BaksDev\Core\Deduplicator\Deduplicator;
+use BaksDev\Core\Deduplicator\DeduplicatorInterface;
+use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Wildberries\Manufacture\Api\Orders\GetWbOrdersRequest;
 use BaksDev\Wildberries\Manufacture\BaksDevWildberriesManufactureBundle;
@@ -49,7 +51,7 @@ final readonly class GetWbOrdersDispatcher
     public function __construct(
         private GetWbOrdersRequest $request,
         private MessageDispatchInterface $messageDispatch,
-        private Deduplicator $deduplicator
+        private DeduplicatorInterface $deduplicator
     ) {}
 
     public function __invoke(GetWbOrdersMessage $message): void
@@ -71,6 +73,15 @@ final readonly class GetWbOrdersDispatcher
             ->profile($profile)
             ->findAll();
 
+        if(true === $responses)
+        {
+            $this->messageDispatch->dispatch(
+                message: $message,
+                stamps: [new MessageDelay('3 hours')],
+                transport: 'wildberries-manufacture-low',
+            );
+        }
+
         if(false === $responses || $responses->valid() === false)
         {
             return;
@@ -79,22 +90,32 @@ final readonly class GetWbOrdersDispatcher
         $Deduplicator = $this->deduplicator
             ->namespace('wildberries-manufacture');
 
+        if($Deduplicator->isExecuted())
+        {
+            return;
+        }
+
         foreach($responses as $response)
         {
-            echo 'Заказ '.$response->getId().' (баркод: '.$response->getBarcode().')'.PHP_EOL;
+            echo 'Заказ '.$response->getOrderId().' (штрихкод: '.$response->getBarcode().')'.PHP_EOL;
 
-            $Deduplicator->deduplication([$response->getId(), BaksDevWildberriesManufactureBundle::class]);
+            $Deduplicator->deduplication([
+                $response->getOrderId(),
+                BaksDevWildberriesManufactureBundle::class,
+            ]);
 
             if($Deduplicator->isExecuted())
             {
                 continue;
             }
 
+            $UpdateWbOrdersMessage = new UpdateWbOrdersMessage(
+                id: $response->getOrderId(),
+                barcode: $response->getBarcode(),
+                date: $response->getDate());
+
             $this->messageDispatch->dispatch(
-                message: new UpdateWbOrdersMessage(
-                    id: $response->getId(),
-                    barcode: $response->getBarcode(),
-                    date: $response->getDate()),
+                message: $UpdateWbOrdersMessage,
                 transport: 'wildberries-manufacture-low',
             );
         }

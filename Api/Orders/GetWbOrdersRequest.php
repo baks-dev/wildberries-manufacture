@@ -82,7 +82,7 @@ final class GetWbOrdersRequest extends Wildberries
      * @see https://dev.wildberries.ru/ru/openapi/reports/#tag/Osnovnye-otchyoty/paths/~1api~1v1~1supplier~1orders/get
      * @return Generator<int, WbOrdersRequestDTO>|false
      */
-    public function findALl(): Generator|false
+    public function findALl(): Generator|bool
     {
         $this->dateFrom ?: $this->dateFrom = new DateTimeImmutable()
             ->setTimezone(new DateTimeZone('GMT'))
@@ -159,9 +159,7 @@ final class GetWbOrdersRequest extends Wildberries
             /** Если попали на блокировку - пробуем повторно через 30 сек... */
             if(true === $content)
             {
-                echo 'Пробуем повторно через 60 сек ...'.PHP_EOL;
-                sleep(60);
-                continue;
+                return true;
             }
 
             if(false === $content)

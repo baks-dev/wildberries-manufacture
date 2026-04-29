@@ -45,7 +45,7 @@ final class WbOrdersRequestDTO
     }
 
     /** Уникальный ID заказа */
-    public function getId(): string
+    public function getOrderId(): string
     {
         return $this->id;
     }

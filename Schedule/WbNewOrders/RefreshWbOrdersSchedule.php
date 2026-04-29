@@ -30,7 +30,7 @@ use DateInterval;
 
 final readonly class RefreshWbOrdersSchedule implements ScheduleInterface
 {
-    const string ORDER_REFRESH_PERIOD = '1 hour';
+    const string ORDER_REFRESH_PERIOD = '3 hour';
 
     /** Возвращает экземпляр класса сообщения */
     public function getMessage(): object
