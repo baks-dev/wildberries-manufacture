@@ -78,7 +78,6 @@ final readonly class AddOrdersPackageByPartCompletedHandler
         private MessageDispatchInterface $messageDispatch,
         private DeduplicatorInterface $deduplicator,
         private OpenWbSupplyIdentifierInterface $OpenWbSupplyIdentifier,
-        private ManufacturePartInvariableInterface $ManufacturePartInvariableRepository,
         private CurrentProductIdentifierByEventInterface $CurrentProductIdentifierByEventRepository
     ) {}
 
