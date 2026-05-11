@@ -240,7 +240,7 @@ final readonly class AddOrdersPackageByPartCompletedHandler
             $this->messageDispatch->dispatch(
                 message: $AddOrdersPackageByPartCompletedMessage,
                 stamps: [new MessageDelay(sprintf('%s seconds', $delayKey))],
-                transport: 'orders-order-low',
+                transport: 'orders-order',
             );
 
 
