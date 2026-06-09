@@ -19,6 +19,7 @@
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
+ *
  */
 
 declare(strict_types=1);
@@ -58,7 +59,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[Autoconfigure(shared: false)]
 #[AsMessageHandler(priority: 0)]
-final class AddOrdersPackageByPartCompletedDispatcher
+final readonly class AddOrdersPackageByPartCompletedDispatcher
 {
     public function __construct(
         #[Target('wildberriesManufactureLogger')] private LoggerInterface $logger,
@@ -84,7 +85,7 @@ final class AddOrdersPackageByPartCompletedDispatcher
             if(false === ($OrderEvent instanceof OrderEvent))
             {
                 $this->logger->critical(
-                    'ozon-manufacture: не найдено активное событие заказа',
+                    'wildberries-manufacture: не найдено активное событие заказа',
                     [self::class.':'.__LINE__, $order],
                 );
 
@@ -94,7 +95,7 @@ final class AddOrdersPackageByPartCompletedDispatcher
             /** Пропускаем, если тип заказа не Wildberries FBS */
             if(false === $OrderEvent->isDeliveryTypeEquals(TypeDeliveryFbsWildberries::TYPE))
             {
-                $this->logger->error(
+                $this->logger->warning(
                     sprintf('%s: Заказ не является Wildberries FBS', $OrderEvent->getPostingNumber()),
                     [self::class.':'.__LINE__, $order],
                 );
@@ -105,7 +106,7 @@ final class AddOrdersPackageByPartCompletedDispatcher
             /** Пропускаем, если заказ уже укомплектован */
             if(true === $OrderEvent->isStatusEquals(OrderStatusCompleted::class))
             {
-                $this->logger->error(
+                $this->logger->warning(
                     sprintf('%s: Заказ заказ уже укомплектован и не подходит для упаковки', $OrderEvent->getPostingNumber()),
                     [self::class.':'.__LINE__, $order],
                 );
