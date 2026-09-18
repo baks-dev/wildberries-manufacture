@@ -15,6 +15,7 @@
   ],
   "license": "MIT",
   "type": "symfony-bundle",
+  "version": "7.4.20",
   "authors": [
     {
       "name": "Baks Development",
